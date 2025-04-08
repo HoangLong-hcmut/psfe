@@ -12,6 +12,10 @@ from flask import Response # Import Response for sending CSV file
 
 app = Flask(__name__)
 
+@app.route('/', methods=['GET'])
+def serve_index():
+    return send_from_directory(os.path.join(os.path.dirname(__file__), '../Main'), 'Main.html')
+
 # Get the absolute path of the directory where app.py resides
 basedir = os.path.abspath(os.path.dirname(__file__))
 
