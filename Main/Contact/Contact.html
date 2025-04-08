@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - TransferCircle</title>
+    <link rel="stylesheet" href="Contact.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../Image/logo.png">
+    <link rel="icon" type="image/png" href="../Image/Green Organic Illustrative Zero Waste Recycle logo 1.png">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="/" class="logo">
+                <img src="../Image/Green Organic Illustrative Zero Waste Recycle logo 1.png" alt="Logo" class="logo-img">
+                <span>Transfer Circle</span>
+            </a>
+            <nav class="navbar">
+                <a href="../MainPage/Main.html">Home</a>
+                <a href="../Trade/Trade.html">Trade</a>
+                <a href="Contact.html" class="active">Contact</a>
+                <a href="../Profile/Profile.html">Profile</a>
+            </nav>
+        </header>
+
+        <main class="contact-content">
+            <section class="contact-header">
+                <h1>Get in Touch</h1>
+                <p>Have questions? We'd love to hear from you.</p>
+            </section>
+
+            <div class="contact-container">
+                <section class="contact-info">
+                    <div class="info-card">
+                        <i class='bx bx-envelope'></i>
+                        <h3>Email Us</h3>
+                        <p>support@transfercircle.com</p>
+                    </div>
+                    <div class="info-card">
+                        <i class='bx bx-phone'></i>
+                        <h3>Call Us</h3>
+                        <p>+1 234 567 890</p>
+                    </div>
+                    <div class="info-card">
+                        <i class='bx bx-map'></i>
+                        <h3>Visit Us</h3>
+                        <p>123 Circle Street, Green City</p>
+                    </div>
+                </section>
+
+                <section class="contact-form">
+                    <h2>Send us a Message</h2>
+                    <form>
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Send Message</button>
+                    </form>
+                </section>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About</h3>
+                    <p>TransferCircle is a platform that connects people who want to exchange their products sustainably.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="../MainPage/Main.html"><i class='bx bx-home'></i>Home</a></li>
+                        <li><a href="../Trade/Trade.html"><i class='bx bx-transfer'></i>Trade</a></li>
+                        <li><a href="Contact.html"><i class='bx bx-envelope'></i>Contact</a></li>
+                        <li><a href="../Profile/Profile.html"><i class='bx bx-user'></i>Profile</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <ul>
+                        <li><i class='bx bx-envelope'></i>info@transfercircle.com</li>
+                        <li><i class='bx bx-phone'></i>+1 234 567 890</li>
+                        <li><i class='bx bx-map'></i>123 Circle Street, Green City</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-icons">
+                        <a href="#"><i class='bx bxl-facebook'></i></a>
+                        <a href="#"><i class='bx bxl-twitter'></i></a>
+                        <a href="#"><i class='bx bxl-instagram'></i></a>
+                        <a href="#"><i class='bx bxl-linkedin'></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 TransferCircle. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const contactForm = document.querySelector('.contact-form form');
+
+        contactForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const subjectInput = document.getElementById('subject');
+            const messageInput = document.getElementById('message');
+
+            const formData = {
+                name: nameInput.value,
+                email: emailInput.value,
+                subject: subjectInput.value,
+                message: messageInput.value
+            };
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/contact', { // Use the correct backend URL
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) { // Check if response status is 2xx (e.g., 201 Created)
+                    alert('Message sent successfully!\n' + result.message);
+                    contactForm.reset(); // Clear the form
+                } else {
+                    // Handle errors reported by the backend (e.g., validation)
+                    alert('Failed to send message: \n' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                // Handle network errors or issues reaching the server
+                console.error('Error submitting contact form:', error);
+                alert('An error occurred while sending the message. Please try again later.');
+            }
+        });
+    </script>
+</body>
+</html> 

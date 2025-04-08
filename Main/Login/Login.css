@@ -1,0 +1,390 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+:root {
+    --primary-color: #76B65B;
+    --secondary-color: #9FD485;
+    --background-color: #76B65B;
+    --text-color: #333333;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes typing {
+    0%, 100% {
+        width: 100%;
+    }
+    40%, 60% {
+        width: 0;
+    }
+}
+
+@keyframes blink {
+    from, to {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes typewriter {
+    from {
+        width: 0;
+        border-right: 5px solid white;
+    }
+    to {
+        width: 100%;
+        border-right: 5px solid white;
+    }
+}
+
+@keyframes blinkTextCursor {
+    from, to {
+        border-right-color: white;
+    }
+    50% {
+        border-right-color: transparent;
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--background-color);
+}
+
+.container {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem 4rem;
+}
+
+.form-box {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 32px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.form-box h2 {
+    font-size: 40px;
+    text-align: left;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+    font-weight: 600;
+    animation: fadeInUp 0.6s ease-out 0.2s backwards;
+}
+
+.form-box .input-box {
+    position: relative;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: backwards;
+}
+
+.form-box .input-box:nth-child(1) {
+    animation-delay: 0.3s;
+}
+
+.form-box .input-box:nth-child(2) {
+    animation-delay: 0.4s;
+}
+
+.input-box label {
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #999;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.input-box input {
+    width: 100%;
+    height: 56px;
+    background: #F6F6F6;
+    border: 2px solid transparent;
+    outline: none;
+    border-radius: 16px;
+    font-size: 16px;
+    color: var(--text-color);
+    padding: 0 3rem 0 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.input-box input:focus {
+    border-color: var(--primary-color);
+    background: white;
+}
+
+.input-box input:focus + label,
+.input-box input:not(:placeholder-shown) + label {
+    top: 0;
+    left: 1rem;
+    transform: translateY(-50%);
+    font-size: 14px;
+    background: white;
+    padding: 0 0.5rem;
+    color: var(--primary-color);
+}
+
+.input-box i {
+    position: absolute;
+    top: 50%;
+    right: 1.25rem;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #999;
+    transition: color 0.3s ease;
+}
+
+.input-box input:focus ~ i {
+    color: var(--primary-color);
+}
+
+.btn {
+    width: 100%;
+    height: 56px;
+    background: var(--primary-color);
+    border-radius: 16px;
+    border: none;
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.6s ease-out 0.5s backwards;
+}
+
+.btn:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.regi-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    animation: fadeInUp 0.6s ease-out 0.6s backwards;
+}
+
+.regi-link p {
+    color: var(--text-color);
+    font-size: 15px;
+}
+
+.regi-link a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.regi-link a:hover {
+    color: var(--secondary-color);
+}
+
+.info-content {
+    text-align: right;
+    color: white;
+    max-width: 600px;
+}
+
+.info-content h2 {
+    font-size: 96px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -2px;
+    position: relative;
+}
+
+.typing-line {
+    display: block;
+    margin-bottom: 0.2em;
+}
+
+.typing-text-left {
+    position: relative;
+    display: inline-block;
+    animation: typing-left 4s steps(8) infinite;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 4px solid white;
+    padding-right: 4px;
+}
+
+.typing-text-right {
+    position: relative;
+    display: inline-block;
+    animation: typing-right 4s steps(6) infinite;
+    overflow: hidden;
+    white-space: nowrap;
+    border-left: 4px solid white;
+    direction: rtl;
+    padding-left: 4px;
+    margin-left: -4px;
+}
+
+@keyframes typing-left {
+    0%, 100% {
+        width: 0;
+    }
+    50%, 90% {
+        width: 100%;
+    }
+}
+
+@keyframes typing-right {
+    0%, 100% {
+        width: 0;
+    }
+    50%, 90% {
+        width: calc(100% + 4px);
+    }
+}
+
+/* Remove old typing animation styles */
+.typing-text::before,
+.typing-text::after {
+    display: none;
+}
+
+.info-content p {
+    font-size: 20px;
+    line-height: 1.5;
+    color: white;
+    font-weight: 400;
+    max-width: 500px;
+    margin-left: auto;
+    overflow: hidden;
+}
+
+.info-content p span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Adjust the animation delays to start after first typing animation */
+.info-content p span:nth-child(1) { animation-delay: 2s; }
+.info-content p span:nth-child(2) { animation-delay: 2.1s; }
+.info-content p span:nth-child(3) { animation-delay: 2.2s; }
+.info-content p span:nth-child(4) { animation-delay: 2.3s; }
+.info-content p span:nth-child(5) { animation-delay: 2.4s; }
+.info-content p span:nth-child(6) { animation-delay: 2.5s; }
+.info-content p span:nth-child(7) { animation-delay: 2.6s; }
+.info-content p span:nth-child(8) { animation-delay: 2.7s; }
+.info-content p span:nth-child(9) { animation-delay: 2.8s; }
+.info-content p span:nth-child(10) { animation-delay: 2.9s; }
+.info-content p span:nth-child(11) { animation-delay: 3s; }
+.info-content p span:nth-child(12) { animation-delay: 3.1s; }
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .container {
+        padding: 2rem;
+    }
+    
+    .info-content h2 {
+        font-size: 72px;
+    }
+    
+    .info-content p {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        padding: 1.5rem;
+    }
+    
+    .form-box {
+        margin-bottom: 3rem;
+    }
+    
+    .info-content {
+        text-align: center;
+    }
+    
+    .info-content h2 {
+        font-size: 48px;
+    }
+    
+    .info-content p {
+        font-size: 16px;
+        margin: 0 auto;
+    }
+}
+
+/* Example Styling for the home link container (adjust as needed) */
+.home-link {
+    margin-top: 20px; /* Add some space above */
+    text-align: center; /* Center the link */
+}
+
+/* Example Styling for the home link itself (make it look like a button or just a link) */
+.home-link a, .home-button { /* Target both the link inside the div and the button */
+    display: inline-block; /* Allows padding and margins */
+    padding: 8px 15px;
+    background-color: #eee; /* Example background */
+    color: #333; /* Example text color */
+    text-decoration: none; /* Remove underline from link */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: background-color 0.2s ease; /* Smooth hover effect */
+}
+
+.home-link a:hover, .home-button:hover {
+    background-color: #ddd; /* Example hover background */
+}

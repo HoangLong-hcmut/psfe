@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="Profile.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../Image/logo.png">
+    <link rel="icon" type="image/png" href="../Image/Green Organic Illustrative Zero Waste Recycle logo 1.png">
+    <style>
+        /* Basic styles, move to profile.css if preferred */
+        body { font-family: sans-serif; padding: 20px; }
+        #profile-info { margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; background-color: #f9f9f9;}
+        #guest-view { margin-bottom: 20px; border: 1px solid #eee; padding: 15px; background-color: #f0f0f0; text-align: center; } /* Style for guest view */
+        #loading, #error { display: none; color: red; margin-bottom: 15px; }
+        #profile-actions { margin-top: 20px; } /* Container for buttons */
+
+        /* Shared button style */
+        .profile-action-button {
+            display: block; width: 150px; padding: 10px 15px; margin: 0 auto 10px auto; /* Center buttons */
+            background-color: #007bff; color: white; border: none; border-radius: 5px;
+            text-align: center; font-size: 16px; cursor: pointer; transition: background-color 0.2s ease;
+        }
+        .profile-action-button:hover { background-color: #0056b3; }
+
+        /* Simple link styling for guest view */
+        #guest-view a { color: #007bff; text-decoration: none; }
+        #guest-view a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="../MainPage/Main.html" class="logo">
+                <img src="../Image/Green Organic Illustrative Zero Waste Recycle logo 1.png" alt="Logo" class="logo-img">
+                <span>Transfer Circle</span>
+            </a>
+            <nav class="navbar">
+                <a href="../MainPage/Main.html">Home</a>
+                <a href="../Trade/Trade.html">Trade</a>
+                <a href="../Contact/Contact.html">Contact</a>
+                <a href="Profile.html" class="active">Profile</a>
+            </nav>
+        </header>
+
+        <main class="profile-content">
+            <h1>User Profile</h1>
+
+            <div id="loading">Loading profile data...</div>
+            <div id="error"></div>
+
+            <!-- Basic User Info (May be redundant if handled by profile-header) -->
+            <!-- <div id="profile-info" style="display: none;">
+                <h2>Welcome, <span id="fullname"></span>!</h2>
+                <p>Email: <span id="email"></span></p>
+                <p>User ID: <span id="user-id"></span></p>
+            </div> -->
+
+            <!-- Guest View (May be redundant if handled by JS logic) -->
+            <!-- <div id="guest-view" style="display: none;">
+                <h2>Welcome, Guest!</h2>
+                <p>You are viewing this page as a guest.</p>
+                <p><a href="../Login/Login.html">Login</a> or <a href="../SignUp/SignUp.html">Sign Up</a> to view your profile and manage your account.</p>
+            </div> -->
+
+            <!-- Container for Edit and Logout buttons -->
+            <div id="profile-actions" style="display: none;">
+                <!-- Buttons like Edit Profile, Logout will be handled by profile.js -->
+                <button id="logout-button" class="profile-action-button">Logout</button>
+            </div>
+
+            <section class="profile-header">
+                <div class="profile-info">
+                    <div class="profile-image">
+                        <img src="../Image/Green Organic Illustrative Zero Waste Recycle logo 1.png" alt="Profile Picture" id="profile-pic">
+                    </div>
+                    <div class="profile-details">
+                        <h1 id="profile-fullname">Your Name</h1>
+                        <p class="email" id="profile-email">your.email@example.com</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="profile-stats">
+                <div class="stat-card">
+                    <h3>Products Listed</h3>
+                    <p id="stats-listings-count">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Successful Trades</h3>
+                    <p id="stats-successful-trades">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Seller Rating</h3>
+                    <div id="stats-average-rating">-</div>
+                </div>
+            </section>
+
+            <!-- Add Cart Section -->
+            <section class="profile-cart">
+                <h2>Your Cart</h2>
+                <div class="cart-items-grid" id="cart-items-container">
+                    <p>Your cart is empty.</p>
+                </div>
+            </section>
+
+            <section class="profile-listings">
+                <h2>Your Listings</h2>
+                <div class="listings-grid" id="listings-container">
+                    <p>You haven't listed any items yet.</p>
+                </div>
+            </section>
+
+            <!-- New Incoming Orders Section -->
+            <section class="profile-incoming-orders">
+                <h2>Incoming Orders</h2>
+                <div class="incoming-orders-grid" id="incoming-orders-container">
+                    <p>You have no incoming orders.</p>
+                </div>
+            </section>
+
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About</h3>
+                    <p>TransferCircle is a platform that connects people who want to exchange their products sustainably.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="../MainPage/Main.html"><i class='bx bx-home'></i>Home</a></li>
+                        <li><a href="../Trade/Trade.html"><i class='bx bx-transfer'></i>Trade</a></li>
+                        <li><a href="../Contact/Contact.html"><i class='bx bx-envelope'></i>Contact</a></li>
+                        <li><a href="Profile.html"><i class='bx bx-user'></i>Profile</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <ul>
+                        <li><i class='bx bx-envelope'></i>info@transfercircle.com</li>
+                        <li><i class='bx bx-phone'></i>+1 234 567 890</li>
+                        <li><i class='bx bx-map'></i>123 Circle Street, Green City</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-icons">
+                        <a href="#"><i class='bx bxl-facebook'></i></a>
+                        <a href="#"><i class='bx bxl-twitter'></i></a>
+                        <a href="#"><i class='bx bxl-instagram'></i></a>
+                        <a href="#"><i class='bx bxl-linkedin'></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 TransferCircle. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+    <script src="profile.js"></script>
+</body>
+</html> 
+</html> 

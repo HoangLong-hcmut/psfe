@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Area - TransferCircle</title>
+    <link rel="stylesheet" href="Trade.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../Image/logo.png">
+</head>
+<body>
+    <!-- Notification Area -->
+    <div id="notification-area"></div> 
+
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <img src="../Image/Green Organic Illustrative Zero Waste Recycle logo 1.png" alt="TransferCircle Logo" class="rotating-logo">
+                <span>Transfer Circle</span>
+            </div>
+            <nav class="navbar">
+                <a href="../MainPage/Main.html">Home</a>
+                <a href="../Trade/Trade.html" class="active">Trade</a>
+                <a href="../Contact/Contact.html">Contact</a>
+                <a href="../Profile/Profile.html">Profile</a>
+                <a href="../Login/Login.html">Log in</a>
+            </nav>
+        </header>
+
+        <main>
+            <h1 class="trade-title">Trading Area</h1>
+            
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <div class="search-input-group">
+                        <input type="text" placeholder="Search product or business here" class="search-input">
+                        <button class="search-btn"><i class='bx bx-search'></i> Search</button>
+                    </div>
+                    <div class="sort-dropdown">
+                        <button class="sort-btn">
+                            <i class='bx bx-sort-alt-2'></i>
+                            Sort By
+                        </button>
+                        <div class="sort-menu">
+                            <button data-sort="name">Sort by Product Name</button>
+                            <button data-sort="price">Sort by Price</button>
+                            <button data-sort="business_name">Sort by Business</button>
+                            <button data-sort="place">Sort by Place</button>
+                        </div>
+                    </div>
+                    <button class="export-btn" id="export-csv-btn">
+                        <i class='bx bx-export'></i> Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <div class="add-trade-container">
+                <h2>Add New Trade</h2>
+                <form id="add-trade-form">
+                    <div class="form-group">
+                        <label for="product-name">Product Name</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-price">Unit Price</label>
+                        <input type="text" id="product-price" placeholder="e.g., 19.99" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-image">Image URL</label>
+                        <input type="text" id="product-image">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-description">Description</label>
+                        <textarea id="product-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-quantity">Quantity</label>
+                        <input type="number" id="product-quantity" min="1" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-place">Place (detailed address)</label>
+                        <input type="text" id="product-place" placeholder="e.g., Ho Chi Minh City">
+                    </div>
+                    <button type="submit" class="submit-btn">Add Trade</button>
+                </form>
+            </div>
+
+            <div class="trade-grid">
+                <!-- Static trade cards will be removed. This div will be populated by JavaScript. -->
+            </div>
+            <div class="load-more-container">
+                <button class="load-more-btn">
+                    See More Cards <i class='bx bx-chevron-down'></i>
+                </button>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About</h3>
+                    <p>TransferCircle is a platform for sharing and trading development resources.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Trading Area</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Profile</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact</h3>
+                    <ul>
+                        <li><i class='bx bx-envelope'></i> info@transfercircle.com</li>
+                        <li><i class='bx bx-phone'></i> +1 234 567 890</li>
+                        <li><i class='bx bx-map'></i> Ho Chi Minh City, Vietnam</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-icons">
+                        <a href="#"><i class='bx bxl-facebook'></i></a>
+                        <a href="#"><i class='bx bxl-twitter'></i></a>
+                        <a href="#"><i class='bx bxl-instagram'></i></a>
+                        <a href="#"><i class='bx bxl-linkedin'></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 TransferCircle. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+    <script src="Trade.js"></script>
+</body>
+</html> 

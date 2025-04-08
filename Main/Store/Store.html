@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store</title>
+    <link rel="icon" type="image/x-icon" href="../Image/Logo.jpg">
+    <link rel="stylesheet" href="Store.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+
+    <header class="header">
+        <a href="../MainPage/Main.html" class="logo">Gaming <span>Website</span></a>
+
+        <i class='bx bx-menu' id="menu-icon"></i>
+
+        <nav class="navbar">
+            <a href="#home" class="active">Store</a>
+            <a href="../MainPage/Main.html">Home</a>
+            <a href="../Cart/Cart.html">your Favourites <i class='bx bxs-heart-circle'></i></a>
+            <!-- <a href="#Introduction">Introduction</a>
+            <a href="#News">News</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="#contact">Contact</a> -->
+            <a href="../Login/Login.html" target="_blank">Register Now <i class='bx bx-user'></i></a>
+        </nav>
+    </header>
+
+    <section class="home" id="home">
+        <div class="home-content">
+            <h1>Hi, It's G<span>W</span></h1>
+            <h3 class="text-animation">We have <span></span></h3>
+            <p>This is the website which you can find out any games you want. Let try!</p>
+
+            <div class="social-icons">
+                <a href="#"><i class='bx bxl-linkedin'></i></a>
+                <a href="#"><i class='bx bxl-github'></i></a>
+                <a href="#"><i class='bx bxl-instagram-alt'></i></a>
+                <a href="#"><i class='bx bxl-twitter'></i></a>
+            </div>
+
+            <div class="btn-group">
+                <a href="../Store/Store.html" class="btn">Buy</a>
+                <a href="#contact" class="btn">Contact</a>
+            </div>
+
+        </div>
+
+        <div class="home-img">
+            <img src="../Image/Pic2.jpg" alt="MainPic">
+        </div>
+
+    </section>
+
+    <section class="buy" id="Buy">
+        <div class="borderh1">
+            <h1>Buy <span>Here</span></h1>
+        </div>
+        <div class="top">
+            <div class="intro">
+                <p><span class="emphasize">Games</span></p>
+                <p>for the top player</p>
+            </div>
+            <div class="searching">
+                <div class="searchingbar">
+                    <input type="text" placeholder="Search Game here">
+                    <i class='bx bx-search'></i>
+                </div>
+                <i class='bx bxs-bell'></i>
+                <i class='bx bx-envelope'></i>
+            </div>
+        </div>
+
+
+        <section class="cardbuy">
+            <div class="card" data-tilt>
+                <img src="../Image/Logo.jpg" alt="Logo" class="L">
+                <div class="info-1">
+                    <img src="../Image/Game1.jpg" alt="Game1">
+                    <h2>BlackMyth Wukong</h2>
+                </div>
+                <div class="info-2">
+                    <div class="description">
+                        <p>The story about the main character - Wukong
+                        </p>
+                    </div>
+
+                    <div class="rate">
+                        <i class='bx bxs-star'></i>
+                        <i class='bx bxs-star'></i>
+                        <i class='bx bxs-star'></i>
+                        <i class='bx bxs-star'></i>
+                        <i class='bx bxs-star'></i>
+                    </div>
+
+                        <div class="pricing">
+                            <p>$51.64</p>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button>Buy now
+                            <i class='bx bxs-cart-alt'></i>
+                        </button>
+                        <button class="AddCart">Add to Favourites
+                            <i class='bx bxs-heart' id="heart"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card" data-tilt>
+                <img src="../Image/Logo.jpg" alt="Logo" class="L">
+                <div class="info-1">
+                    <img src="../Image/Game2.jpg" alt="Game2">
+                    <h2>Grand Theft Auto V</h2>
+                </div>
+                <div class="info-2">
+                    <div class="description">
+                        <p>Live what you want and live your life
+
+                        </p>
+                    </div>
+
+                    <div class="rate">
+                        <i class='bx bxs-star'></i>
+                        <i class='bx bxs-star'></i>
+                        <i class='bx bxs-star'></i>
+                        <i class='bx bxs-star'></i>
+                        <i class='bx bxs-star'></i>
+                    </div>
+
+                        <div class="pricing">
+                            <p>$14.80</p>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button>Buy now
+                            <i class='bx bxs-cart-alt'></i>
+                        </button>
+                        <button class="AddCart">Add to Favourites
+                            <i class='bx bxs-heart' id="heart"></i>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card" data-tilt>
+                <img src="../Image/Logo.jpg" alt="Logo" class="L">
+                <div class="info-1">
+                    <img src="../Image/Game3.jpg" alt="Game1">
+                    <h2>OverCooked 2</h2>
+                </div>
+                <div class="info-2">
+                    <div class="description">
+                        <p>Cooking Multiplayer get you closer with your friends
+                        </p>
+                    </div>
+
+                    <div class="rate">
+                        <i class='bx bxs-star'></i>
+                        <i class='bx bxs-star'></i>
+                        <i class='bx bxs-star'></i>
+                        <i class='bx bxs-star'></i>
+                        <i class='bx bxs-star'></i>
+                    </div>
+                    <div class="pricing">
+                        <p>$5.99</p>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button>Buy now
+                        <i class='bx bxs-cart-alt'></i>
+                    </button>
+                    <button class="AddCart">Add to Favourites
+                        <i class='bx bxs-heart' id="heart"></i>
+                    </button>
+                </div>
+
+            </div>
+            </div>
+
+        </section>
+
+        <section class="card-buy">
+
+        </section>
+
+    </section>
+
+
+
+
+
+    <script src="Store.js"></script>
+</body>
+
+</html>
