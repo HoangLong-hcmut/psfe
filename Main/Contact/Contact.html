@@ -15,7 +15,7 @@
 <body>
     <div class="container">
         <header>
-            <a href="/" class="logo">
+            <a href="../MainPage/Main.html" class="logo">
                 <img src="../Image/Green Organic Illustrative Zero Waste Recycle logo 1.png" alt="Logo" class="logo-img">
                 <span>Transfer Circle</span>
             </a>
@@ -24,6 +24,7 @@
                 <a href="../Trade/Trade.html">Trade</a>
                 <a href="Contact.html" class="active">Contact</a>
                 <a href="../Profile/Profile.html">Profile</a>
+                <a href="../Login/Login.html">Log in</a>
             </nav>
         </header>
 
@@ -38,23 +39,23 @@
                     <div class="info-card">
                         <i class='bx bx-envelope'></i>
                         <h3>Email Us</h3>
-                        <p>support@transfercircle.com</p>
+                        <p>TransferCircle.forcontact@gmail.com</p>
                     </div>
                     <div class="info-card">
                         <i class='bx bx-phone'></i>
                         <h3>Call Us</h3>
-                        <p>+1 234 567 890</p>
+                        <p>0812002998</p>
                     </div>
                     <div class="info-card">
                         <i class='bx bx-map'></i>
                         <h3>Visit Us</h3>
-                        <p>123 Circle Street, Green City</p>
+                        <p>Ho Chi Minh city, Vietnam</p>
                     </div>
                 </section>
 
                 <section class="contact-form">
                     <h2>Send us a Message</h2>
-                    <form>
+                    <form id="contactForm">
                         <div class="form-group">
                             <label for="name">Name</label>
                             <input type="text" id="name" name="name" required>
@@ -92,12 +93,12 @@
                         <li><a href="../Profile/Profile.html"><i class='bx bx-user'></i>Profile</a></li>
                     </ul>
                 </div>
-                <div class="footer-section">
+                <div class="footer-section" id="contact-info">
                     <h3>Contact</h3>
                     <ul>
-                        <li><i class='bx bx-envelope'></i>info@transfercircle.com</li>
-                        <li><i class='bx bx-phone'></i>+1 234 567 890</li>
-                        <li><i class='bx bx-map'></i>123 Circle Street, Green City</li>
+                        <li><i class='bx bx-envelope'></i>TransferCircle.forcontact@gmail.com</li>
+                        <li><i class='bx bx-phone'></i>0812002998</li>
+                        <li><i class='bx bx-map'></i>Ho Chi Minh city, Vietnam</li>
                     </ul>
                 </div>
                 <div class="footer-section">
@@ -117,25 +118,35 @@
     </div>
 
     <script>
-        const contactForm = document.querySelector('.contact-form form');
+        // Header scroll behavior
+        let lastScroll = 0;
+        const header = document.querySelector('header');
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > lastScroll) {
+                header.classList.add('header--hidden');
+            } else {
+                header.classList.remove('header--hidden');
+            }
+            lastScroll = currentScroll;
+        });
+
+        // Form handling
+        const contactForm = document.getElementById('contactForm');
 
         contactForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // Prevent default form submission
-
-            const nameInput = document.getElementById('name');
-            const emailInput = document.getElementById('email');
-            const subjectInput = document.getElementById('subject');
-            const messageInput = document.getElementById('message');
+            event.preventDefault();
 
             const formData = {
-                name: nameInput.value,
-                email: emailInput.value,
-                subject: subjectInput.value,
-                message: messageInput.value
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value
             };
 
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/contact', { // Use the correct backend URL
+                const response = await fetch('http://127.0.0.1:5000/api/contact', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -145,15 +156,13 @@
 
                 const result = await response.json();
 
-                if (response.ok) { // Check if response status is 2xx (e.g., 201 Created)
+                if (response.ok) {
                     alert('Message sent successfully!\n' + result.message);
-                    contactForm.reset(); // Clear the form
+                    contactForm.reset();
                 } else {
-                    // Handle errors reported by the backend (e.g., validation)
                     alert('Failed to send message: \n' + (result.message || 'Unknown error'));
                 }
             } catch (error) {
-                // Handle network errors or issues reaching the server
                 console.error('Error submitting contact form:', error);
                 alert('An error occurred while sending the message. Please try again later.');
             }

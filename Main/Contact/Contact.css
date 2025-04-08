@@ -25,8 +25,19 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 1rem 5%;
-    background-color: var(--background-color);
-    border-bottom: 1px solid #E5E5E5;
+    background-color: var(--card-background);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.header--hidden {
+    transform: translateY(-100%);
 }
 
 .logo {
@@ -48,18 +59,6 @@ header {
     font-weight: 500;
 }
 
-.logo-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.2;
-}
-
-.logo-text span {
-    color: var(--primary-color);
-    font-size: 1rem;
-    font-weight: 500;
-}
-
 .navbar {
     display: flex;
     gap: 2rem;
@@ -71,18 +70,20 @@ header {
     color: var(--text-color);
     font-weight: 500;
     font-size: 0.9rem;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    opacity: 0.8;
 }
 
 .navbar a:hover,
 .navbar a.active {
     color: var(--primary-color);
+    opacity: 1;
 }
 
 /* Contact Content Styles */
 .contact-content {
     max-width: 1200px;
-    margin: 2rem auto;
+    margin: 7rem auto 3rem;
     padding: 0 2rem;
 }
 
@@ -124,25 +125,23 @@ header {
     text-align: center;
     animation: scaleIn 0.6s ease forwards;
     opacity: 0;
+    transition: all 0.3s ease;
 }
 
-.info-card:nth-child(1) {
-    animation-delay: 0.2s;
-}
-
-.info-card:nth-child(2) {
-    animation-delay: 0.4s;
-}
-
-.info-card:nth-child(3) {
-    animation-delay: 0.6s;
-}
+.info-card:nth-child(1) { animation-delay: 0.2s; }
+.info-card:nth-child(2) { animation-delay: 0.4s; }
+.info-card:nth-child(3) { animation-delay: 0.6s; }
 
 .info-card i {
     font-size: 2rem;
     color: var(--primary-color);
     margin-bottom: 1rem;
     transition: transform 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .info-card:hover i {
@@ -158,11 +157,6 @@ header {
 
 .info-card p {
     color: #666;
-}
-
-.info-card:hover {
-    transform: translateY(-5px);
-    transition: transform 0.3s ease;
 }
 
 .contact-form {
@@ -200,7 +194,7 @@ header {
     border-radius: 8px;
     font-size: 0.95rem;
     color: var(--text-color);
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .form-group input:focus,
@@ -208,7 +202,6 @@ header {
     outline: none;
     border-color: var(--primary-color);
     transform: translateY(-2px);
-    transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(118, 182, 91, 0.1);
 }
 
@@ -220,77 +213,27 @@ header {
     border-radius: 8px;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     width: 100%;
 }
 
 .submit-btn:hover {
     background-color: var(--secondary-color);
-}
-
-@media (max-width: 768px) {
-    .contact-container {
-        grid-template-columns: 1fr;
-    }
-
-    .contact-info {
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-
-    .info-card {
-        flex: 1;
-        min-width: 250px;
-    }
-}
-
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes scaleIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(118, 182, 91, 0.2);
 }
 
 /* Footer Styles */
 footer {
     padding: 3rem 0 1.5rem;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
-    margin-top: 3rem;
-    background-color: var(--background-color);
+    background-color: var(--card-background);
 }
 
 .footer-content {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 2rem;
-    margin-bottom: 2rem;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
@@ -320,7 +263,7 @@ footer {
     color: var(--text-color);
     text-decoration: none;
     font-size: 0.9rem;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -329,7 +272,6 @@ footer {
 .footer-section ul li a:hover {
     color: var(--primary-color);
     transform: translateX(5px);
-    transition: all 0.3s ease;
 }
 
 .footer-section ul li i {
@@ -356,9 +298,8 @@ footer {
     text-align: center;
     padding-top: 2rem;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
-    background-color: var(--background-color);
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 2rem auto 0;
     padding: 2rem;
 }
 
@@ -367,14 +308,81 @@ footer {
     font-size: 0.9rem;
 }
 
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
+    header {
+        padding: 1rem;
+    }
+
+    .contact-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .contact-info {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .info-card {
+        flex: 1;
+        min-width: 250px;
+    }
+
     .footer-content {
         grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
     }
 }
 
 @media (max-width: 480px) {
+    .contact-header h1 {
+        font-size: 2rem;
+    }
+
+    .contact-info {
+        flex-direction: column;
+    }
+
+    .info-card {
+        min-width: 100%;
+    }
+
     .footer-content {
         grid-template-columns: 1fr;
     }

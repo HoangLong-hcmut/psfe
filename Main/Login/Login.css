@@ -81,6 +81,15 @@
     }
 }
 
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5%;
+    background-color: var(--card-background);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
 body {
     display: flex;
     justify-content: center;
@@ -93,11 +102,12 @@ body {
     position: relative;
     width: 100%;
     max-width: 1200px;
-    min-height: 100vh;
+    min-height: 85vh;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 2rem 4rem;
+    gap: 10rem;
 }
 
 .form-box {
@@ -173,6 +183,60 @@ body {
     background: white;
     padding: 0 0.5rem;
     color: var(--primary-color);
+}
+
+.navbar {
+    display: flex;
+    gap: 2.5rem;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: white;
+    font-weight: 400;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+    opacity: 0.8;
+}
+
+.navbar a:hover,
+.navbar a.active {
+    color: black;
+    opacity: 1;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.rotating-logo {
+    width: 32px;
+    height: 32px;
+    animation: rotate 4s linear infinite;
+}
+
+.logo:hover .rotating-logo {
+    animation-play-state: paused;
+}
+
+.logo span {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: white;
+    letter-spacing: -0.5px;
+    transition: 0.7s ease;
+}
+
+.logo span:hover {
+    color: black;
+}
+.logo i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    animation: rotate 4s linear infinite;
+    display: inline-block;
 }
 
 .input-box i {

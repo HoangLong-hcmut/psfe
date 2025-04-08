@@ -47,8 +47,17 @@ if (signUpForm) {
 
             if (response.ok || response.status === 201) { // Check for 201 Created status
                 console.log('Sign up successful!', result);
-                alert('Sign up successful! You can now log in.');
-                window.location.href = '../Login/Login.html'; // Redirect to login
+                
+                // Show success message
+                alert('Sign up successful! Redirecting you to login...');
+                
+                // Clear the form
+                signUpForm.reset();
+                
+                // Add a small delay before redirect for better UX
+                setTimeout(() => {
+                    window.location.href = '../Login/Login.html';
+                }, 1000);
             } else {
                 console.error('Sign up failed:', result.message || 'Could not create account');
                  // TODO: Show user-friendly error message in the UI

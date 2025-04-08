@@ -67,21 +67,25 @@
                 <p><a href="../Login/Login.html">Login</a> or <a href="../SignUp/SignUp.html">Sign Up</a> to view your profile and manage your account.</p>
             </div> -->
 
-            <!-- Container for Edit and Logout buttons -->
-            <div id="profile-actions" style="display: none;">
-                <!-- Buttons like Edit Profile, Logout will be handled by profile.js -->
-                <button id="logout-button" class="profile-action-button">Logout</button>
-            </div>
-
             <section class="profile-header">
                 <div class="profile-info">
                     <div class="profile-image">
-                        <img src="../Image/Green Organic Illustrative Zero Waste Recycle logo 1.png" alt="Profile Picture" id="profile-pic">
+                        <img src="../Image/OIP.jpg" alt="" id="profile-pic">
                     </div>
                     <div class="profile-details">
                         <h1 id="profile-fullname">Your Name</h1>
                         <p class="email" id="profile-email">your.email@example.com</p>
                     </div>
+                </div>
+                <div class="profile-actions">
+                    <button id="edit-profile-button" class="edit-profile-btn">
+                        <i class='bx bx-edit-alt'></i>
+                        Edit Profile
+                    </button>
+                    <button id="logout-button" class="logout-btn">
+                        <i class='bx bx-log-out'></i>
+                        Logout
+                    </button>
                 </div>
             </section>
 
@@ -101,23 +105,59 @@
             </section>
 
             <!-- Add Cart Section -->
-            <section class="profile-cart">
-                <h2>Your Cart</h2>
+            <section class="profile-section profile-cart">
+                <h2><i class='bx bx-cart'></i>Your Cart</h2>
                 <div class="cart-items-grid" id="cart-items-container">
                     <p>Your cart is empty.</p>
                 </div>
             </section>
 
-            <section class="profile-listings">
-                <h2>Your Listings</h2>
+            <section class="profile-section profile-listings">
+                <h2><i class='bx bx-store'></i>Your Listings</h2>
                 <div class="listings-grid" id="listings-container">
-                    <p>You haven't listed any items yet.</p>
+                    <div class="item-card">
+                        <div class="item-image">
+                            <img src="../Image/OIP.jpg" alt="Product Image">
+                        </div>
+                        <div class="item-details">
+                            <div class="item-info">
+                                <h3 class="item-title">Vit Viet May</h3>
+                                <div class="item-price">$50.00</div>
+                                <span class="item-status available">Available</span>
+                                <p class="item-description">123</p>
+                            </div>
+                            <div class="item-metadata">
+                                <span class="metadata-item">
+                                    <i class='bx bx-map'></i>
+                                    Ho Chi Minh city
+                                </span>
+                                <span class="metadata-item">
+                                    <i class='bx bx-calendar'></i>
+                                    09/04/2025
+                                </span>
+                                <span class="metadata-item">
+                                    <i class='bx bx-star'></i>
+                                    Not Rated
+                                </span>
+                            </div>
+                            <div class="item-actions">
+                                <button class="item-btn edit-btn">
+                                    <i class='bx bx-edit-alt'></i>
+                                    Edit
+                                </button>
+                                <button class="item-btn remove-btn">
+                                    <i class='bx bx-trash'></i>
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <!-- New Incoming Orders Section -->
-            <section class="profile-incoming-orders">
-                <h2>Incoming Orders</h2>
+            <section class="profile-section profile-incoming-orders">
+                <h2><i class='bx bx-package'></i>Incoming Orders</h2>
                 <div class="incoming-orders-grid" id="incoming-orders-container">
                     <p>You have no incoming orders.</p>
                 </div>
@@ -136,16 +176,16 @@
                     <ul>
                         <li><a href="../MainPage/Main.html"><i class='bx bx-home'></i>Home</a></li>
                         <li><a href="../Trade/Trade.html"><i class='bx bx-transfer'></i>Trade</a></li>
-                        <li><a href="../Contact/Contact.html"><i class='bx bx-envelope'></i>Contact</a></li>
-                        <li><a href="Profile.html"><i class='bx bx-user'></i>Profile</a></li>
+                        <li><a href="Contact.html"><i class='bx bx-envelope'></i>Contact</a></li>
+                        <li><a href="../Profile/Profile.html"><i class='bx bx-user'></i>Profile</a></li>
                     </ul>
                 </div>
-                <div class="footer-section">
+                <div class="footer-section" id="contact-info">
                     <h3>Contact</h3>
                     <ul>
-                        <li><i class='bx bx-envelope'></i>info@transfercircle.com</li>
-                        <li><i class='bx bx-phone'></i>+1 234 567 890</li>
-                        <li><i class='bx bx-map'></i>123 Circle Street, Green City</li>
+                        <li><i class='bx bx-envelope'></i>TransferCircle.forcontact@gmail.com</li>
+                        <li><i class='bx bx-phone'></i>0812002998</li>
+                        <li><i class='bx bx-map'></i>Ho Chi Minh city, Vietnam</li>
                     </ul>
                 </div>
                 <div class="footer-section">
@@ -165,5 +205,4 @@
     </div>
     <script src="profile.js"></script>
 </body>
-</html> 
 </html> 
