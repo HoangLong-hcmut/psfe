@@ -24,9 +24,20 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 12%;
-    background-color: white;
-    border-bottom: 1px solid #E5E5E5;
+    padding: 1rem 5%;
+    background-color: var(--card-background);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.header--hidden {
+    transform: translateY(-100%);
 }
 
 .logo {
@@ -40,11 +51,12 @@ header {
     width: 32px;
     height: 32px;
     object-fit: contain;
+    animation: rotate 4s linear infinite;
 }
 
 .logo span {
     color: var(--primary-color);
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     font-weight: 500;
 }
 
@@ -62,14 +74,14 @@ header {
 
 .navbar {
     display: flex;
-    gap: 2rem;
+    gap: 2.5rem;
     align-items: center;
 }
 
 .navbar a {
     text-decoration: none;
     color: var(--text-color);
-    font-weight: 400;
+    font-weight: 500;
     font-size: 0.9rem;
     transition: color 0.3s ease;
     opacity: 0.8;
@@ -82,9 +94,11 @@ header {
 
 /* Profile Content Styles */
 .profile-content {
+    margin-top: 80px; /* Adjust this value based on your header height */
     max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem 0;
 }
 
 .profile-header {
@@ -99,7 +113,6 @@ header {
 }
 
 .profile-header::before {
-    content: '';
     position: absolute;
     top: 0;
     right: 0;
@@ -190,33 +203,6 @@ header {
     align-items: center;
 }
 
-.edit-profile-btn {
-    background: white;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
-    padding: 0.8rem 1.5rem;
-    border-radius: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-    white-space: nowrap;
-}
-
-.edit-profile-btn i {
-    font-size: 1.2rem;
-}
-
-.edit-profile-btn:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(118, 182, 91, 0.2);
-}
-
 .logout-btn {
     background: white;
     color: #dc3545;
@@ -262,34 +248,6 @@ header {
         width: 100%;
         justify-content: center;
     }
-}
-
-.edit-profile {
-    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 4px 15px rgba(118, 182, 91, 0.3);
-}
-
-.edit-profile i {
-    font-size: 1.2rem;
-}
-
-.edit-profile:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(118, 182, 91, 0.4);
-    background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
 }
 
 .profile-stats {
@@ -1001,58 +959,6 @@ footer {
     margin-bottom: 1.5rem;
 }
 
-.edit-profile-btn {
-    background: white;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
-    padding: 0.8rem 1.5rem;
-    border-radius: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-}
-
-.edit-profile-btn i {
-    font-size: 1.2rem;
-}
-
-.edit-profile-btn:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(118, 182, 91, 0.2);
-}
-
-.logout-btn {
-    background: white;
-    color: #dc3545;
-    border: 2px solid #dc3545;
-    padding: 0.8rem 1.5rem;
-    border-radius: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-}
-
-.logout-btn i {
-    font-size: 1.2rem;
-}
-
-.logout-btn:hover {
-    background: #dc3545;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
-}
-
 /* Update responsive design for profile actions */
 @media (max-width: 768px) {
     #profile-actions {
@@ -1061,3 +967,319 @@ footer {
         padding: 1rem;
     }
 } 
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Basic Modal Styling */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+    padding-top: 60px; /* Location of the box */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* 5% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    max-width: 500px; /* Maximum width */
+    border-radius: 8px;
+    position: relative; /* For positioning the close button */
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute; /* Position relative to modal-content */
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+}
+
+#editListingForm .form-group {
+    margin-bottom: 15px;
+}
+
+#editListingForm label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#editListingForm input[type="text"],
+#editListingForm input[type="number"],
+#editListingForm input[type="url"],
+#editListingForm textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+    border-radius: 4px;
+}
+
+#editListingForm textarea {
+    resize: vertical; /* Allow vertical resizing */
+    min-height: 80px;
+}
+
+.modal-actions {
+    text-align: right;
+    margin-top: 20px;
+}
+
+.modal-actions .save-button {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.modal-actions .cancel-button {
+    background-color: #f44336; /* Red */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal-actions .save-button:hover {
+    background-color: #45a049;
+}
+.modal-actions .cancel-button:hover {
+    background-color: #da190b;
+}
+
+/* Style listing action buttons container */
+.listing-actions {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    margin-top: 10px;
+}
+
+.listing-actions button {
+    /* Adjust styling as needed to match remove button */
+    padding: 5px 8px;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+.listing-actions .edit-listing-btn {
+    background-color: #ffc107; /* Example: Amber color */
+    color: #333;
+    border: 1px solid #e0a800;
+}
+.listing-actions .edit-listing-btn:hover {
+    background-color: #e0a800;
+}
+
+/* Payment Modal Styles */
+.modal#paymentModal .modal-content {
+    max-width: 450px; /* Adjust width as needed */
+    text-align: center;
+}
+
+#payment-qr-code-container {
+    margin: 20px auto;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fff;
+    min-height: 200px; /* Placeholder height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#payment-qr-code-container img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+#payment-details-info {
+    margin-bottom: 15px;
+    font-weight: 500;
+    color: #555;
+}
+
+/* Inherit button styles or add specific ones */
+#paymentModal .save-button {
+    color: #333;
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    background-color: #ccc;
+}
+
+#paymentModal .save-button:hover {
+    background-color: #aaa;
+    border-color: #999;
+}
+
+#paymentModal .cancel-button {
+    color: #333;
+    padding: 10px 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    background-color: #ccc;
+}
+#paymentModal .cancel-button:hover {
+     background-color: #aaa;
+     border-color: #999;
+}
+
+/* Styles for displaying the rating the user submitted */
+.already-rated {
+    margin-top: 10px; /* Add some space */
+    font-size: 0.9em;
+    color: #555;
+    text-align: left; /* Or center if preferred */
+}
+
+.already-rated .rating-value {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.already-rated i.bx {
+    color: #ffc107; /* Gold/Yellow color for rated stars */
+    font-size: 1.1em;
+}
+
+/* Styles for clickable rating input stars (ensure they are distinct) */
+.rate-trade-controls {
+     margin-top: 10px;
+}
+.rate-trade-controls span {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #555;
+}
+.rating-stars-input i.bx {
+    font-size: 1.3em;
+    color: #ccc; /* Default grey color for input stars */
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.rating-stars-input i.bx:hover,
+.rating-stars-input i.bx.selected {
+    color: #ffc107; /* Gold/Yellow color on hover/selection */
+}
+
+.hidden-form {
+    display: none;
+}
+
+/* Add styles for notification area and notifications */
+#notification-area {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000; /* Ensure it's above other content */
+    display: flex;
+    flex-direction: column-reverse; /* New notifications appear above old ones */
+    gap: 10px;
+}
+
+.notification {
+    padding: 15px 40px 15px 15px; /* Add padding for close button */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 1;
+    transition: opacity 0.5s ease-out, transform 0.3s ease-out;
+    min-width: 250px;
+    max-width: 350px;
+    position: relative; /* Needed for absolute positioning of close button */
+    background-color: #fff; /* Default background */
+    border-left: 5px solid #ccc; /* Default border */
+    font-size: 0.9rem;
+}
+
+.notification.success {
+    background-color: #e9f7ef; /* Light green */
+    color: #1d7b4f; /* Dark green */
+    border-left-color: #48c774; /* Green border */
+}
+
+.notification.error {
+    background-color: #feecf0; /* Light red */
+    color: #cc0f35; /* Dark red */
+    border-left-color: #f14668; /* Red border */
+}
+
+.notification.warning {
+    background-color: #fff3cd; /*warning yellow */
+    color: #856404;
+    border-left: 5px solid #ffc107;
+}
+
+/* Style for links within notifications */
+.notification a {
+    color: inherit; /* Inherit color from parent */
+    text-decoration: underline;
+    font-weight: 500;
+    margin-left: 5px;
+}
+
+.notification a:hover {
+    text-decoration: none;
+}
+
+/* Close button style */
+.notification-close-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    color: inherit; /* Inherit color */
+    padding: 5px;
+}
+
+.notification-close-btn:hover {
+    opacity: 0.7;
+}

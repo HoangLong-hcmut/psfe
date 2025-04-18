@@ -51,17 +51,18 @@ header {
     width: 32px;
     height: 32px;
     object-fit: contain;
+    animation: rotate 4s linear infinite;
 }
 
 .logo span {
     color: var(--primary-color);
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     font-weight: 500;
 }
 
 .navbar {
     display: flex;
-    gap: 2rem;
+    gap: 2.5rem;
     align-items: center;
 }
 
@@ -387,3 +388,50 @@ footer {
         grid-template-columns: 1fr;
     }
 } 
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Export Button Styling */
+.export-section {
+    text-align: center;
+    margin-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.export-btn {
+    background-color: var(--button-primary, #689F38); /* Use primary button color or default */
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex; /* Align icon and text */
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.export-btn i {
+    font-size: 1.2rem;
+}
+
+.export-btn:hover {
+    background-color: var(--button-hover, #7CB342); /* Use hover color or default */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(104, 159, 56, 0.2);
+}

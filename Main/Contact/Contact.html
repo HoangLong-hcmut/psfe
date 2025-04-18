@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="../Image/logo.png">
     <link rel="icon" type="image/png" href="../Image/Green Organic Illustrative Zero Waste Recycle logo 1.png">
 </head>
 <body>
@@ -55,6 +54,10 @@
 
                 <section class="contact-form">
                     <h2>Send us a Message</h2>
+                    <!-- Login Prompt Message Area -->
+                    <div id="login-prompt-message">
+                        Please log in to send us a message.
+                    </div>
                     <form id="contactForm">
                         <div class="form-group">
                             <label for="name">Name</label>
@@ -75,6 +78,14 @@
                         <button type="submit" class="submit-btn">Send Message</button>
                     </form>
                 </section>
+
+                <!-- Export Button Section -->
+                <!-- <section class="export-section">
+                     <button class="export-btn" id="export-contacts-btn">
+                         <i class='bx bx-export'></i> Export messages to CSV
+                     </button>
+                </section> -->
+
             </div>
         </main>
 
@@ -117,56 +128,6 @@
         </footer>
     </div>
 
-    <script>
-        // Header scroll behavior
-        let lastScroll = 0;
-        const header = document.querySelector('header');
-
-        window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
-            if (currentScroll > lastScroll) {
-                header.classList.add('header--hidden');
-            } else {
-                header.classList.remove('header--hidden');
-            }
-            lastScroll = currentScroll;
-        });
-
-        // Form handling
-        const contactForm = document.getElementById('contactForm');
-
-        contactForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                subject: document.getElementById('subject').value,
-                message: document.getElementById('message').value
-            };
-
-            try {
-                const response = await fetch('http://127.0.0.1:5000/api/contact', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData),
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    alert('Message sent successfully!\n' + result.message);
-                    contactForm.reset();
-                } else {
-                    alert('Failed to send message: \n' + (result.message || 'Unknown error'));
-                }
-            } catch (error) {
-                console.error('Error submitting contact form:', error);
-                alert('An error occurred while sending the message. Please try again later.');
-            }
-        });
-    </script>
+    <script src="Contact.js"></script>
 </body>
 </html> 

@@ -1,4 +1,5 @@
-import sqlite3
+import psycopg2
+import psycopg2.extras # Add this for dictionary cursor
 from flask import Flask, request, jsonify, g # Added g
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
@@ -9,8 +10,88 @@ from functools import wraps # Import wraps for decorators
 import csv # Import csv module for export
 from io import StringIO # Import StringIO for CSV generation
 from flask import Response # Import Response for sending CSV file
+from dotenv import load_dotenv # Import load_dotenv
+import urllib.parse # Import for URL encoding
+
+# --- VietQR Bank ID Mapping --- 
+VIETQR_BANK_MAP = {
+    "VietinBank": "970415",
+    "Vietcombank": "970436",
+    "BIDV": "970418",
+    "Agribank": "970405",
+    "OCB": "970448",
+    "MBBank": "970422",
+    "Techcombank": "970407",
+    "ACB": "970416",
+    "VPBank": "970432",
+    "TPBank": "970423",
+    "Sacombank": "970403",
+    "HDBank": "970437",
+    "VietCapitalBank": "970454",
+    "SCB": "970429",
+    "VIB": "970441",
+    "SHB": "970443",
+    "Eximbank": "970431",
+    "MSB": "970426",
+    "CAKE": "546034",
+    "Ubank": "546035",
+    "Timo": "963388",
+    "ViettelMoney": "971005",
+    "VNPTMoney": "971011",
+    "SaigonBank": "970400",
+    "BacABank": "970409",
+    "PVcomBank": "970412",
+    "Oceanbank": "970414",
+    "NCB": "970419",
+    "ShinhanBank": "970424",
+    "ABBANK": "970425",
+    "VietABank": "970427",
+    "NamABank": "970428",
+    "PGBank": "970430",
+    "VietBank": "970433",
+    "BaoVietBank": "970438",
+    "SeABank": "970440",
+    "COOPBANK": "970446",
+    "LPBank": "970449",
+    "KienLongBank": "970452",
+    "KBank": "668888",
+    "KookminHN": "970462",
+    "KEBHanaHCM": "970466",
+    "KEBHanaHN": "970467",
+    "MAFC": "977777",
+    "Citibank": "533948",
+    "KookminHCM": "970463",
+    "VBSP": "999888",
+    "Woori": "970457",
+    "VRB": "970421",
+    "UnitedOverseas": "970458",
+    "StandardChartered": "970410",
+    "PublicBank": "970439",
+    "Nonghyup": "801011",
+    "IndovinaBank": "970434",
+    "IBKHCM": "970456",
+    "IBKHN": "970455",
+    "HSBC": "458761",
+    "HongLeong": "970442",
+    "GPBank": "970408",
+    "DongABank": "970406",
+    "DBSBank": "796500",
+    "CIMB": "422589",
+    "CBBank": "970444",
+    # Add others if needed
+}
+
+# Load environment variables from .env in the current or parent directory
+load_dotenv()
+# load_dotenv(dotenv_path='backend/.env') # Old way - remove or comment out
 
 app = Flask(__name__)
+
+# --- Get DATABASE_URL from environment ---
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if not DATABASE_URL:
+    raise ValueError("No DATABASE_URL set for Flask application")
+
 
 # Get the absolute path of the directory where app.py resides
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -38,238 +119,146 @@ if app.config['SECRET_KEY'] == 'default-dev-secret-key-CHANGE-ME!' and not app.d
 bcrypt = Bcrypt(app)
 CORS(app) # Enable CORS for all routes
 
-# Define database paths relative to the backend directory
-USER_DATABASE = os.path.join(basedir, 'users.db')
-TRADE_DATABASE = os.path.join(basedir, 'trades.db') # New database file for trades
-CONTACT_DATABASE = os.path.join(basedir, 'contacts.db') # New database file for contact messages
 
-# --- User Database Helper Functions (Keep Existing) ---
-def get_user_db():
-    """Connects to the user database using absolute path."""
-    db = getattr(g, '_user_database', None)
-    if db is None:
-        # Connect using the absolute path
-        db = g._user_database = sqlite3.connect(USER_DATABASE)
-        db.row_factory = sqlite3.Row
-    return db
-
-# --- Trade Database Helper Functions (New) ---
-def get_trade_db():
-    """Connects to the trade database using absolute path."""
-    db = getattr(g, '_trade_database', None)
-    if db is None:
-        # Connect using the absolute path
-        db = g._trade_database = sqlite3.connect(TRADE_DATABASE)
-        db.row_factory = sqlite3.Row
-    return db
-
-# --- Contact Database Helper Functions (New) ---
-def get_contact_db():
-    """Connects to the contact database using absolute path."""
-    db = getattr(g, '_contact_database', None)
-    if db is None:
-        # Connect using the absolute path
-        db = g._contact_database = sqlite3.connect(CONTACT_DATABASE)
-        db.row_factory = sqlite3.Row
-    return db
+# --- PostgreSQL Database Helper Functions ---
+def get_db():
+    """Connects to the PostgreSQL database using the DATABASE_URL.
+       Connection is stored in Flask's g context for reuse during a request.
+    """
+    if 'db' not in g:
+        try:
+            print(f"Attempting to connect to database...") # Debug log
+            g.db = psycopg2.connect(DATABASE_URL)
+            print(f"Database connection successful.") # Debug log
+        except psycopg2.OperationalError as e:
+            print(f"!!! DATABASE CONNECTION FAILED: {e}") # Log the error
+            # Handle error appropriately - perhaps raise it or return an error response
+            # For now, re-raise to halt execution if connection fails
+            raise e
+    return g.db
 
 @app.teardown_appcontext
 def close_connections(exception):
-    """Closes all database connections at the end of the request."""
-    user_db = getattr(g, '_user_database', None)
-    if user_db is not None:
-        user_db.close()
-    trade_db = getattr(g, '_trade_database', None)
-    if trade_db is not None:
-        trade_db.close()
-    contact_db = getattr(g, '_contact_database', None)
-    if contact_db is not None:
-        contact_db.close()
+    """Closes the database connection at the end of the request."""
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
+        print("Database connection closed.") # Debug log
 
-# Modify init_db to handle all databases
+
 def init_db():
-    """Initializes the databases and creates tables if they don't exist."""
-
-    # Initialize User Database
-    print(f"Checking User Database: {USER_DATABASE}")
+    """Initializes the PostgreSQL database and creates tables if they don't exist."""
+    print("Attempting to initialize database tables...")
+    conn = None # Initialize conn
     try:
-        with app.app_context():
-            conn = get_user_db()
-            cursor = conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users';")
-            if not cursor.fetchone():
-                print("Creating 'users' table in users.db.")
-                cursor.execute("""
-                    CREATE TABLE users (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        fullname TEXT NOT NULL,
-                        email TEXT NOT NULL UNIQUE,
-                        password TEXT NOT NULL,
-                        count_completed INTEGER NOT NULL DEFAULT 0, -- Counter for completed trades as seller
-                        count_cancelled INTEGER NOT NULL DEFAULT 0, -- Counter for cancelled/declined trades as seller
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )
-                """)
-                conn.commit()
-                print("'users' table created successfully in users.db.")
-            else:
-                print("'users' table already exists in users.db.")
+        conn = get_db()
+        cursor = conn.cursor()
 
-            # Check and create cart_items table
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='cart_items';")
-            if not cursor.fetchone():
-                print("Creating 'cart_items' table in users.db.")
-                cursor.execute("""
-                    CREATE TABLE cart_items (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        user_id INTEGER NOT NULL,
-                        trade_id INTEGER NOT NULL,
-                        quantity INTEGER NOT NULL DEFAULT 1,
-                        status TEXT NOT NULL DEFAULT 'pending', -- Status of item in this specific cart (pending, ordered, completed, cancelled)
-                        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (user_id) REFERENCES users (id),
-                        -- Note: No direct FK to trades.db, handled by application logic
-                        UNIQUE(user_id, trade_id) -- Prevent duplicate rows for same item/user
-                    )
-                """)
-                conn.commit()
-                print("'cart_items' table created successfully in users.db.")
-            else:
-                print("'cart_items' table already exists in users.db.")
-                # Check if 'status' column exists and add if not
-                try:
-                    cursor.execute("PRAGMA table_info(cart_items)")
-                    columns = [column['name'] for column in cursor.fetchall()]
-                    if 'status' not in columns:
-                        print("Adding 'status' column to existing cart_items table.")
-                        # Add with a default value for existing rows
-                        cursor.execute("ALTER TABLE cart_items ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'")
-                        conn.commit()
-                        print("'status' column added successfully to cart_items.")
-                except sqlite3.Error as alter_e:
-                    print(f"Could not alter existing cart_items table: {alter_e}")
+        # Drop tables in reverse order of creation (or use CASCADE)
+        print("Dropping existing tables (if they exist)...")
+        cursor.execute("DROP TABLE IF EXISTS contacts CASCADE;")
+        cursor.execute("DROP TABLE IF EXISTS ratings CASCADE;")
+        cursor.execute("DROP TABLE IF EXISTS cart_items CASCADE;")
+        cursor.execute("DROP TABLE IF EXISTS trades CASCADE;")
+        cursor.execute("DROP TABLE IF EXISTS users CASCADE;") # Drop users last if others depend on it
 
-            # Check and create count_completed and count_cancelled columns
-            cursor.execute("PRAGMA table_info(users)")
-            columns = [column['name'] for column in cursor.fetchall()]
-            if 'count_completed' not in columns:
-                print("Adding 'count_completed' column to existing users table.")
-                cursor.execute("ALTER TABLE users ADD COLUMN count_completed INTEGER NOT NULL DEFAULT 0")
-                conn.commit()
-            if 'count_cancelled' not in columns:
-                print("Adding 'count_cancelled' column to existing users table.")
-                cursor.execute("ALTER TABLE users ADD COLUMN count_cancelled INTEGER NOT NULL DEFAULT 0")
-                conn.commit()
+        # --- Users Table ---
+        print("Creating 'users' table...") # Change from 'if not exists'
+        cursor.execute("""
+            CREATE TABLE users ( -- Removed IF NOT EXISTS
+                id SERIAL PRIMARY KEY,
+                fullname VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                password TEXT NOT NULL, -- Storing hashed password
+                count_completed INTEGER NOT NULL DEFAULT 0,
+                count_cancelled INTEGER NOT NULL DEFAULT 0,
+                bank_name TEXT NULL,
+                bank_account_number TEXT NULL,
+                bank_account_name TEXT NULL,
+                status VARCHAR(10) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'blocked')),
+                created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
 
-    except Exception as e:
-        print(f"An error occurred during User DB initialization: {e}")
+        # --- Trades Table ---
+        print("Creating 'trades' table...") # Change from 'if not exists'
+        cursor.execute("""
+            CREATE TABLE trades ( -- Removed IF NOT EXISTS
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                price REAL NOT NULL CHECK(price >= 0),
+                quantity INTEGER NOT NULL DEFAULT 1 CHECK(quantity >= 0),
+                image TEXT,
+                description TEXT,
+                place TEXT,
+                user_id INTEGER NOT NULL, -- Seller's ID
+                user_fullname VARCHAR(255) NOT NULL, -- Seller's name (denormalized)
+                created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            );
+        """)
 
-    # Initialize Trade Database
-    print(f"Checking Trade Database: {TRADE_DATABASE}")
-    try:
-        with app.app_context():
-            conn = get_trade_db()
-            cursor = conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='trades';")
-            if not cursor.fetchone():
-                print("Creating 'trades' table in trades.db.")
-                cursor.execute("""
-                    CREATE TABLE trades (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        name TEXT NOT NULL,
-                        price REAL NOT NULL,
-                        quantity INTEGER NOT NULL DEFAULT 1,
-                        image TEXT,
-                        description TEXT,
-                        place TEXT,
-                        user_id INTEGER NOT NULL, -- Seller's ID
-                        user_fullname TEXT NOT NULL, -- Seller's name
-                        rating REAL DEFAULT NULL,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )
-                """)
-                conn.commit()
-                print("'trades' table created successfully in trades.db.")
-            else:
-                print("'trades' table already exists in trades.db.")
-                # Add alter table logic here if needed for existing DBs
-                try:
-                    cursor.execute("PRAGMA table_info(trades)")
-                    columns = [column['name'] for column in cursor.fetchall()]
-                    if 'description' not in columns:
-                        print("Adding 'description' column to existing trades table.")
-                        cursor.execute("ALTER TABLE trades ADD COLUMN description TEXT")
-                        conn.commit()
-                    if 'place' not in columns:
-                        print("Adding 'place' column to existing trades table.")
-                        cursor.execute("ALTER TABLE trades ADD COLUMN place TEXT")
-                        conn.commit()
-                    if 'user_fullname' not in columns:
-                         print("Adding 'user_fullname' column to existing trades table.")
-                         cursor.execute("ALTER TABLE trades ADD COLUMN user_fullname TEXT NOT NULL DEFAULT 'Unknown'") # Add default for existing rows
-                         conn.commit()
-                    if 'rating' not in columns:
-                        print("Adding 'rating' column to existing trades table.")
-                        cursor.execute("ALTER TABLE trades ADD COLUMN rating REAL DEFAULT NULL")
-                        conn.commit()
-                    if 'quantity' not in columns:
-                        print("Adding 'quantity' column to existing trades table.")
-                        cursor.execute("ALTER TABLE trades ADD COLUMN quantity INTEGER NOT NULL DEFAULT 1")
-                        conn.commit()
-                except sqlite3.Error as alter_e:
-                    print(f"Could not alter existing trades table: {alter_e}")
+        # --- Cart Items Table ---
+        print("Creating 'cart_items' table...") # Change from 'if not exists'
+        cursor.execute("""
+            CREATE TABLE cart_items ( -- Removed IF NOT EXISTS
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                trade_id INTEGER NOT NULL,
+                quantity INTEGER NOT NULL DEFAULT 1 CHECK(quantity > 0),
+                status VARCHAR(50) NOT NULL DEFAULT 'pending',
+                added_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+                FOREIGN KEY (trade_id) REFERENCES trades (id) ON DELETE CASCADE
+            );
+        """)
 
-            # Check and create ratings table
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ratings';")
-            if not cursor.fetchone():
-                print("Creating 'ratings' table in trades.db.")
-                cursor.execute("""
-                    CREATE TABLE ratings (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        trade_id INTEGER NOT NULL,
-                        user_id INTEGER NOT NULL, -- The ID of the user who submitted the rating
-                        rating_score INTEGER NOT NULL CHECK(rating_score >= 1 AND rating_score <= 5), -- Store the actual score (e.g., 1-5)
-                        rated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (trade_id) REFERENCES trades (id),
-                        -- UNIQUE constraint to ensure one rating per user per trade
-                        UNIQUE(trade_id, user_id)
-                    )
-                """)
-                conn.commit()
-                print("'ratings' table created successfully in trades.db.")
-            else:
-                print("'ratings' table already exists in trades.db.")
+        # --- Ratings Table ---
+        print("Creating 'ratings' table...") # Change from 'if not exists'
+        cursor.execute("""
+            CREATE TABLE ratings ( -- Removed IF NOT EXISTS
+                id SERIAL PRIMARY KEY,
+                trade_id INTEGER NULL, -- Allow NULL
+                user_id INTEGER NOT NULL, -- Buyer/Rater ID
+                seller_id INTEGER NULL, --  Seller ID
+                cart_item_id INTEGER NULL, -- Allow NULL
+                rating_score INTEGER NOT NULL CHECK(rating_score >= 1 AND rating_score <= 5),
+                rated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (trade_id) REFERENCES trades (id) ON DELETE SET NULL, -- Keep rating if trade deleted
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL, -- Keep rating if rater deleted
+                FOREIGN KEY (seller_id) REFERENCES users (id) ON DELETE CASCADE, -- Delete rating if seller deleted
+                FOREIGN KEY (cart_item_id) REFERENCES cart_items (id) ON DELETE SET NULL, -- Keep rating if cart item deleted
+                UNIQUE(cart_item_id) -- Ensure only one rating per non-null cart item
+            );
+        """)
 
-    except Exception as e:
-        print(f"An error occurred during Trade DB initialization: {e}")
+        # --- Contacts Table ---
+        print("Creating 'contacts' table...") # Change from 'if not exists'
+        cursor.execute("""
+            CREATE TABLE contacts ( -- Removed IF NOT EXISTS
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                subject TEXT,
+                message TEXT NOT NULL,
+                submitted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
 
-    # Initialize Contact Database
-    print(f"Checking Contact Database: {CONTACT_DATABASE}")
-    try:
-        with app.app_context():
-            conn = get_contact_db()
-            cursor = conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='contacts';")
-            if not cursor.fetchone():
-                print("Creating 'contacts' table in contacts.db.")
-                cursor.execute("""
-                    CREATE TABLE contacts (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        name TEXT NOT NULL,
-                        email TEXT NOT NULL,
-                        subject TEXT,
-                        message TEXT NOT NULL,
-                        submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )
-                """)
-                conn.commit()
-                print("'contacts' table created successfully in contacts.db.")
-            else:
-                print("'contacts' table already exists in contacts.db.")
-    except Exception as e:
-        print(f"An error occurred during Contact DB initialization: {e}")
+        conn.commit()
+        cursor.close()
+        print("Database table initialization complete.")
 
-# --- JWT Required Decorator (Update to use get_user_db) ---
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(f"Error during database initialization: {error}")
+        if conn:
+            conn.rollback() # Roll back changes if any error occurred
+    finally:
+        # Connection closing is handled by teardown_appcontext
+        pass
+
+
+# --- JWT Required Decorator (Update to use get_db) ---
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -288,19 +277,29 @@ def token_required(f):
 
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            # Fetch user from USER database
-            conn = get_user_db()
-            cursor = conn.cursor()
-            cursor.execute("SELECT id, fullname, email FROM users WHERE id = ?", (data['user_id'],))
+            # Fetch user from the database using PostgreSQL connection
+            conn = get_db()
+            # Use DictCursor to access columns by name
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            # Use %s placeholder for PostgreSQL
+            # Fetch payment info along with basic user details
+            cursor.execute(
+                "SELECT id, fullname, email, bank_name, bank_account_number, bank_account_name "
+                "FROM users WHERE id = %s", 
+                (data['user_id'],)
+            )
             current_user_row = cursor.fetchone()
+            cursor.close() # Close cursor after use
             if not current_user_row:
                  return jsonify({'message': 'Token is invalid or user not found!'}), 401
-            g.current_user = dict(current_user_row)
+            # g.current_user can be the DictRow object itself or convert to dict
+            g.current_user = current_user_row # Store the fetched user row in g
         except jwt.ExpiredSignatureError:
             return jsonify({'message': 'Token has expired!'}), 401
         except jwt.InvalidTokenError:
              return jsonify({'message': 'Token is invalid!'}), 401
-        except sqlite3.Error as e:
+        # Catch PostgreSQL errors
+        except psycopg2.Error as e:
             print(f"Database error during token validation: {e}")
             return jsonify({"message": "Database error during token validation"}), 500
         except Exception as e:
@@ -310,10 +309,10 @@ def token_required(f):
         return f(*args, **kwargs)
     return decorated
 
-# --- API Routes (Use get_user_db for user operations) ---
+# --- API Routes (Use get_db for user operations) ---
 @app.route('/api/register', methods=['POST'])
 def register():
-    """Registers a new user in the SQLite database."""
+    """Registers a new user in the PostgreSQL database."""
     data = request.get_json()
 
     # --- Enhanced Validation ---
@@ -338,24 +337,39 @@ def register():
 
     conn = None # Initialize conn to None
     try:
-        conn = get_user_db()
+        conn = get_db()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO users (fullname, email, password, count_completed, count_cancelled) VALUES (?, ?, ?, ?, ?)",
+            """INSERT INTO users (fullname, email, password, count_completed, count_cancelled)
+               VALUES (%s, %s, %s, %s, %s)
+               RETURNING id""",
             (fullname, email, hashed_password, 0, 0)
         )
+        user_id_row = cursor.fetchone()
+        if user_id_row is None:
+            raise Exception("User registration failed, could not retrieve new user ID.")
+        user_id = user_id_row[0]
+
         conn.commit()
-        user_id = cursor.lastrowid # Get the ID of the newly inserted user
+        cursor.close()
         print(f"User registered successfully with ID: {user_id}")
         return jsonify({"message": "User registered successfully", "userId": user_id}), 201
 
-    except sqlite3.IntegrityError: # Handles UNIQUE constraint violation for email
+    except psycopg2.errors.UniqueViolation as e:
+        if conn:
+            conn.rollback()
         print(f"Registration failed: Email '{email}' already exists.")
         return jsonify({"message": "User already exists with this email"}), 409
-    except sqlite3.Error as e:
+    except (Exception, psycopg2.DatabaseError) as e:
+        if conn:
+            conn.rollback()
         print(f"Database error during registration: {e}")
         return jsonify({"message": "Database error during registration"}), 500
-    # No finally needed here
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closing is handled by teardown_appcontext
+        pass
 
 
 @app.route('/api/login', methods=['POST'])
@@ -371,138 +385,146 @@ def login():
     password = data['password']
 
     conn = None # Initialize conn to None
+    cursor = None # Initialize cursor
     try:
-        conn = get_user_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        conn = get_db()
+        # Use DictCursor to access columns by name
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        # Use %s placeholder for PostgreSQL - Fetch user by email regardless of status first
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user_row = cursor.fetchone() # Fetch one matching user
 
-        if user_row and bcrypt.check_password_hash(user_row['password'], password):
-            # User found and password matches
-            print(f"Login successful for user: {email} (ID: {user_row['id']})")
+        # Important: Check if user_row exists before accessing its keys
+        if user_row:
+            # Check user status *before* checking password
+            if user_row['status'] == 'blocked':
+                print(f"Login attempt failed for blocked user: {email}")
+                return jsonify({"message": "Your account is banned. Please check your email for more information!"}), 403 # Forbidden
 
-            # --- Generate JWT ---
-            token = jwt.encode({
-                'user_id': user_row['id'],
-                'email': user_row['email'],
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1) # Token expires in 1 hour
-            }, app.config['SECRET_KEY'], algorithm="HS256")
+            # If status is active, then check the password
+            if user_row['status'] == 'active' and bcrypt.check_password_hash(user_row['password'], password):
+                # User found, status is active, and password matches
+                print(f"Login successful for user: {email} (ID: {user_row['id']})")
 
-            return jsonify({
-                "message": "Login successful",
-                "token": token, # Send the token to the client
-                "user": { # Optionally return some non-sensitive user info
-                    "id": user_row['id'],
-                    "fullname": user_row['fullname'],
-                    "email": user_row['email']
-                }
-                }), 200
-        else:
-            # User not found or password incorrect
-            print(f"Login failed for email: {email}. User exists: {user_row is not None}")
-            return jsonify({"message": "Incorrect email or password"}), 401
+                # --- Generate JWT ---
+                token = jwt.encode({
+                    'user_id': user_row['id'],
+                    'email': user_row['email'],
+                    'exp': datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=1) # Token expires in 1 hour
+                }, app.config['SECRET_KEY'], algorithm="HS256")
 
-    except sqlite3.Error as e:
+                return jsonify({
+                    "message": "Login successful",
+                    "token": token, # Send the token to the client
+                    "user": { # Optionally return some non-sensitive user info
+                        "id": user_row['id'],
+                        "fullname": user_row['fullname'],
+                        "email": user_row['email']
+                    }
+                    }), 200
+            
+            else:
+                print(f"Login failed for email: {email}. User exists: {user_row is not None}, Status: {user_row['status'] if user_row else 'N/A'}")
+                return jsonify({"message": "Incorrect email or password"}), 401
+
+    # Catch PostgreSQL errors
+    except psycopg2.Error as e:
         print(f"Database error during login: {e}")
         return jsonify({"message": "Database error during login"}), 500
-    # No finally needed here
+    except Exception as e:
+        # Catch other potential errors (like accessing user_row['password'] if user_row is None - though the check above prevents this)
+        print(f"Unexpected error during login: {e}")
+        return jsonify({"message": "An unexpected error occurred during login"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close() # Ensure cursor is closed
+        # Connection closing is handled by teardown_appcontext
+        pass
 
 
-# --- Example Protected Route --- Replaced with Profile Stats
-# @app.route('/api/profile', methods=['GET'])
-# @token_required
-# def get_profile():
-#     # ... (previous implementation) ...
 
-
-# --- Trade API Routes (Use get_trade_db) ---
+# --- Trade API Routes (Use get_db) ---
 
 @app.route('/api/trades', methods=['GET'])
-# No @token_required here, but we'll check for token manually
 def get_trades():
     """Fetches trade data, optionally checking user's rating status if logged in."""
-    conn = get_trade_db()
-    cursor = conn.cursor()
+    conn = get_db()
+    # Use DictCursor to access columns by name
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    current_user_id = None
 
     # --- Optional User Authentication ---
-    current_user_id = None
-    token = None
     if 'Authorization' in request.headers:
         auth_header = request.headers['Authorization']
         try:
             token = auth_header.split(" ")[1]
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            # Minimal check: Does the user ID exist? (Avoid full DB hit unless needed)
-            # We only need the ID here for the query.
             current_user_id = data.get('user_id')
-            print(f"Token provided, user ID: {current_user_id}") # Debug log
+            print(f"Token provided, user ID: {current_user_id}")
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, IndexError, KeyError):
-            # Ignore invalid/expired tokens for public view, user_id remains None
             print("Invalid/Expired/Malformed token found, proceeding as guest.")
             pass
     # --- End Authentication Check ---
 
-    # Get query parameters
+    # --- Get query parameters ---
     search_query = request.args.get('search', '')
     sort_by = request.args.get('sortBy', 'name')
     sort_order = request.args.get('sortOrder', 'asc')
 
-    # Validation...
-    allowed_sort_columns = ['name', 'price', 'business_name', 'place', 'rating', 'created_at']
-    if sort_by not in allowed_sort_columns:
-        sort_by = 'name'
+    # --- Validation ---
+    # Note: 'business_name' is an alias for t.user_fullname, 'rating' is an alias for AVG(r.rating_score)
+    allowed_sort_columns = ['name', 'price', 'user_fullname', 'place', 'rating', 'created_at']
+    # Use actual column name `user_fullname` for sorting if `business_name` is selected
+    db_sort_column = 'user_fullname' if sort_by == 'business_name' else sort_by
+    if db_sort_column not in allowed_sort_columns:
+        db_sort_column = 'name' # Default sort column
     if sort_order.lower() not in ['asc', 'desc']:
         sort_order = 'asc'
 
     # --- Build the SQL Query ---
     params = []
-    # Base selection
+    # Base selection (AVG is standard SQL)
     select_clause = """
         SELECT
-            t.id,
-            t.name,
-            t.price,
-            t.image,
-            t.description,
-            t.place,
-            t.quantity,
+            t.id, t.name, t.price, t.image, t.description, t.place, t.quantity,
             t.user_id AS seller_id,
-            t.user_fullname AS business_name,
-            AVG(r.rating_score) as rating, -- Overall average rating for the product
-             -- Subquery to get the seller's overall average rating
-            (SELECT AVG(sr.rating_score)
-             FROM ratings sr
-             JOIN trades st ON sr.trade_id = st.id
-             WHERE st.user_id = t.user_id) as seller_average_rating
+            t.user_fullname AS business_name, -- Alias kept
+            AVG(r.rating_score) as rating, -- Alias kept
+             (SELECT AVG(sr.rating_score)
+              FROM ratings sr
+              WHERE sr.seller_id = t.user_id) as seller_average_rating
     """
 
-    # Add current user's rating if logged in
+    # Add current user's *average* rating for this trade if logged in - Use %s placeholder
     if current_user_id is not None:
-        select_clause += ", (SELECT ur.rating_score FROM ratings ur WHERE ur.trade_id = t.id AND ur.user_id = ?) AS current_user_rating_score"
+        select_clause += ", (SELECT AVG(ur.rating_score) FROM ratings ur WHERE ur.trade_id = t.id AND ur.user_id = %s) AS current_user_rating_score" # Use AVG() here
         params.append(current_user_id) # Add user_id to params list FIRST
     else:
         select_clause += ", NULL AS current_user_rating_score" # Return NULL if not logged in
 
-    # FROM and JOIN clauses
+    # FROM and JOIN clauses (LEFT JOIN is standard SQL)
     from_join_clause = """
         FROM trades t
-        LEFT JOIN ratings r ON t.id = r.trade_id -- For overall average rating
+        LEFT JOIN ratings r ON t.id = r.trade_id
     """
 
+    # GROUP BY is needed for AVG()
     group_by_clause = " GROUP BY t.id "
-    order_by_clause = f" ORDER BY {sort_by} {sort_order.upper()}"
+    # Use the potentially modified db_sort_column
+    order_by_clause = f" ORDER BY {db_sort_column} {sort_order.upper()}"
 
     where_clauses = []
     where_params = [] # Separate params for WHERE clause
 
-    # Add search condition
+    # Add search condition - Use %s placeholders and ILIKE for case-insensitive search
     if search_query:
         search_term = f'%{search_query}%'
+        # Use ILIKE for case-insensitive matching in PostgreSQL
         search_condition = """(
-            t.name LIKE ? OR
-            t.description LIKE ? OR
-            t.place LIKE ? OR
-            t.user_fullname LIKE ?
+            t.name ILIKE %s OR
+            t.description ILIKE %s OR
+            t.place ILIKE %s OR
+            t.user_fullname ILIKE %s
         )"""
         where_clauses.append(search_condition)
         where_params.extend([search_term] * 4)
@@ -515,7 +537,7 @@ def get_trades():
     sql += order_by_clause
 
     # Combine params (user ID first if present, then WHERE params)
-    final_params = params + where_params
+    final_params = tuple(params + where_params) # Ensure it's a tuple
 
     # --- End Build SQL Query ---
 
@@ -523,98 +545,138 @@ def get_trades():
         print(f"Executing SQL: {sql}")
         print(f"With params: {final_params}")
         cursor.execute(sql, final_params)
-        trades = [dict(row) for row in cursor.fetchall()]
-        # Convert types
-        for trade in trades:
-             if trade['price'] is not None: trade['price'] = float(trade['price'])
-             if trade['rating'] is not None: trade['rating'] = float(trade['rating'])
-             # Add conversion for seller average rating
-             if trade['seller_average_rating'] is not None:
-                trade['seller_average_rating'] = float(trade['seller_average_rating'])
-             # quantity is already an integer from the DB
-             # current_user_rating_score will be None or an integer
+        # Fetchall with DictCursor returns a list of DictRow objects
+        trades_raw = cursor.fetchall()
+        trades = [dict(row) for row in trades_raw] # Convert DictRows to plain dicts for jsonify
 
+        # --- Type Conversion (Keep existing logic, adjust if needed) ---
+        # PostgreSQL might return Decimal for REAL, ensure float conversion
+        for trade in trades:
+             if trade.get('price') is not None: trade['price'] = float(trade['price'])
+             # AVG returns Decimal, convert to float
+             if trade.get('rating') is not None: trade['rating'] = float(trade['rating'])
+             if trade.get('seller_average_rating') is not None:
+                trade['seller_average_rating'] = float(trade['seller_average_rating'])
+             # Handle potential None for current_user_rating_score before float conversion
+             if trade.get('current_user_rating_score') is not None: 
+                 trade['current_user_rating_score'] = float(trade['current_user_rating_score'])
+             # quantity (INTEGER) and seller_id (INTEGER) should be fine
+
+        cursor.close()
         return jsonify(trades)
-    except sqlite3.Error as e:
+    # Catch PostgreSQL errors
+    except psycopg2.Error as e:
         print(f"Database error fetching trades: {e}")
+        # Optionally rollback if the transaction state is unknown, though usually SELECTs don't need it
+        # conn.rollback()
         return jsonify({"message": "Error fetching trade data"}), 500
     except Exception as e:
         print(f"Error fetching trades: {e}")
         return jsonify({"message": "Could not retrieve trade data"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closing is handled by teardown_appcontext
+        pass
 
 
 @app.route('/api/trades', methods=['POST'])
 @token_required # Protect this route
 def add_trade():
-    """Adds a new trade item to trades.db linked to the logged-in user."""
+    """Adds a new trade item to the PostgreSQL database linked to the logged-in user."""
+    # Ensure user is authenticated and get user info from g
+    # The @token_required decorator should have populated g.current_user
+    if not hasattr(g, 'current_user') or not g.current_user:
+        return jsonify({"message": "Authentication required or user data missing from context"}), 401
     user_id = g.current_user['id']
     user_fullname = g.current_user['fullname']
 
     data = request.get_json()
 
-    # Update validation to include new fields
+    # --- Validation --- # (Keep existing validation logic)
     if not data or not data.get('name') or data.get('price') is None:
         return jsonify({"message": "Missing required fields (name, price)"}), 400
 
     name = data['name']
     price_str = str(data['price']).strip()
     image = data.get('image', None)
-    description = data.get('description', None) # Get description
-    place = data.get('place', None)          # Get place
-    # Get quantity, default to 1 if not provided or invalid
+    description = data.get('description', None)
+    place = data.get('place', None)
     try:
         quantity = int(data.get('quantity', 1))
-        if quantity < 0: # Allow 0 quantity? For now, let's enforce positive or default to 1
-             print("Warning: Received non-positive quantity, defaulting to 1.")
-             quantity = 1
+        if quantity < 0: # Enforce non-negative quantity
+             return jsonify({"message": "Quantity cannot be negative"}), 400 # Handle as error
     except (ValueError, TypeError):
-        print("Warning: Received invalid quantity, defaulting to 1.")
-        quantity = 1
-    # Rating is not set on creation in this version
+        return jsonify({"message": "Invalid quantity format. Please enter a number."}), 400
 
-    # Validate and convert price
     try:
         price = float(price_str)
         if price < 0:
              return jsonify({"message": "Price cannot be negative"}), 400
     except ValueError:
         return jsonify({"message": "Invalid price format. Please enter a number."}), 400
+    # --- End Validation ---
 
-    conn = get_trade_db() # Use trade DB connection
-    cursor = conn.cursor()
-
+    conn = None # Initialize conn
+    cursor = None # Initialize cursor
+    trade_id = None # Initialize trade_id
     try:
-        # Update INSERT statement for new schema (rating defaults to NULL)
+        conn = get_db() # Use PostgreSQL connection
+        # Use DictCursor to fetch the newly added row easily later
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # Use %s placeholders and RETURNING id
         cursor.execute(
             """INSERT INTO trades (name, price, image, description, place, user_id, user_fullname, quantity)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+               RETURNING id""",
             (name, price, image, description, place, user_id, user_fullname, quantity)
         )
-        conn.commit()
-        trade_id = cursor.lastrowid
-        print(f"Trade item '{name}' (ID: {trade_id}) added to trades.db by user {user_fullname} (ID: {user_id}).")
+        # Fetch the returned id
+        trade_id_row = cursor.fetchone()
+        if trade_id_row is None:
+             raise Exception("Trade insertion failed, could not retrieve new trade ID.")
+        trade_id = trade_id_row['id'] # Access by name with DictCursor
 
-        # Return the added trade details, including new fields
-        # Fetch the newly created trade to get default values like rating/created_at
-        cursor.execute("SELECT * FROM trades WHERE id = ?", (trade_id,))
+        # Commit the transaction *after* successful insert and ID retrieval
+        conn.commit()
+
+        # Fetch the newly created trade to return its details
+        # Re-use the cursor after commit (it's still valid within the connection)
+        cursor.execute("SELECT * FROM trades WHERE id = %s", (trade_id,))
         new_trade_row = cursor.fetchone()
 
+        print(f"Trade item '{name}' (ID: {trade_id}) added by user {user_fullname} (ID: {user_id}).")
         return jsonify({
             "message": "Trade added successfully",
             "tradeId": trade_id,
-            "trade": dict(new_trade_row) # Return full new trade details
+            "trade": dict(new_trade_row) if new_trade_row else None
             }), 201 # 201 Created
-    except sqlite3.Error as e:
-        conn.rollback()
+
+    # Catch PostgreSQL errors
+    except (Exception, psycopg2.DatabaseError) as e:
+        if conn:
+            conn.rollback() # Rollback the transaction on any error
         print(f"Database error adding trade: {e}")
+        # Check if it's a check constraint violation (e.g., negative quantity)
+        if isinstance(e, psycopg2.errors.CheckViolation):
+             return jsonify({"message": f"Data validation failed: {e}"}), 400
         return jsonify({"message": "Database error adding trade"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close() # Ensure cursor is closed
+        # Connection closing is handled by teardown_appcontext
+        pass
 
 # --- Cart API Routes ---
 
 @app.route('/api/cart', methods=['POST'])
 @token_required
 def add_to_cart():
-    """Adds a trade item to the user's cart or updates quantity, checking available stock."""
+    """Adds a trade item to the user's cart.
+    If a 'pending' item for this user/trade exists, updates its quantity.
+    Otherwise, creates a new 'pending' cart item.
+    """
     user_id = g.current_user['id']
     data = request.get_json()
 
@@ -622,250 +684,368 @@ def add_to_cart():
         return jsonify({"message": "Missing 'trade_id' in request body"}), 400
 
     trade_id = data['trade_id']
-    # Default quantity to 1 if not provided or invalid
     try:
         quantity_to_add = int(data.get('quantity', 1))
         if quantity_to_add <= 0:
-            # Disallow adding non-positive quantities
             return jsonify({"message": "Quantity to add must be positive"}), 400
     except (ValueError, TypeError):
          return jsonify({"message": "Invalid quantity format"}), 400
 
-    trade_conn = get_trade_db()
-    trade_cursor = trade_conn.cursor()
-    user_conn = get_user_db() # Cart items are in user DB
-    user_cursor = user_conn.cursor()
-
+    conn = None
+    cursor = None
     try:
-        # 1. Check available stock for the trade item
-        trade_cursor.execute("SELECT quantity, user_id as seller_id FROM trades WHERE id = ?", (trade_id,))
-        trade_info = trade_cursor.fetchone()
+        conn = get_db()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
+        # 1. Check trade exists, stock, and seller is not buyer
+        cursor.execute("SELECT quantity, user_id as seller_id FROM trades WHERE id = %s", (trade_id,))
+        trade_info = cursor.fetchone()
         if not trade_info:
              return jsonify({"message": f"Trade item with ID {trade_id} not found"}), 404
 
         available_stock = trade_info['quantity']
-        seller_id = trade_info['seller_id']
-
-        # Prevent seller from adding their own item
-        if seller_id == user_id:
+        if trade_info['seller_id'] == user_id:
             return jsonify({"message": "You cannot add your own listing to the cart"}), 400
 
-
-        # 2. Check current quantity in cart for this item
-        user_cursor.execute(
-            "SELECT quantity FROM cart_items WHERE user_id = ? AND trade_id = ?",
+        # 2. Look for an existing *pending* cart item for this user and trade
+        cursor.execute(
+            "SELECT id, quantity FROM cart_items WHERE user_id = %s AND trade_id = %s AND status = 'pending'",
             (user_id, trade_id)
         )
-        cart_item = user_cursor.fetchone()
-        current_cart_qty = cart_item['quantity'] if cart_item else 0
+        pending_item = cursor.fetchone()
 
-        # 3. Validate requested total quantity against available stock
-        potential_new_cart_qty = current_cart_qty + quantity_to_add
-        if potential_new_cart_qty > available_stock:
-            remaining_can_add = available_stock - current_cart_qty
+        if pending_item:
+            # 3a. Found a pending item - try to update its quantity
+            existing_cart_id = pending_item['id']
+            current_cart_qty = pending_item['quantity']
+            potential_new_cart_qty = current_cart_qty + quantity_to_add
+
+            if potential_new_cart_qty > available_stock:
+                 remaining_can_add = available_stock - current_cart_qty
+                 return jsonify({
+                    "message": f"Cannot add {quantity_to_add}. Only {available_stock} available. Your pending cart item already has {current_cart_qty}." +
+                               (f" You can add at most {remaining_can_add} more." if remaining_can_add >= 0 else " No more can be added.")
+                 }), 400
+
+            # Update existing pending item's quantity
+            cursor.execute(
+                "UPDATE cart_items SET quantity = %s WHERE id = %s",
+                (potential_new_cart_qty, existing_cart_id)
+            )
+            conn.commit()
+            print(f"Updated quantity for pending cart item {existing_cart_id}")
+            # Fetch the updated item to return details
+            cursor.execute("SELECT id as cart_item_id, trade_id, quantity, status FROM cart_items WHERE id = %s", (existing_cart_id,))
+            updated_item = cursor.fetchone()
             return jsonify({
-                "message": f"Cannot add {quantity_to_add}. Only {available_stock} available. You already have {current_cart_qty} in cart." +
-                           (f" You can add at most {remaining_can_add} more." if remaining_can_add > 0 else "")
-            }), 400 # Bad Request - exceeding stock
+                "message": "Quantity updated for pending item in cart",
+                "item": dict(updated_item) if updated_item else None
+            }), 200
 
-        # 4. Proceed with insertion/update if validation passes
-        # Set status to 'pending' when adding or updating quantity
-        user_cursor.execute(
-            """INSERT INTO cart_items (user_id, trade_id, quantity, status)
-               VALUES (?, ?, ?, 'pending')
-               ON CONFLICT(user_id, trade_id) DO UPDATE SET
-               quantity = quantity + excluded.quantity,
-               status = 'pending'""",
-            (user_id, trade_id, quantity_to_add)
-        )
-        user_conn.commit()
+        else:
+            # 3b. No *pending* item found for this user/trade - create a new one
+            # Check stock just for the quantity being added now
+            if quantity_to_add > available_stock:
+                 return jsonify({
+                    "message": f"Cannot add {quantity_to_add}. Only {available_stock} available."
+                 }), 400
 
-        # Get updated cart item details (optional but good for confirmation)
-        # Include status in the fetch confirmation
-        user_cursor.execute("SELECT trade_id, quantity, status FROM cart_items WHERE user_id = ? AND trade_id = ?", (user_id, trade_id))
-        updated_item = user_cursor.fetchone()
-        return jsonify({
-            "message": "Item added/updated in cart",
-            "item": dict(updated_item) if updated_item else None
-            }), 200 # Use 200 OK for add or update
+            # Insert new cart item
+            cursor.execute(
+                """INSERT INTO cart_items (user_id, trade_id, quantity, status)
+                   VALUES (%s, %s, %s, 'pending')
+                   RETURNING id as cart_item_id, trade_id, quantity, status""",
+                (user_id, trade_id, quantity_to_add)
+            )
+            new_item = cursor.fetchone()
+            conn.commit()
+            print(f"Inserted new cart item {new_item['cart_item_id']}")
+            return jsonify({
+                "message": "New item added to cart",
+                "item": dict(new_item) if new_item else None
+            }), 201 # 201 Created for new resource
 
-    except sqlite3.Error as e:
-        # Rollback both connections if there's an error during the transaction logic
-        user_conn.rollback()
-        # trade_conn was read-only here, but rollback doesn't hurt
-        trade_conn.rollback()
+
+    except (Exception, psycopg2.DatabaseError) as e:
+        if conn:
+            conn.rollback()
         print(f"Database error adding to cart: {e}")
+        # Check for specific stock-related constraint errors if any exist
         return jsonify({"message": "Database error adding to cart"}), 500
-    except Exception as e: # Catch potential errors like dict key access
-        user_conn.rollback()
-        trade_conn.rollback()
-        print(f"Unexpected error adding to cart: {e}")
-        return jsonify({"message": "An unexpected error occurred while adding to cart"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
 
 
 @app.route('/api/cart', methods=['GET'])
 @token_required
 def get_cart():
-    """Gets all items in the user's cart with trade details."""
+    """Gets all individual items in the user's cart with trade details.
+       Handles cases where multiple cart items might exist for the same trade_id (different statuses).
+    """
     user_id = g.current_user['id']
-    user_conn = get_user_db()
-    user_cursor = user_conn.cursor()
-
+    conn = None
+    cursor = None
     try:
-        # Fetch cart item IDs, quantities and status for the user
-        user_cursor.execute(
-            "SELECT trade_id, quantity, status FROM cart_items WHERE user_id = ?", (user_id,)
-        )
-        cart_basics = user_cursor.fetchall()
+        conn = get_db()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        if not cart_basics:
+        # 1. Fetch ALL cart items for the user
+        cursor.execute(
+            """SELECT 
+                   ci.id as cart_item_id, 
+                   ci.trade_id, 
+                   ci.quantity, 
+                   ci.status, 
+                   r.rating_score AS user_rating_for_item -- Get rating linked to this cart item
+               FROM cart_items ci
+               LEFT JOIN ratings r ON ci.id = r.cart_item_id AND r.user_id = %s -- Join rating for this user and cart item
+               WHERE ci.user_id = %s 
+               ORDER BY ci.added_at ASC""",
+            (user_id, user_id) # user_id needed twice: once for rating join, once for WHERE clause
+        )
+        user_cart_items_raw = cursor.fetchall()
+
+        if not user_cart_items_raw:
+            cursor.close()
             return jsonify({"cart": []}), 200 # Return empty cart
 
-        trade_ids = [item['trade_id'] for item in cart_basics]
-        # Store quantity and status together, keyed by trade_id
-        cart_item_details = {item['trade_id']: {'quantity': item['quantity'], 'status': item['status']} for item in cart_basics}
+        # 2. Get unique trade IDs from the cart items
+        trade_ids = list(set(item['trade_id'] for item in user_cart_items_raw)) # Use set for uniqueness
 
-        # Fetch details for these trades from trades.db
-        trade_conn = get_trade_db()
-        trade_cursor = trade_conn.cursor()
+        # 3. Fetch details for these unique trades (excluding seller and user rating now)
+        trade_details_map = {}
+        if trade_ids: # Proceed only if there are trade IDs
+            query = """
+                SELECT
+                    t.id, t.name, t.price, t.quantity AS trade_quantity, t.image,
+                    t.user_id AS seller_id, t.user_fullname AS business_name,
+                    t.description AS trade_description, t.place AS trade_place,
+                    u.email AS seller_email
+                FROM trades t
+                JOIN users u ON t.user_id = u.id
+                WHERE t.id = ANY(%s) -- Use ANY() for list parameter with IN operator in psycopg2
+            """
+            cursor.execute(query, (trade_ids,)) # Execute without user_id parameter for rating
+            trade_details_list = cursor.fetchall()
+            # Convert list of trade details into a dictionary mapped by trade_id
+            trade_details_map = {trade['id']: dict(trade) for trade in trade_details_list}
 
-        # Use placeholders for safe query construction
-        placeholders = ','.join('?' * len(trade_ids))
-        # Select seller_id (user_id from trades) needed for email lookup
-        query = f"""
-            SELECT id, name, price, quantity, image, user_id as seller_id, user_fullname as business_name
-            FROM trades
-            WHERE id IN ({placeholders})
-        """
-        trade_cursor.execute(query, trade_ids)
-        trade_details_list = [dict(row) for row in trade_cursor.fetchall()]
+        # 4. Combine cart item specifics with trade details
+        final_cart_items = []
+        for cart_item_row in user_cart_items_raw:
+            cart_item = dict(cart_item_row)
+            trade_id = cart_item['trade_id']
 
-        # --- Fetch Seller Emails ---
-        # Prepare seller IDs for querying users.db
-        seller_ids = list(set(trade['seller_id'] for trade in trade_details_list)) # Unique seller IDs
-        seller_email_map = {}
-        if seller_ids:
-            user_placeholders = ','.join('?' * len(seller_ids))
-            email_query = f"SELECT id, email FROM users WHERE id IN ({user_placeholders})"
-            user_cursor.execute(email_query, seller_ids) # Re-use user_cursor from get_user_db()
-            seller_emails = user_cursor.fetchall()
-            seller_email_map = {row['id']: row['email'] for row in seller_emails}
-        # --- End Fetch Seller Emails ---
+            # Get the base trade details from the map
+            base_trade_details = trade_details_map.get(trade_id)
 
+            if base_trade_details:
+                # Create a new dictionary for this specific cart item instance
+                combined_item = base_trade_details.copy() # Start with trade details
 
-        # Combine details with quantities, cart status, and emails
-        cart_items = []
-        for trade in trade_details_list:
-            trade_id = trade['id']
-            if trade_id in cart_item_details:
-                # Add quantity and status from the cart_items table
-                trade['quantity'] = cart_item_details[trade_id]['quantity']
-                trade['cart_status'] = cart_item_details[trade_id]['status'] # Use 'cart_status' to avoid naming conflict
-                # Add seller email from the map
-                trade['seller_email'] = seller_email_map.get(trade['seller_id'], None)
-                cart_items.append(trade)
+                # Override/Add specific cart item details
+                combined_item['cart_item_id'] = cart_item['cart_item_id']
+                combined_item['quantity'] = cart_item['quantity'] # This is the quantity IN THE CART
+                combined_item['cart_status'] = cart_item['status']
+                # Use the rating fetched specifically for this cart item
+                combined_item['current_user_rating_score'] = cart_item.get('user_rating_for_item')
 
-        return jsonify({"cart": cart_items}), 200
+                final_cart_items.append(combined_item)
+            else:
+                # Handle case where trade details might be missing (e.g., trade deleted after adding to cart)
+                print(f"Warning: Trade details not found for trade_id {trade_id} referenced by cart_item_id {cart_item['cart_item_id']}")
+                # Optionally, you could add a placeholder item or skip it
+                # final_cart_items.append({
+                #     'cart_item_id': cart_item['cart_item_id'],
+                #     'trade_id': trade_id,
+                #     'quantity': cart_item['quantity'],
+                #     'cart_status': cart_item['status'],
+                #     'name': '[Trade Deleted]',
+                #     'price': 0
+                #     # Add other necessary fields as defaults or nulls
+                # })
 
-    except sqlite3.Error as e:
+        cursor.close()
+        return jsonify({"cart": final_cart_items}), 200
+
+    # Catch PostgreSQL errors
+    except psycopg2.Error as e:
         print(f"Database error fetching cart: {e}")
         return jsonify({"message": "Error fetching cart data"}), 500
+    except Exception as e:
+        print(f"Unexpected error fetching cart: {e}")
+        return jsonify({"message": "An unexpected error occurred fetching cart data"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection is closed by teardown context
+        pass
 
 
-@app.route('/api/cart/<int:trade_id>', methods=['DELETE'])
+@app.route('/api/cart/items/<int:cart_item_id>', methods=['DELETE']) # MODIFIED: Changed route and parameter name
 @token_required
-def remove_from_cart(trade_id):
-    """Removes a specific item from the user's cart."""
+def remove_from_cart(cart_item_id): # MODIFIED: Changed parameter name
+    """Removes a specific item from the user's cart using the cart_item_id."""
     user_id = g.current_user['id']
-    conn = get_user_db()
-    cursor = conn.cursor()
-
+    conn = None
+    cursor = None
     try:
+        conn = get_db()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor) # Use DictCursor to check user_id
+
+        # MODIFIED: Find item by cart_item_id first
         cursor.execute(
-            "DELETE FROM cart_items WHERE user_id = ? AND trade_id = ?",
-            (user_id, trade_id)
+            "SELECT user_id FROM cart_items WHERE id = %s",
+            (cart_item_id,)
+        )
+        item = cursor.fetchone()
+
+        if not item:
+            return jsonify({"message": f"Cart item with ID {cart_item_id} not found"}), 404
+
+        # MODIFIED: Verify the item belongs to the current user
+        if item['user_id'] != user_id:
+            return jsonify({"message": "Not authorized to remove this item"}), 403
+
+        # Proceed with deletion using cart_item_id
+        cursor.execute(
+            "DELETE FROM cart_items WHERE id = %s", # MODIFIED: WHERE clause uses id
+            (cart_item_id,)
         )
         conn.commit()
 
         if cursor.rowcount > 0:
-            return jsonify({"message": f"Item {trade_id} removed from cart"}), 200
+            print(f"Cart item {cart_item_id} removed from cart for user {user_id}.")
+            return jsonify({"message": f"Cart item {cart_item_id} removed"}), 200
         else:
-            return jsonify({"message": f"Item {trade_id} not found in cart"}), 404
+            # This case should technically not be reached if the initial find was successful
+            print(f"Attempted to remove cart item {cart_item_id} for user {user_id}, but deletion failed (rowcount 0).")
+            return jsonify({"message": "Item removal failed unexpectedly"}), 500
 
-    except sqlite3.Error as e:
-        conn.rollback()
+    # Catch PostgreSQL errors
+    except (Exception, psycopg2.DatabaseError) as e:
+        if conn:
+            conn.rollback()
         print(f"Database error removing from cart: {e}")
         return jsonify({"message": "Database error removing from cart"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection is closed by teardown context
+        pass
 
 # --- New endpoint for buyer to mark a cart item as 'ordered' ---
-@app.route('/api/cart/items/<int:trade_id>/order', methods=['POST'])
+@app.route('/api/cart/items/<int:cart_item_id>/order', methods=['POST']) # MODIFIED: Changed route and parameter name
 @token_required
-def order_cart_item(trade_id):
-    """Updates the status of a specific item in the user's cart to 'ordered'."""
+def order_cart_item(cart_item_id): # MODIFIED: Changed parameter name
+    """Updates the status of a specific item in the user's cart to 'ordered' using cart_item_id."""
     user_id = g.current_user['id']
-    conn = get_user_db()
-    cursor = conn.cursor()
-
+    conn = None
+    cursor = None
     try:
-        # Check if the item exists in the cart and is in 'pending' status
+        conn = get_db()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # 1. Check if the item exists in the cart and get its details (including trade_id and user_id)
+        # MODIFIED: Find by cart_item_id
         cursor.execute(
-            "SELECT id, status FROM cart_items WHERE user_id = ? AND trade_id = ?",
-            (user_id, trade_id)
+            "SELECT id, user_id, trade_id, quantity, status FROM cart_items WHERE id = %s",
+            (cart_item_id,)
         )
         cart_item = cursor.fetchone()
 
         if not cart_item:
-            return jsonify({"message": f"Item {trade_id} not found in your cart."}), 404
+            return jsonify({"message": f"Cart item {cart_item_id} not found."}), 404
 
-        if cart_item['status'] != 'pending':
-            return jsonify({"message": f"Item cannot be ordered from its current status ('{cart_item['status']}')"}), 400
+        # MODIFIED: Verify the item belongs to the current user
+        if cart_item['user_id'] != user_id:
+            return jsonify({"message": "Not authorized to modify this item"}), 403
 
-        # Update the status to 'ordered'
+        # 2. Check if the item is already ordered or in another final state
+        if cart_item['status'] not in ['pending']: # Only allow ordering from pending state
+            return jsonify({"message": f"Item status is '{cart_item['status']}'. Cannot place order."}), 400
+
+        ordered_quantity = cart_item['quantity'] # Quantity from the cart
+        trade_id = cart_item['trade_id'] # MODIFIED: Get trade_id from the fetched cart item
+
+        # 3. Check available stock from trades DB
+        # Use the same cursor and %s placeholder
+        cursor.execute("SELECT quantity FROM trades WHERE id = %s", (trade_id,))
+        trade = cursor.fetchone()
+
+        if not trade:
+             # Trade might have been deleted since added to cart
+             return jsonify({"message": f"Associated trade item {trade_id} no longer exists."}), 404
+
+        available_stock = trade['quantity']
+
+        if ordered_quantity > available_stock:
+            return jsonify({
+                "message": f"Insufficient stock. Only {available_stock} available, you tried to order {ordered_quantity}.",
+                "available": available_stock
+                 }), 400 # Bad Request - insufficient stock
+
+        # 4. Update the status to 'ordered' if stock is sufficient
+        # MODIFIED: Use cart_item_id in WHERE clause
         cursor.execute(
-            "UPDATE cart_items SET status = 'ordered' WHERE id = ?",
-            (cart_item['id'],) # Use the cart_item PK for precision
+            "UPDATE cart_items SET status = 'ordered' WHERE id = %s",
+            (cart_item_id,) # Use the cart_item PK for precision
         )
-        conn.commit()
 
+        # Check if the update was successful before committing
         if cursor.rowcount == 0:
             # Should not happen if first checks passed, but for safety
-            return jsonify({"message": "Failed to update cart item status."}), 500
+            raise Exception(f"Failed to update cart item status for ID {cart_item_id} (rowcount 0).")
 
-        print(f"Cart item (trade_id: {trade_id}) marked as ordered by user {user_id}.")
-        return jsonify({"message": "Item successfully marked as ordered in cart", "new_status": "ordered"}), 200
+        conn.commit()
 
-    except sqlite3.Error as e:
-        conn.rollback()
-        print(f"Database error ordering cart item {trade_id}: {e}")
-        return jsonify({"message": "Database error processing order request"}), 500
+        print(f"Cart item {cart_item_id} (trade_id: {trade_id}) marked as ordered by user {user_id}.")
+        return jsonify({"message": "Item successfully ordered", "new_status": "ordered"}), 200
+
+    # Catch PostgreSQL specific and general errors
+    except psycopg2.Error as e:
+        if conn: conn.rollback()
+        print(f"Database error updating cart item status: {e}")
+        return jsonify({"message": "Database error updating cart item status"}), 500
     except Exception as e:
-        conn.rollback()
-        print(f"Unexpected error ordering cart item {trade_id}: {e}")
-        return jsonify({"message": "An unexpected error occurred while processing the order"}), 500
+        if conn: conn.rollback()
+        print(f"Unexpected error updating cart item status: {e}")
+        return jsonify({"message": "An unexpected error occurred"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
 
 # --- Profile Stats Route (Updated) ---
 
 @app.route('/api/profile/stats', methods=['GET'])
 @token_required
 def get_profile_stats():
-    """Gets user's listed items and overall seller rating."""
+    """Gets user's listed items, overall seller rating, and success percentage."""
     user_id = g.current_user['id']
-    conn = get_trade_db()
-    cursor = conn.cursor()
-
+    conn = None
+    cursor = None
     seller_avg_rating = None
     listings = []
+    count_completed = 0
+    count_cancelled = 0
+    successful_trade_percentage = 0
 
     try:
-        # 1. Fetch all trades listed by the user (for display on profile)
+        conn = get_db()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # 1. Fetch all trades listed by the user (with average product rating)
+        # Use %s placeholder
         cursor.execute(
             """SELECT t.id, t.name, t.price, t.quantity, t.image, t.description, t.place, t.created_at,
-                      AVG(r.rating_score) as average_product_rating -- Also fetch avg rating per product
+                      AVG(r.rating_score) as average_product_rating
                FROM trades t
                LEFT JOIN ratings r ON t.id = r.trade_id
-               WHERE t.user_id = ?
-               GROUP BY t.id -- Group by trade to get avg rating per trade
+               WHERE t.user_id = %s
+               GROUP BY t.id
                ORDER BY t.created_at DESC""",
             (user_id,)
         )
@@ -873,80 +1053,91 @@ def get_profile_stats():
         listings = []
         for row in listings_raw:
             item = dict(row)
-            # Ensure numeric types are correct for listings
+            # Ensure numeric types are correct
             if item.get('price') is not None: item['price'] = float(item['price'])
             if item.get('quantity') is not None: item['quantity'] = int(item['quantity'])
             if item.get('average_product_rating') is not None: item['average_product_rating'] = float(item['average_product_rating'])
+
+            # Determine status based on quantity
+            item['status'] = 'Available' if item['quantity'] > 0 else 'Out of stock'
             listings.append(item)
 
-        # 2. Calculate the overall average rating for the SELLER (from trades.db)
-        # This part remains the same, based on the ratings table
+        # 2. Calculate the overall average rating for the SELLER using the new seller_id column
+        # Use %s placeholder
         cursor.execute(
-            """SELECT AVG(r.rating_score)
-               FROM ratings r
-               JOIN trades t ON r.trade_id = t.id
-               WHERE t.user_id = ?""",
+            """SELECT AVG(rating_score)
+               FROM ratings
+               WHERE seller_id = %s""", # <<< NEW QUERY
             (user_id,)
         )
         avg_result = cursor.fetchone()
+        # Result might be Decimal, handle None and convert to float
         if avg_result and avg_result[0] is not None:
             seller_avg_rating = round(float(avg_result[0]), 2)
 
-        # 3. Fetch completion/cancellation counts from users.db
-        user_conn = get_user_db() # Need user DB connection
-        user_cursor = user_conn.cursor()
-        user_cursor.execute(
-            "SELECT count_completed, count_cancelled FROM users WHERE id = ?",
+        # 3. Fetch completion/cancellation counts from users table
+        # Use the same cursor and %s placeholder
+        cursor.execute(
+            "SELECT count_completed, count_cancelled FROM users WHERE id = %s",
             (user_id,)
         )
-        user_counts = user_cursor.fetchone()
-
-        count_completed = 0
-        count_cancelled = 0
+        user_counts = cursor.fetchone()
         if user_counts:
             count_completed = user_counts['count_completed']
             count_cancelled = user_counts['count_cancelled']
 
-        # 4. Calculate successful trade percentage using the counters
-        successful_trade_percentage = 0
+        # 4. Calculate successful trade percentage
         total_finalized = count_completed + count_cancelled
         if total_finalized > 0:
              successful_trade_percentage = round((count_completed / total_finalized) * 100, 1)
 
+        cursor.close()
         return jsonify({
             "listings": listings,
             "seller_average_rating": seller_avg_rating,
             "successful_trades_percentage": successful_trade_percentage
             }), 200
 
-    except sqlite3.Error as e:
+    # Catch PostgreSQL errors
+    except psycopg2.Error as e:
         print(f"Database error fetching profile stats: {e}")
         return jsonify({"message": "Error fetching profile statistics"}), 500
+    except Exception as e:
+        print(f"Unexpected error fetching profile stats: {e}")
+        return jsonify({"message": "An unexpected error occurred fetching profile stats"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
 
 # --- Export Route (New) ---
 @app.route('/api/trades/export', methods=['GET'])
-# Optional: Protect with @token_required if only logged-in users should export
+@token_required # Add token requirement
 def export_trades_csv():
-    """Exports all trade data to a CSV file."""
+    """Exports all trade data to a CSV file. Intended for admin use."""
+
+    conn = None
+    cursor = None
     try:
-        conn = get_trade_db()
-        cursor = conn.cursor()
-        # Include rating in export - REMOVED 'rating' as it's not a direct column
-        cursor.execute("SELECT id, name, price, description, place, user_id, user_fullname, created_at FROM trades ORDER BY created_at DESC")
+        conn = get_db() # Use PostgreSQL connection
+        cursor = conn.cursor() # Standard cursor is fine
+        # SQL query should be compatible with PostgreSQL
+        cursor.execute("SELECT id, name, price, quantity, image, description, place, user_id, user_fullname, created_at FROM trades ORDER BY created_at DESC")
         trades = cursor.fetchall()
 
-        # Use StringIO to create CSV in memory
+        # Use StringIO to create CSV in memory (No change needed here)
         si = StringIO()
         cw = csv.writer(si)
 
-        # Write Header
+        # Write Header (No change needed here)
         column_names = [description[0] for description in cursor.description]
         cw.writerow(column_names)
 
-        # Write Data Rows
+        # Write Data Rows (No change needed here)
         cw.writerows(trades)
 
-        # Prepare response
+        # Prepare response (No change needed here)
         output = si.getvalue()
         si.close()
 
@@ -957,20 +1148,26 @@ def export_trades_csv():
                      "attachment; filename=trades_export.csv"}
         )
 
-    except sqlite3.Error as e:
+    # Catch PostgreSQL errors
+    except psycopg2.Error as e:
         print(f"Database error during CSV export: {e}")
         return jsonify({"message": "Error exporting trade data"}), 500
     except Exception as e:
         print(f"General error during CSV export: {e}")
         return jsonify({"message": "Could not generate trade export"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close() # Ensure cursor is closed
+        # Connection closed by teardown context
+        pass
 
 # --- New Trade Action Endpoints ---
 
-@app.route('/api/trades/<int:trade_id>/rate', methods=['POST'])
+@app.route('/api/cart/items/<int:cart_item_id>/rate', methods=['POST']) # MODIFIED: Route uses cart_item_id
 @token_required
-def rate_trade(trade_id):
+def rate_trade(cart_item_id): # MODIFIED: Parameter is cart_item_id
+    """Rates a specific completed order instance (cart item)."""
     data = request.get_json()
-    # Expect 'rating_score' instead of 'rating'
     if not data or 'rating_score' not in data:
         return jsonify({"message": "Rating score is required"}), 400
 
@@ -982,114 +1179,102 @@ def rate_trade(trade_id):
     except (ValueError, TypeError):
          return jsonify({"message": "Invalid rating score (must be an integer between 1 and 5)"}), 400
 
-    user_id = g.current_user['id'] # User performing the rating
+    user_id = g.current_user['id'] # User performing the rating (Buyer)
 
-    trade_conn = get_trade_db()
-    trade_cursor = trade_conn.cursor()
-    user_conn = get_user_db()
-    user_cursor = user_conn.cursor()
-
+    conn = None
+    cursor = None
     try:
-        # --- Rating Restrictions ---
-        # 1. Get seller ID from trade (trades.db)
-        trade_cursor.execute("SELECT user_id FROM trades WHERE id = ?", (trade_id,))
-        trade = trade_cursor.fetchone()
-        if not trade:
-            return jsonify({"message": "Trade not found"}), 404
-        seller_id = trade['user_id']
+        conn = get_db()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        # 2. Check if the rater is the seller (same as before)
-        if seller_id == user_id:
-            return jsonify({"message": "Sellers cannot rate their own trades"}), 403 # Forbidden
-
-        # 3. Check if the rater has a completed cart item for this trade (users.db)
-        user_cursor.execute(
-            "SELECT status FROM cart_items WHERE user_id = ? AND trade_id = ?",
-            (user_id, trade_id)
+        # --- Rating Restrictions based on Cart Item ID --- 
+        # 1. Fetch the specific cart item
+        cursor.execute(
+            "SELECT user_id, trade_id, status FROM cart_items WHERE id = %s", 
+            (cart_item_id,)
         )
-        cart_item = user_cursor.fetchone()
+        cart_item = cursor.fetchone()
 
         if not cart_item:
-            return jsonify({"message": "You have not purchased this item."}), 400 # Or 404/403?
+            return jsonify({"message": "Order item not found"}), 404
+
+        # 2. Verify the rater is the buyer for this specific cart item
+        if cart_item['user_id'] != user_id:
+            return jsonify({"message": "You can only rate orders you placed"}), 403 # Forbidden
+
+        # 3. Check if this specific order item is completed
         if cart_item['status'] != 'completed':
-            return jsonify({"message": f"You can only rate items marked as completed in your order history (current status: '{cart_item['status']}')"}), 400
+            return jsonify({"message": f"You can only rate completed orders (current status: '{cart_item['status']}')"}), 400
+
+        trade_id = cart_item['trade_id'] # Get the trade_id associated with this cart item
+
+        # 4. Optional: Double-check rater isn't the seller (unlikely if previous check passed, but safe)
+        cursor.execute("SELECT user_id FROM trades WHERE id = %s", (trade_id,))
+        trade = cursor.fetchone()
+        if not trade:
+             return jsonify({"message": "Associated trade not found (may have been deleted)"}), 404
+        
+        seller_id = trade['user_id'] # This is the ID of the user who listed the trade
+        # Optional: Double-check rater isn't the seller (already done implicitly by fetching trade)
+        if seller_id == user_id:
+             return jsonify({"message": "Sellers cannot rate their own trades/orders"}), 403
         # --- End Rating Restrictions ---
 
-        # --- Insert or Replace the rating in the 'ratings' table (trades.db) ---
-        # Note: Using trade_cursor here as ratings table is in trades.db
-        trade_cursor.execute("""
-            INSERT INTO ratings (trade_id, user_id, rating_score)
-            VALUES (?, ?, ?)
-            ON CONFLICT(trade_id, user_id) DO UPDATE SET
+        # --- Insert or Replace the rating in the 'ratings' table, including seller_id --- 
+        cursor.execute("""
+            INSERT INTO ratings (trade_id, user_id, seller_id, cart_item_id, rating_score)
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (cart_item_id) DO UPDATE SET
                 rating_score = excluded.rating_score,
+                seller_id = excluded.seller_id, -- Also update seller_id on conflict if needed
                 rated_at = CURRENT_TIMESTAMP
-        """, (trade_id, user_id, rating_score))
+        """, (trade_id, user_id, seller_id, cart_item_id, rating_score)) # Added seller_id here
         # --- End Insert/Replace ---
 
-        trade_conn.commit() # Commit on the connection where the insert happened (trades_db)
-        # Use 200 OK for simplicity, indicates the action was successful (create or update)
+        conn.commit() 
         return jsonify({"message": "Rating submitted successfully"}), 200
 
-    except sqlite3.IntegrityError as e: # Should be caught by ON CONFLICT, but good practice
-        trade_conn.rollback() # Rollback on the connection where the insert happened
-        # This specific error is less likely now with ON CONFLICT, but might catch other issues
+    # Catch PostgreSQL errors
+    except psycopg2.IntegrityError as e:
+        if conn: conn.rollback()
         print(f"Integrity error rating trade: {e}")
-        return jsonify({"message": f"Could not submit rating due to a data conflict: {e}"}), 409 # Conflict
-    except sqlite3.Error as e:
-        trade_conn.rollback()
+        # Provide a slightly more generic message to the user
+        return jsonify({"message": f"Could not submit rating due to a data conflict."}), 409
+    except psycopg2.Error as e:
+        if conn: conn.rollback()
         print(f"Database error rating trade: {e}")
         return jsonify({"message": "Database error processing rating"}), 500
     except Exception as e:
-        trade_conn.rollback()
+        if conn: conn.rollback()
         print(f"Error rating trade: {e}")
         return jsonify({"message": "Error processing rating"}), 500
-
-
-@app.route('/api/trades/<int:trade_id>/complete', methods=['POST'])
-@token_required
-def complete_trade(trade_id):
-    # Check if the logged-in user is the SELLER of the trade
-    user_id = g.current_user['id']
-    conn = get_trade_db()
-    cursor = conn.cursor()
-
-    try:
-        # Verify ownership and status before completing
-        cursor.execute("SELECT user_id FROM trades WHERE id = ?", (trade_id,)) # Removed status check
-        trade = cursor.fetchone()
-
-        if not trade:
-            return jsonify({"message": "Trade item not found"}), 404
-
-        if trade['user_id'] != user_id:
-            return jsonify({"message": "You are not authorized to complete this trade"}), 403 # Forbidden
-
-
-        # --- THIS ENDPOINT LOGIC IS INVALID and DEPRECATED ---
-        # It needs to be replaced by seller accepting an order from a specific buyer via cart_items
-
-        return jsonify({"message": "This endpoint is deprecated. Use seller order management."}), 410 # Gone
-
-    except sqlite3.Error as e:
-        conn.rollback()
-        print(f"Database error completing trade: {e}")
-        return jsonify({"message": "Database error completing trade"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
 
 # --- New endpoint to delete a trade ---
 @app.route('/api/trades/<int:trade_id>', methods=['DELETE'])
 @token_required
 def delete_trade(trade_id):
-    """Deletes a trade item if the logged-in user is the seller."""
+    """Deletes a trade item and associated cart items if the logged-in user is the seller."""
     user_id = g.current_user['id']
-    trade_conn = get_trade_db()
-    trade_cursor = trade_conn.cursor()
-    user_conn = get_user_db() # Get connection to users DB for cart cleanup
-    user_cursor = user_conn.cursor()
+    conn = None
+    cursor = None
+    deleted_cart_count = 0
+    deleted_trade_count = 0
 
     try:
-        # 1. Verify the trade exists and the current user is the seller (from trades.db)
-        trade_cursor.execute("SELECT user_id FROM trades WHERE id = ?", (trade_id,))
-        trade = trade_cursor.fetchone()
+        conn = get_db()
+        # Use DictCursor for the initial check
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # 1. Verify the trade exists and the current user is the seller
+        # Use %s placeholder
+        cursor.execute("SELECT user_id FROM trades WHERE id = %s", (trade_id,))
+        trade = cursor.fetchone()
+        cursor.close() # Close this cursor after initial check
 
         if not trade:
             return jsonify({"message": "Trade not found"}), 404
@@ -1097,75 +1282,190 @@ def delete_trade(trade_id):
         if trade['user_id'] != user_id:
             return jsonify({"message": "You are not authorized to delete this trade"}), 403 # Forbidden
 
-        # --- Database Operations ---
-        # Wrap in separate try/commit blocks as cross-db transactions are complex
 
-        # 2. Attempt to delete associated cart items (from users.db)
-        deleted_cart_count = 0
-        try:
-            user_cursor.execute("DELETE FROM cart_items WHERE trade_id = ?", (trade_id,))
-            user_conn.commit() # Commit cart item deletion
-            deleted_cart_count = user_cursor.rowcount
-            print(f"Deleted {deleted_cart_count} associated cart items for trade {trade_id}.")
-        except sqlite3.Error as user_e:
-            user_conn.rollback()
-            # Log the error but proceed with trade deletion as ownership is confirmed
-            print(f"WARNING: Database error deleting associated cart items for trade {trade_id}: {user_e}. Proceeding with trade deletion.")
+        # 2. Start Transaction and perform deletions
+        cursor = conn.cursor() # Re-open standard cursor for DELETE
 
-        # 3. Delete the trade itself (from trades.db)
-        try:
-            trade_cursor.execute("DELETE FROM trades WHERE id = ?", (trade_id,))
-            trade_conn.commit() # Commit trade deletion
-            deleted_trade_count = trade_cursor.rowcount
+        # Delete associated cart items - Use %s
+        cursor.execute("DELETE FROM cart_items WHERE trade_id = %s", (trade_id,))
+        deleted_cart_count = cursor.rowcount # Get count *before* deleting the trade
+        print(f"Deleted {deleted_cart_count} associated cart items for trade {trade_id}.")
 
-            if deleted_trade_count == 0:
-                # This shouldn't happen if initial check passed, but indicates an issue.
-                print(f"ERROR: Trade {trade_id} not found during deletion attempt after initial check.")
-                # Since cart items might have been deleted, report an error.
-                return jsonify({"message": "Trade deletion failed unexpectedly after initial check."}), 500
+        # Delete the trade itself - Use %s
+        cursor.execute("DELETE FROM trades WHERE id = %s", (trade_id,))
+        deleted_trade_count = cursor.rowcount
 
-            print(f"Trade {trade_id} deleted successfully by user {user_id}.")
-            return jsonify({"message": "Trade deleted successfully", "deleted_cart_items": deleted_cart_count}), 200
+        if deleted_trade_count == 0:
+            # This shouldn't happen if initial check passed, but indicates an issue.
+            # Rollback because the primary deletion failed.
+            conn.rollback()
+            print(f"ERROR: Trade {trade_id} not found during deletion attempt after initial check.")
+            return jsonify({"message": "Trade deletion failed unexpectedly after initial check."}), 500
 
-        except sqlite3.Error as trade_e:
-            trade_conn.rollback()
-            print(f"Database error deleting trade {trade_id} itself: {trade_e}")
-            # Report error, as the primary resource deletion failed.
-            return jsonify({"message": "Database error deleting trade"}), 500
+        # 3. Commit the transaction if both deletions were successful (or cart delete didn't error)
+        conn.commit()
 
-    except sqlite3.Error as db_e:
-        # Error during initial trade fetch/verification
-        print(f"Database error verifying trade {trade_id} for deletion: {db_e}")
-        return jsonify({"message": "Database error checking trade before deletion"}), 500
+        print(f"Trade {trade_id} deleted successfully by user {user_id}.")
+        return jsonify({"message": "Trade deleted successfully", "deleted_cart_items": deleted_cart_count}), 200
+
+    # Catch PostgreSQL errors
+    except psycopg2.Error as db_e:
+        if conn:
+            conn.rollback() # Rollback transaction on any DB error
+        print(f"Database error during trade deletion process for trade {trade_id}: {db_e}")
+        return jsonify({"message": "Database error during trade deletion"}), 500
     except Exception as e:
         # Catch any other unexpected errors
+        if conn:
+            conn.rollback()
         print(f"Unexpected error deleting trade {trade_id}: {e}")
         return jsonify({"message": "An unexpected error occurred while deleting the trade"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
+
+
+
+# --- New endpoint to UPDATE a trade ---
+@app.route('/api/trades/<int:trade_id>', methods=['PUT'])
+@token_required
+def update_trade(trade_id):
+    """Updates an existing trade item if the logged-in user is the seller."""
+    user_id = g.current_user['id']
+    conn = None
+    cursor = None
+
+    # 1. Verify the trade exists and the current user is the seller
+    try:
+        conn = get_db()
+        # Use DictCursor for initial check
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        # Use %s placeholder
+        cursor.execute("SELECT user_id FROM trades WHERE id = %s", (trade_id,))
+        trade = cursor.fetchone()
+        cursor.close() # Close this cursor after initial check
+
+        if not trade:
+            return jsonify({"message": "Trade not found"}), 404
+
+        if trade['user_id'] != user_id:
+            return jsonify({"message": "You are not authorized to update this trade"}), 403
+
+    except psycopg2.Error as e:
+        print(f"Database error verifying trade {trade_id} for update: {e}")
+        return jsonify({"message": "Database error checking trade before update"}), 500
+    # Close connection here if initial check fails? No, teardown handles it.
+
+    # 2. Get updated data from request body
+    data = request.get_json()
+    if not data:
+        return jsonify({"message": "No update data provided"}), 400
+
+    # 3. Build the SET part of the SQL query dynamically
+    fields_to_update = {}
+    allowed_fields = ['name', 'price', 'quantity', 'image', 'description', 'place']
+
+    for field in allowed_fields:
+        if field in data:
+            # Validation
+            if field == 'price':
+                try:
+                    price = float(data[field])
+                    if price < 0:
+                         return jsonify({"message": "Price cannot be negative"}), 400
+                    fields_to_update[field] = price
+                except (ValueError, TypeError):
+                    return jsonify({"message": "Invalid price format"}), 400
+            elif field == 'quantity':
+                 try:
+                    quantity = int(data[field])
+                    if quantity < 0:
+                         return jsonify({"message": "Quantity cannot be negative"}), 400
+                    fields_to_update[field] = quantity
+                 except (ValueError, TypeError):
+                    return jsonify({"message": "Invalid quantity format"}), 400
+            elif field == 'name' and not str(data[field]).strip(): # Ensure name is not empty string
+                 return jsonify({"message": "Name cannot be empty"}), 400
+            else:
+                fields_to_update[field] = data[field]
+
+    if not fields_to_update:
+        return jsonify({"message": "No valid fields provided for update"}), 400
+
+    # Construct the SET clause and parameter list using %s
+    set_clause = ", ".join([f"{field} = %s" for field in fields_to_update])
+    params = list(fields_to_update.values())
+    params.append(trade_id) # Add trade_id for the WHERE clause
+
+    sql = f"UPDATE trades SET {set_clause} WHERE id = %s"
+
+    # 4. Execute the update
+    cursor = None # Reset cursor variable
+    try:
+        # Re-use connection, get new DictCursor for fetching updated row
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute(sql, tuple(params))
+
+        if cursor.rowcount == 0:
+            # Should not happen if initial check passed, but indicates an issue.
+            conn.rollback() # Rollback just in case
+            print(f"ERROR: Trade {trade_id} update failed (rowcount 0) after initial check.")
+            return jsonify({"message": "Trade update failed unexpectedly."}), 500
+
+        # Fetch the updated trade to return it
+        cursor.execute("SELECT * FROM trades WHERE id = %s", (trade_id,))
+        updated_trade = cursor.fetchone()
+
+        # Commit transaction *after* successful update and fetch
+        conn.commit()
+
+        print(f"Trade {trade_id} updated successfully by user {user_id}.")
+        return jsonify({
+            "message": "Trade updated successfully",
+            "trade": dict(updated_trade) if updated_trade else None
+        }), 200
+
+    # Catch PostgreSQL errors
+    except psycopg2.Error as e:
+        if conn: conn.rollback()
+        print(f"Database error updating trade {trade_id}: {e}")
+        if isinstance(e, psycopg2.errors.CheckViolation):
+             return jsonify({"message": f"Data validation failed: {e}"}), 400
+        return jsonify({"message": "Database error updating trade"}), 500
+    except Exception as e:
+        if conn: conn.rollback()
+        print(f"Unexpected error updating trade {trade_id}: {e}")
+        return jsonify({"message": "An unexpected error occurred while updating the trade"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
+
+
 
 # --- New endpoint to get incoming orders for the logged-in seller ---
 @app.route('/api/profile/incoming_orders', methods=['GET'])
 @token_required
 def get_incoming_orders():
-    """Gets items listed by the seller that buyers have marked as 'ordered' in their carts."""
+    """Gets items listed by the seller that buyers have acted upon (ordered, accepted, paid).""" # Updated docstring
     seller_id = g.current_user['id']
-    # Main connection will be to users.db, we'll attach trades.db
-    user_conn = get_user_db()
-    cursor = user_conn.cursor()
-
-    # Get the absolute path for trades.db to ensure attach works reliably
-    trades_db_path = TRADE_DATABASE
-
+    conn = None
+    cursor = None
     try:
-        # Attach the trades database to the current user database connection
-        cursor.execute(f"ATTACH DATABASE ? AS trades_db", (trades_db_path,))
-        print(f"Attached trades DB: {trades_db_path}") # Debug log
+        conn = get_db()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        # Query across both databases
+        # Use standard JOINs now that all tables are in the same DB
+        # Use %s placeholder
         query = """
             SELECT
                 ci.id AS cart_item_id,
                 ci.quantity AS ordered_quantity,
-                ci.added_at AS ordered_at,
+                ci.added_at AS ordered_at, -- Might want to rename this alias if confusing
+                ci.status, -- Select the status
                 t.id AS trade_id,
                 t.name AS trade_name,
                 t.price AS trade_price,
@@ -1178,46 +1478,43 @@ def get_incoming_orders():
             FROM
                 cart_items ci
             JOIN
-                users b ON ci.user_id = b.id -- Join buyer details from users table
+                users b ON ci.user_id = b.id -- Join buyer details from users table (aliased b)
             JOIN
-                trades_db.trades t ON ci.trade_id = t.id -- Join trade details from attached trades table
+                trades t ON ci.trade_id = t.id -- Join trade details from trades table (aliased t)
             WHERE
-                t.user_id = ? -- Filter: Trade belongs to the logged-in seller
-                AND ci.status = 'ordered' -- Filter: Cart item status is 'ordered'
+                t.user_id = %s -- Filter: Trade belongs to the logged-in seller
+                -- AND ci.status = 'ordered' -- Old Filter: REMOVE OR COMMENT OUT
+                AND ci.status IN ('ordered', 'accepted', 'payment_confirmed') -- CORRECTED FILTER
             ORDER BY
                 ci.added_at DESC; -- Show newest orders first
         """
         cursor.execute(query, (seller_id,))
         incoming_orders_raw = cursor.fetchall()
+        # --- Add Logging Here --- 
+        print(f"[GET INCOMING ORDERS] Raw data fetched for seller {seller_id}: {incoming_orders_raw}")
+        # --- End Logging --- 
+
         incoming_orders = [dict(row) for row in incoming_orders_raw]
 
         # Ensure numeric types are correct (price)
         for item in incoming_orders:
             if item.get('trade_price') is not None: item['trade_price'] = float(item['trade_price'])
-            # quantity is integer
 
-        # Detach the database
-        cursor.execute("DETACH DATABASE trades_db")
-        print("Detached trades DB") # Debug log
-
+        cursor.close()
         return jsonify({"incoming_orders": incoming_orders}), 200
 
-    except sqlite3.Error as e:
-        # Ensure detachment even on error if possible
-        try:
-             cursor.execute("DETACH DATABASE trades_db")
-        except sqlite3.Error:
-             pass # Ignore error during detach if it wasn't attached or already detached
+    # Catch PostgreSQL errors
+    except psycopg2.Error as e:
         print(f"Database error fetching incoming orders: {e}")
         return jsonify({"message": "Error fetching incoming orders"}), 500
     except Exception as e:
-         # Ensure detachment even on error if possible
-        try:
-             cursor.execute("DETACH DATABASE trades_db")
-        except sqlite3.Error:
-             pass
         print(f"Unexpected error fetching incoming orders: {e}")
-        return jsonify({"message": "An unexpected error occurred while fetching incoming orders"}), 500
+        return jsonify({"message": "An unexpected error occurred fetching incoming orders"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
 
 # --- New endpoints for seller to accept/decline orders ---
 
@@ -1226,6 +1523,7 @@ def get_incoming_orders():
 def seller_accept_order():
     """Allows seller to accept an 'ordered' cart item.
        Updates cart status, increments seller's completed count, and decrements trade stock.
+       Uses a single transaction for atomicity.
     """
     seller_id = g.current_user['id']
     data = request.get_json()
@@ -1235,114 +1533,100 @@ def seller_accept_order():
 
     cart_item_id = data['cart_item_id']
 
-    user_conn = get_user_db()
-    user_cursor = user_conn.cursor()
-    trade_conn = get_trade_db()
-    trade_cursor = trade_conn.cursor()
-
+    conn = None
+    cursor = None
     try:
-        # 1. Fetch cart item and buyer ID (from users.db)
-        user_cursor.execute(
-            "SELECT user_id, trade_id, quantity, status FROM cart_items WHERE id = ?",
+        conn = get_db()
+        # Use DictCursor for easier access during checks
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # --- Initial Checks (Read-only operations) ---
+        print(f"[ACCEPT ORDER] Seller ID from token: {seller_id}") # Log seller ID from token
+        print(f"[ACCEPT ORDER] Received cart_item_id: {cart_item_id}") # Log received cart_item_id
+
+        # 1. Fetch cart item and verify status
+        cursor.execute(
+            "SELECT user_id, trade_id, quantity, status FROM cart_items WHERE id = %s",
             (cart_item_id,)
         )
-        cart_item = user_cursor.fetchone()
+        cart_item = cursor.fetchone()
 
         if not cart_item:
             return jsonify({"message": "Cart item not found"}), 404
-        if cart_item['status'] != 'ordered':
-            return jsonify({"message": f"Cart item is not in 'ordered' status (current: {cart_item['status']})"}), 400
-
+            
         trade_id = cart_item['trade_id']
         ordered_quantity = cart_item['quantity']
-        buyer_id = cart_item['user_id'] # Keep buyer_id for potential future use
+        print(f"[ACCEPT ORDER] Fetched trade_id from cart_item: {trade_id}") # Log fetched trade_id
 
-        # 2. Fetch trade details and verify seller ownership and stock (from trades.db)
-        trade_cursor.execute(
-            "SELECT user_id, quantity FROM trades WHERE id = ?",
+        # Check if the status is correct *before* fetching trade details
+        if cart_item['status'] != 'ordered':
+            return jsonify({"message": f"Cannot accept order. Current status: {cart_item['status']}"}), 400
+
+        # 2. Fetch trade details, verify seller ownership and stock
+        cursor.execute(
+            "SELECT user_id, quantity FROM trades WHERE id = %s",
             (trade_id,)
         )
-        trade = trade_cursor.fetchone()
+        trade = cursor.fetchone()
 
         if not trade:
-             # If trade was deleted after order, cart item should perhaps be cancelled?
-             # For now, return error indicating trade not found.
             return jsonify({"message": "Associated trade not found"}), 404
-        if trade['user_id'] != seller_id:
-            return jsonify({"message": "You are not authorized to manage this trade item"}), 403
+            
+        original_seller_id = trade['user_id']
+        print(f"[ACCEPT ORDER] Original seller ID from trade table: {original_seller_id}") # Log original seller_id from trade
+        
+        # Authorization check
+        if original_seller_id != seller_id:
+            print(f"[ACCEPT ORDER] Authorization failed: Token seller ({seller_id}) != Trade seller ({original_seller_id})") # Log auth failure
+            return jsonify({"message": "Not authorized to manage this item"}), 403
+        
+        # Stock check
         if trade['quantity'] < ordered_quantity:
-            # Not enough stock - maybe cancel the order automatically?
-            # For now, return error to seller. They might need to manually cancel.
             return jsonify({
-                "message": f"Insufficient stock ({trade['quantity']}) to fulfill ordered quantity ({ordered_quantity}). Decline the order."
+                "message": f"Insufficient stock ({trade['quantity']}) to fulfill ordered quantity ({ordered_quantity})."
             }), 400
 
-        # --- Perform Updates (Prioritize user DB updates) ---
 
-        # 3. Update user DB within a transaction
-        try:
-            user_conn.execute("BEGIN") # Start transaction on user_conn explicitly
+        # 3. Update cart item status to 'accepted' (was 'completed')
+        cursor.execute(
+            "UPDATE cart_items SET status = 'accepted' WHERE id = %s",
+            (cart_item_id,)
+        )
+        if cursor.rowcount == 0:
+             raise psycopg2.Error("Failed to update cart item status to accepted")
 
-            # Update cart item status to 'completed'
-            user_cursor.execute(
-                "UPDATE cart_items SET status = 'completed' WHERE id = ?",
-                (cart_item_id,)
-            )
-            if user_cursor.rowcount == 0:
-                 raise sqlite3.Error("Failed to update cart item status (rowcount 0).") # Force rollback
+        # If all updates were successful, commit the transaction
+        conn.commit()
+        print(f"Order accepted (awaiting payment) and committed for cart_item {cart_item_id} by seller {seller_id}.") # Updated log message
+        return jsonify({"message": "Order accepted successfully, awaiting payment"}), 200 # Updated success message
 
-            # Increment seller's completed count
-            user_cursor.execute(
-                "UPDATE users SET count_completed = count_completed + 1 WHERE id = ?",
-                (seller_id,)
-            )
-            if user_cursor.rowcount == 0:
-                 raise sqlite3.Error("Failed to update seller completion count (rowcount 0).") # Force rollback
-
-            user_conn.commit() # Commit user DB changes
-            print(f"User DB commit successful for accepting cart_item {cart_item_id}")
-
-        except sqlite3.Error as user_e:
-            user_conn.rollback() # Rollback user DB changes on error
-            print(f"User DB transaction failed for accepting cart_item {cart_item_id}: {user_e}")
-            return jsonify({"message": "Database error during order acceptance (user data)"}), 500
-
-        # 4. Decrement stock in trade DB (Separate commit - potential inconsistency)
-        try:
-            trade_cursor.execute(
-                "UPDATE trades SET quantity = quantity - ? WHERE id = ?",
-                (ordered_quantity, trade_id)
-            )
-            trade_conn.commit() # Commit trade DB change
-            if trade_cursor.rowcount == 0:
-                # This is bad: user updates committed, but stock failed. Log it.
-                print(f"CRITICAL ERROR: Failed to decrement stock for trade {trade_id} after cart_item {cart_item_id} was accepted.")
-                # Return success to user, but log the inconsistency.
-            else:
-                 print(f"Trade DB stock successfully decremented for trade {trade_id}")
-
-        except sqlite3.Error as trade_e:
-            trade_conn.rollback()
-            # Log critical error: User changes committed, stock decrement failed.
-            print(f"CRITICAL ERROR: Database error decrementing stock for trade {trade_id} after cart_item {cart_item_id} acceptance: {trade_e}")
-            # Return success to the user for the primary action, but log inconsistency.
-
-        print(f"Order accepted for cart_item {cart_item_id} by seller {seller_id}.")
-        return jsonify({"message": "Order accepted successfully"}), 200
-
-    except sqlite3.Error as db_e:
-        # Catch errors during initial fetches before transactions
-        print(f"Database error during initial fetch for accepting order: {db_e}")
+    # Catch ALL PostgreSQL errors during the process
+    except psycopg2.Error as db_e:
+        if conn:
+            conn.rollback() # Rollback the entire transaction on any DB error
+        print(f"Database error during order acceptance process for cart_item {cart_item_id}: {db_e}")
+        # Provide a more specific message if it's about stock mismatch (though unlikely with prior check)
+        if "Failed to decrement stock" in str(db_e):
+             return jsonify({"message": "Stock level changed before update could complete. Please try again or decline."}), 409 # Conflict
         return jsonify({"message": "Database error processing acceptance request"}), 500
     except Exception as e:
+        # Catch any other unexpected errors
+        if conn:
+            conn.rollback()
         print(f"Unexpected error accepting order: {e}")
         return jsonify({"message": "An unexpected error occurred"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
 
 @app.route('/api/seller/orders/decline', methods=['POST'])
 @token_required
 def seller_decline_order():
     """Allows seller to decline an 'ordered' cart item.
        Updates cart status to 'cancelled' and increments seller's cancelled count.
+       Uses a single transaction.
     """
     seller_id = g.current_user['id']
     data = request.get_json()
@@ -1352,115 +1636,160 @@ def seller_decline_order():
 
     cart_item_id = data['cart_item_id']
 
-    user_conn = get_user_db()
-    user_cursor = user_conn.cursor()
-    trade_conn = get_trade_db() # Still needed to check trade ownership
-    trade_cursor = trade_conn.cursor()
-
+    conn = None
+    cursor = None
     try:
-        # 1. Fetch cart item and buyer ID (from users.db)
-        user_cursor.execute(
-            "SELECT user_id, trade_id, status FROM cart_items WHERE id = ?",
+        conn = get_db()
+        # Use DictCursor for initial checks
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # --- Initial Checks ---
+        # 1. Fetch cart item and verify status
+        cursor.execute(
+            "SELECT user_id, trade_id, status FROM cart_items WHERE id = %s",
             (cart_item_id,)
         )
-        cart_item = user_cursor.fetchone()
+        cart_item = cursor.fetchone()
 
         if not cart_item:
             return jsonify({"message": "Cart item not found"}), 404
         if cart_item['status'] != 'ordered':
-            return jsonify({"message": f"Cart item is not in 'ordered' status (current: {cart_item['status']})"}), 400
+            return jsonify({"message": f"Cannot decline order. Current status: {cart_item['status']}"}), 400
 
         trade_id = cart_item['trade_id']
 
-        # 2. Verify seller ownership (from trades.db)
-        trade_cursor.execute(
-            "SELECT user_id FROM trades WHERE id = ?",
+        # 2. Verify seller ownership of the associated trade
+        cursor.execute(
+            "SELECT user_id FROM trades WHERE id = %s",
             (trade_id,)
         )
-        trade = trade_cursor.fetchone()
+        trade = cursor.fetchone()
         if not trade:
-            return jsonify({"message": "Associated trade not found"}), 404
+            # Trade might have been deleted, error out.
+            return jsonify({"message": "Associated trade {trade_id} not found"}), 404
+
         if trade['user_id'] != seller_id:
-            return jsonify({"message": "You are not authorized to manage this trade item"}), 403
+            return jsonify({"message": "You are not the seller for this item"}), 403
 
-        # 3. Update user DB within a transaction
-        try:
-            user_conn.execute("BEGIN") # Start transaction
+        # --- Perform Updates within a Transaction ---
 
-            # Update cart item status to 'cancelled'
-            user_cursor.execute(
-                "UPDATE cart_items SET status = 'cancelled' WHERE id = ?",
-                (cart_item_id,)
-            )
-            if user_cursor.rowcount == 0:
-                 raise sqlite3.Error("Failed to update cart item status (rowcount 0).") # Force rollback
+        # 3. Update cart item status to 'cancelled'
+        cursor.execute(
+            "UPDATE cart_items SET status = 'cancelled' WHERE id = %s",
+            (cart_item_id,)
+        )
+        if cursor.rowcount == 0:
+             raise psycopg2.Error("Failed to update cart item status to cancelled")
 
-            # Increment seller's cancelled count
-            user_cursor.execute(
-                "UPDATE users SET count_cancelled = count_cancelled + 1 WHERE id = ?",
-                (seller_id,)
-            )
-            if user_cursor.rowcount == 0:
-                 raise sqlite3.Error("Failed to update seller cancellation count (rowcount 0).") # Force rollback
+        # 4. Increment seller's cancelled count
+        cursor.execute(
+            "UPDATE users SET count_cancelled = count_cancelled + 1 WHERE id = %s",
+            (seller_id,)
+        )
+        if cursor.rowcount == 0:
+             raise psycopg2.Error("Failed to update seller cancellation count")
 
-            user_conn.commit() # Commit user DB changes
-            print(f"Order declined (cart_item {cart_item_id}) by seller {seller_id}. User DB commit successful.")
-            return jsonify({"message": "Order declined successfully"}), 200
+        # If updates successful, commit the transaction
+        conn.commit()
+        print(f"Order declined (cart_item {cart_item_id}) by seller {seller_id}. Transaction committed.")
+        return jsonify({"message": "Order declined successfully"}), 200
 
-        except sqlite3.Error as user_e:
-            user_conn.rollback() # Rollback user DB changes on error
-            print(f"User DB transaction failed for declining cart_item {cart_item_id}: {user_e}")
-            return jsonify({"message": "Database error during order decline (user data)"}), 500
-
-    except sqlite3.Error as db_e:
-        # Catch errors during initial fetches before transactions
-        print(f"Database error during initial fetch for declining order: {db_e}")
-        return jsonify({"message": "Database error processing decline request"}), 500
+    # Catch PostgreSQL Errors
+    except psycopg2.Error as db_e:
+        if conn:
+            conn.rollback() # Rollback transaction on error
+        print(f"Database error during order decline process for cart_item {cart_item_id}: {db_e}")
+        return jsonify({"message": "Database error during order decline"}), 500
     except Exception as e:
+        if conn:
+            conn.rollback()
         print(f"Unexpected error declining order: {e}")
         return jsonify({"message": "An unexpected error occurred"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
 
-# --- Function to export contacts to CSV (New) ---
-def export_contacts_to_csv():
-    """Fetches all contacts from contacts.db and writes them to a CSV file in the backend folder."""
-    csv_filename = os.path.join(basedir, 'contacts_export.csv')
-    print(f"Attempting to export contacts to: {csv_filename}")
+@app.route('/api/seller/orders/<int:cart_item_id>/refuse_payment', methods=['POST'])
+@token_required
+def seller_refuse_payment(cart_item_id):
+    seller_id = g.current_user['id']
 
-    conn = None # Initialize conn
+    conn = None
+    cursor = None
     try:
-        conn = get_contact_db() # Use the helper function
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, name, email, subject, message, submitted_at FROM contacts ORDER BY submitted_at DESC")
-        contacts = cursor.fetchall()
+        conn = get_db()
+        # Use DictCursor for initial checks
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        # Write to CSV
-        with open(csv_filename, 'w', newline='', encoding='utf-8') as csvfile:
-            csv_writer = csv.writer(csvfile)
-            
-            # Write Header from cursor description
-            column_names = [description[0] for description in cursor.description]
-            csv_writer.writerow(column_names)
-            
-            # Write Data Rows
-            csv_writer.writerows(contacts)
-            
-        print(f"Successfully exported {len(contacts)} contacts to {csv_filename}")
+        # --- Initial Checks ---
+        # 1. Fetch cart item and verify status
+        cursor.execute(
+            "SELECT user_id, trade_id, status FROM cart_items WHERE id = %s",
+            (cart_item_id,)
+        )
+        cart_item = cursor.fetchone()
 
-    except sqlite3.Error as e:
-        print(f"Database error during contact CSV export: {e}")
-        # Decide if you want to raise the error or just log it
-        # raise e # Optionally re-raise if the calling function should handle it
-    except IOError as e:
-        print(f"File I/O error during contact CSV export: {e}")
+        if not cart_item:
+            return jsonify({"message": "Cart item not found"}), 404
+        if cart_item['status'] != 'payment_confirmed':
+            return jsonify({"message": f"Cannot refuse payment. Current status: {cart_item['status']}"}), 400
+
+        trade_id = cart_item['trade_id']
+
+        # 2. Verify seller ownership of the associated trade
+        cursor.execute(
+            "SELECT user_id FROM trades WHERE id = %s",
+            (trade_id,)
+        )
+        trade = cursor.fetchone()
+        if not trade:
+            # Trade might have been deleted, error out.
+            return jsonify({"message": "Associated trade {trade_id} not found"}), 404
+
+        if trade['user_id'] != seller_id:
+            return jsonify({"message": "You are not the seller for this item"}), 403
+
+        # --- Perform Updates within a Transaction ---
+
+        # 3. Update cart item status to 'cancelled'
+        cursor.execute(
+            "UPDATE cart_items SET status = 'cancelled' WHERE id = %s",
+            (cart_item_id,)
+        )
+        if cursor.rowcount == 0:
+             raise psycopg2.Error("Failed to update cart item status to cancelled")
+
+        
+
+        # If updates successful, commit the transaction
+        conn.commit()
+        print(f"Payment refused (cart_item {cart_item_id}) by seller {seller_id}. Transaction committed.")
+        return jsonify({"message": "Payment refused successfully"}), 200
+
+    # Catch PostgreSQL Errors
+    except psycopg2.Error as db_e:
+        if conn:
+            conn.rollback() # Rollback transaction on error
+        print(f"Database error during payment refuse process for cart_item {cart_item_id}: {db_e}")
+        return jsonify({"message": "Database error during payment refuse"}), 500
     except Exception as e:
-        print(f"General error during contact CSV export: {e}")
-    # No finally block needed as we are not closing the connection here (app context teardown handles it)
-
+        if conn:
+            conn.rollback()
+        print(f"Unexpected error refusing payment: {e}")
+        return jsonify({"message": "An unexpected error occurred"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
 
 # --- Contact Form Submission Route (Modified) ---
 @app.route('/api/contact', methods=['POST'])
+@token_required # Keep protected
 def handle_contact_form():
-    """Handles submission from the contact form and triggers CSV export."""
+    """Handles submission from the contact form, saving to PostgreSQL."""
     data = request.get_json()
 
     if not data or not data.get('name') or not data.get('email') or not data.get('message'):
@@ -1471,42 +1800,414 @@ def handle_contact_form():
     subject = data.get('subject', '') # Subject is optional
     message = data['message']
 
-    # Basic email format check
+    # Basic email format check (keep existing)
     if '@' not in email or '.' not in email.split('@')[-1]:
          return jsonify({"message": "Invalid email format"}), 400
 
     conn = None
+    cursor = None
     try:
-        conn = get_contact_db()
+        conn = get_db()
         cursor = conn.cursor()
+        # Use %s placeholders and RETURNING id
         cursor.execute(
-            "INSERT INTO contacts (name, email, subject, message) VALUES (?, ?, ?, ?)",
+            """INSERT INTO contacts (name, email, subject, message)
+               VALUES (%s, %s, %s, %s)
+               RETURNING id""",
             (name, email, subject, message)
         )
+        # Fetch the returned id
+        contact_id_row = cursor.fetchone()
+        if contact_id_row is None:
+            raise Exception("Contact message saving failed, could not retrieve new ID.")
+        contact_id = contact_id_row[0]
+
         conn.commit()
-        contact_id = cursor.lastrowid
         print(f"Contact message received successfully with ID: {contact_id}")
 
-        # --- Trigger CSV Export --- 
-        export_contacts_to_csv() # Call the export function after successful insert
-        # --- End Trigger --- 
+        return jsonify({"message": "Contact message received successfully.", "contactId": contact_id}), 201
 
-        return jsonify({"message": "Contact message received successfully", "contactId": contact_id}), 201 # 201 Created
-
-    except sqlite3.Error as e:
+    # Catch PostgreSQL errors
+    except (Exception, psycopg2.DatabaseError) as e:
         if conn:
             conn.rollback()
         print(f"Database error saving contact message: {e}")
         return jsonify({"message": "Database error saving message"}), 500
-    except Exception as e:
-        if conn:
-            conn.rollback()
-        print(f"Unexpected error saving contact message: {e}")
-        return jsonify({"message": "An unexpected error occurred saving the message"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
 
+# --- Function to export contacts to CSV (Refactored for Download) ---
+def export_contacts_to_csv_string():
+    """Fetches all contacts from contacts table and returns them as a CSV string."""
+    conn = None
+    cursor = None
+    try:
+        conn = get_db()
+        cursor = conn.cursor() # Standard cursor is fine
+        cursor.execute("SELECT id, name, email, subject, message, submitted_at FROM contacts ORDER BY submitted_at DESC")
+        contacts = cursor.fetchall()
+
+        # Use StringIO to create CSV in memory
+        si = StringIO()
+        cw = csv.writer(si)
+
+        # Write Header
+        if cursor.description:
+            column_names = [desc[0] for desc in cursor.description]
+            cw.writerow(column_names)
+        else: # Handle case with no contacts/columns
+            cw.writerow(['id', 'name', 'email', 'subject', 'message', 'submitted_at']) # Default header
+
+        # Write Data Rows
+        if contacts:
+            cw.writerows(contacts)
+
+        output = si.getvalue()
+        si.close()
+        print(f"Generated CSV string for {len(contacts)} contacts.")
+        return output
+
+    # Catch PostgreSQL errors
+    except psycopg2.Error as e:
+        print(f"Database error during contact CSV generation: {e}")
+        raise # Re-raise the error to be handled by the route
+    except Exception as e:
+        print(f"General error during contact CSV generation: {e}")
+        raise # Re-raise the error
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
+
+# --- New route for downloading contacts CSV ---
+@app.route('/api/contacts/export', methods=['GET'])
+@token_required # Protect this route (add admin role check later if needed)
+def download_contacts_export():
+    """Provides contact form submissions as a downloadable CSV file."""
+    try:
+        csv_data = export_contacts_to_csv_string() # Call the refactored function
+        return Response(
+            csv_data,
+            mimetype="text/csv",
+            headers={"Content-disposition":
+                     "attachment; filename=contact_submissions.csv"}
+        )
+    except Exception as e:
+        # Error messages already printed in export_contacts_to_csv_string
+        return jsonify({"message": "Failed to generate contact export"}), 500
+
+# --- New endpoint to UPDATE user payment info --- 
+@app.route('/api/profile/payment', methods=['PUT'])
+@token_required
+def update_payment_info():
+    """Updates the payment information for the logged-in user."""
+    user_id = g.current_user['id']
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"message": "No update data provided"}), 400
+
+    # Fields allowed for update
+    allowed_fields = ['bank_name', 'bank_account_number', 'bank_account_name']
+    fields_to_update = {}
+    
+    # Validate and collect provided fields
+    for field in allowed_fields:
+        if field in data:
+            # Basic validation: Treat empty strings as NULL/None perhaps?
+            # Or enforce non-empty if needed.
+            # For now, just accept the string value provided.
+            value = data[field]
+            if isinstance(value, str):
+                fields_to_update[field] = value.strip() if value.strip() else None
+            else:
+                 fields_to_update[field] = None # Set to null if not a string
+
+    if not fields_to_update: # Check if any valid fields were provided
+        return jsonify({"message": "No valid payment fields provided for update"}), 400
+
+    # Construct the SET clause and parameter list using %s
+    set_clause = ", ".join([f"{field} = %s" for field in fields_to_update])
+    params = list(fields_to_update.values())
+    params.append(user_id) # Add user_id for the WHERE clause
+
+    sql = f"UPDATE users SET {set_clause} WHERE id = %s RETURNING id, fullname, email, bank_name, bank_account_number, bank_account_name"
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute(sql, tuple(params))
+
+        if cursor.rowcount == 0:
+            conn.rollback()
+            return jsonify({"message": "User update failed (user not found?)"}), 500
+        
+        updated_user_info = cursor.fetchone()
+        conn.commit()
+        
+        print(f"Payment info updated successfully for user {user_id}.")
+        return jsonify({
+            "message": "Payment information updated successfully",
+            # Return the updated fields
+            "payment_info": dict(updated_user_info) if updated_user_info else None 
+        }), 200
+
+    except psycopg2.Error as e:
+        if conn: conn.rollback()
+        print(f"Database error updating payment info for user {user_id}: {e}")
+        return jsonify({"message": "Database error updating payment information"}), 500
+    except Exception as e:
+        if conn: conn.rollback()
+        print(f"Unexpected error updating payment info for user {user_id}: {e}")
+        return jsonify({"message": "An unexpected error occurred"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
+
+# --- New endpoint to get full user profile data ---
+@app.route('/api/profile', methods=['GET'])
+@token_required
+def get_user_profile():
+    """Returns the full profile data for the logged-in user."""
+    # The token_required decorator has already fetched the user data including payment info
+    # and stored it in g.current_user
+    if not hasattr(g, 'current_user') or not g.current_user:
+        return jsonify({"message": "Failed to retrieve user data from context"}), 500
+    
+    # Convert DictRow to a regular dictionary for JSON serialization
+    user_data = dict(g.current_user)
+    
+    # We might want to exclude the password hash if it was somehow included
+    # (Although the current query in token_required doesn't fetch it)
+    user_data.pop('password', None) 
+
+    return jsonify({"user_profile": user_data}), 200
+
+# --- New endpoint for buyer to confirm payment --- 
+@app.route('/api/cart/items/<int:cart_item_id>/confirm-payment', methods=['POST'])
+@token_required
+def buyer_confirm_payment(cart_item_id):
+    buyer_id = g.current_user['id']
+    conn = None
+    cursor = None
+    try:
+        conn = get_db()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # Check if cart item exists, belongs to the user, and is in 'accepted' status
+        cursor.execute(
+            "SELECT id, user_id, trade_id, status FROM cart_items WHERE id = %s", 
+            (cart_item_id,)
+        )
+        cart_item = cursor.fetchone()
+
+        if not cart_item:
+            return jsonify({"message": "Order item not found"}), 404
+        if cart_item['user_id'] != buyer_id:
+            return jsonify({"message": "Not authorized to update this item"}), 403
+        if cart_item['status'] != 'accepted':
+            return jsonify({"message": f"Order cannot be marked as paid. Current status: {cart_item['status']}"}), 400
+
+        # Update status to 'payment_confirmed'
+        cursor.execute(
+            "UPDATE cart_items SET status = 'payment_confirmed' WHERE id = %s",
+            (cart_item_id,)
+        )
+
+        if cursor.rowcount == 0:
+            raise psycopg2.Error("Failed to update cart item status to payment_confirmed")
+
+        conn.commit()
+        print(f"Payment confirmed by buyer {buyer_id} for cart item {cart_item_id}")
+        return jsonify({"message": "Payment confirmed successfully. Awaiting seller completion."}), 200
+
+    except psycopg2.Error as e:
+        if conn: conn.rollback()
+        print(f"DB Error confirming payment for {cart_item_id}: {e}")
+        return jsonify({"message": "Database error confirming payment"}), 500
+    except Exception as e:
+        if conn: conn.rollback()
+        print(f"Error confirming payment for {cart_item_id}: {e}")
+        return jsonify({"message": "An error occurred"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+
+# --- New endpoint for seller to complete an order --- 
+@app.route('/api/seller/orders/<int:cart_item_id>/complete', methods=['POST'])
+@token_required
+def seller_complete_payment(cart_item_id):
+    seller_id = g.current_user['id']
+    conn = None
+    cursor = None
+    try:
+        conn = get_db()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # 1. Fetch cart item and associated trade to verify seller and status
+        cursor.execute(
+            """SELECT ci.id, ci.status, ci.trade_id, ci.quantity, t.user_id AS seller_user_id
+               FROM cart_items ci
+               JOIN trades t ON ci.trade_id = t.id
+               WHERE ci.id = %s""",
+            (cart_item_id,)
+        )
+        order_info = cursor.fetchone()
+
+        if not order_info:
+            return jsonify({"message": "Order item not found"}), 404
+        if order_info['seller_user_id'] != seller_id:
+            return jsonify({"message": "You are not the seller for this item"}), 403
+        if order_info['status'] != 'payment_confirmed':
+            return jsonify({"message": f"Cannot complete payment. Status must be 'payment_confirmed'. Current: {order_info['status']}"}), 400
+
+        # Extract needed info for stock update
+        trade_id = order_info['trade_id']
+        ordered_quantity = order_info['quantity']
+
+        # --- Start Transaction ---
+        # 2. Update cart item status to 'completed'
+        cursor.execute(
+            "UPDATE cart_items SET status = 'completed' WHERE id = %s",
+            (cart_item_id,)
+        )
+        if cursor.rowcount == 0:
+            raise psycopg2.Error("Failed to update cart item status to completed")
+
+        # 3. Increment seller's completed count
+        cursor.execute(
+            "UPDATE users SET count_completed = count_completed + 1 WHERE id = %s",
+            (seller_id,)
+        )
+        if cursor.rowcount == 0:
+            raise psycopg2.Error("Failed to update seller completion count")
+
+        # 4. Decrement stock in trade DB
+        cursor.execute(
+            "UPDATE trades SET quantity = quantity - %s WHERE id = %s",
+            (ordered_quantity, trade_id)
+        )
+        if cursor.rowcount == 0:
+            # This implies the trade was deleted between fetching order_info and this update, which is unlikely but possible.
+            raise psycopg2.Error(f"Failed to decrement stock for trade {trade_id} (rowcount 0). Trade might have been deleted.")
+        
+        # --- Commit Transaction ---
+        conn.commit()
+
+        print(f"Order {cart_item_id} marked as completed by seller {seller_id}")
+        return jsonify({"message": "Payment completed successfully!"}), 200
+
+    except psycopg2.Error as e:
+        if conn: conn.rollback()
+        print(f"DB Error completing payment {cart_item_id}: {e}")
+        return jsonify({"message": "Database error completing payment"}), 500
+    except Exception as e:
+        if conn: conn.rollback()
+        print(f"Unexpected error completing payment: {e}")
+        return jsonify({"message": "An unexpected error occurred"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
+        # Connection closed by teardown context
+        pass
+
+# --- New endpoint to get seller payment info for QR code --- 
+@app.route('/api/cart/items/<int:cart_item_id>/seller-payment-info', methods=['GET']) # MODIFIED: Route uses cart_item_id
+@token_required # Buyer needs to be logged in to request this
+def get_seller_payment_info(cart_item_id): # MODIFIED: Parameter is cart_item_id
+    """Gets seller payment info based on a specific cart item ID.
+       Verifies the requester is the buyer for this cart item.
+    """
+    buyer_id = g.current_user['id'] # Get logged-in user ID
+    conn = None
+    cursor = None
+    try:
+        conn = get_db()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        # MODIFIED: Fetch cart item first to get trade_id and verify buyer
+        cursor.execute(
+            "SELECT user_id, trade_id FROM cart_items WHERE id = %s", 
+            (cart_item_id,)
+        )
+        cart_item = cursor.fetchone()
+
+        if not cart_item:
+            return jsonify({"message": "Order item not found"}), 404
+        
+        # MODIFIED: Verify the requester is the buyer
+        if cart_item['user_id'] != buyer_id:
+            return jsonify({"message": "Not authorized to view payment info for this order"}), 403
+            
+        trade_id = cart_item['trade_id'] # Get trade_id from cart item
+
+        # Fetch seller ID from trade (using the retrieved trade_id)
+        cursor.execute("SELECT user_id FROM trades WHERE id = %s", (trade_id,))
+        trade = cursor.fetchone()
+        if not trade:
+            # This could happen if the trade was deleted after the cart item was created
+            return jsonify({"message": f"Associated trade (ID: {trade_id}) not found"}), 404 
+        seller_id = trade['user_id']
+
+        # Fetch seller payment details from users table
+        cursor.execute(
+            "SELECT bank_name, bank_account_number, bank_account_name FROM users WHERE id = %s",
+            (seller_id,)
+        )
+        seller_info = cursor.fetchone()
+
+        if not seller_info:
+            # Should not happen if trade exists, but good to check
+            return jsonify({"message": "Seller information not found"}), 404
+            
+        # Check if seller has provided necessary info
+        bank_name = seller_info['bank_name']
+        account_no = seller_info['bank_account_number']
+        account_name = seller_info['bank_account_name']
+
+        if not bank_name or not account_no: # Account name is optional for VietQR link but good to have
+             return jsonify({"message": "Seller has not provided complete payment information (Bank Name and Account Number required)."}), 404 # 404 or maybe 400?
+
+        # Map bank name to VietQR Bank ID
+        bank_id = VIETQR_BANK_MAP.get(bank_name)
+        if not bank_id:
+            print(f"Warning: Bank name '{bank_name}' not found in VIETQR_BANK_MAP for seller {seller_id}")
+            # Return a specific error or try to proceed without BANK_ID? VietQR needs it.
+            return jsonify({"message": f"Payment setup error: Bank '{bank_name}' is not supported for QR generation."}), 400
+            
+        # Return the necessary info
+        return jsonify({
+            "bank_id": bank_id,
+            "account_number": account_no,
+            "account_name": account_name or "" # Return empty string if None
+        }), 200
+
+    except psycopg2.Error as e:
+        print(f"DB Error getting seller payment info for trade {trade_id}: {e}")
+        return jsonify({"message": "Database error retrieving seller payment info"}), 500
+    except Exception as e:
+        print(f"Error getting seller payment info for trade {trade_id}: {e}")
+        return jsonify({"message": "An error occurred retrieving seller payment info"}), 500
+    finally:
+        if cursor is not None:
+            cursor.close()
 
 # --- Main execution block ---
 if __name__ == '__main__':
-    init_db() # Initialize DBs on startup
-    print(f"SECRET_KEY in use: {app.config['SECRET_KEY'][:5]}... (Check console warning if this is the default key!)")
-    app.run(debug=True, port=5000) 
+    # Now run the app
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=True)
+
+# Add this Flask CLI command to initialize the database
+@app.cli.command('init-db')
+def init_db_command():
+    """Creates the database tables."""
+    init_db()
+    print('Initialized the database.') 

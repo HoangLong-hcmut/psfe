@@ -35,7 +35,7 @@ if (signUpForm) {
 
         try {
             // Use the full URL to your running Flask backend
-            const response = await fetch('http://127.0.0.1:5000/api/register', {
+            const response = await fetch('http://127.0.0.1:8080/api/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ if (signUpForm) {
                 console.log('Sign up successful!', result);
                 
                 // Show success message
-                alert('Sign up successful! Redirecting you to login...');
+                alert('Sign up successfully!');
                 
                 // Clear the form
                 signUpForm.reset();

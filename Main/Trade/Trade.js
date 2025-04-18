@@ -8,7 +8,7 @@ let debounceTimer;
 // --- Centralized Fetching and Displaying --- 
 const fetchAndDisplayProducts = () => {
     // Build the API URL with query parameters
-    let apiUrl = 'http://127.0.0.1:5000/api/trades?';
+    let apiUrl = 'http://127.0.0.1:8080/api/trades?';
     const params = [];
     if (currentSearch) {
         params.push(`search=${encodeURIComponent(currentSearch)}`);
@@ -86,7 +86,7 @@ const showNotification = (message, type = 'success', duration = 5000) => { // In
         // Use transitionend event for smoother removal, or fallback to timeout
         notification.addEventListener('transitionend', () => notification.remove(), { once: true });
         // Fallback timeout in case transitionend doesn't fire (e.g., if transition is interrupted)
-        setTimeout(() => notification.remove(), 600); 
+        setTimeout(() => notification.remove(), 1000); 
     };
 
     closeButton.addEventListener('click', closeNotification);
@@ -123,31 +123,14 @@ const addDataToHTML = () => {
             newProduct.dataset.productId = product.id;
 
             // Format price safely
-            const formattedPrice = typeof product.price === 'number' ? '$' + product.price.toFixed(2) : product.price;
+            const formattedPrice = typeof product.price === 'number' ? product.price.toFixed(0) + ' VND' : product.price;
             // Generate average rating stars
             const ratingHTML = generateStars(product.rating);
 
             // --- Rating Input Logic ---
             let ratingInputHTML = '';
-            if (loggedInUserId &&
-                product.status === 'completed' &&
-                product.seller_id !== loggedInUserId &&
-                product.current_user_rating_score === null)
-            {
-                // User can rate this completed trade
-                ratingInputHTML = `
-                    <div class="rate-trade-controls" data-trade-id="${product.id}">
-                        <span>Rate this trade:</span>
-                        <div class="rating-stars-input">
-                            <i class='bx bx-star rate-star' data-value="1"></i>
-                            <i class='bx bx-star rate-star' data-value="2"></i>
-                            <i class='bx bx-star rate-star' data-value="3"></i>
-                            <i class='bx bx-star rate-star' data-value="4"></i>
-                            <i class='bx bx-star rate-star' data-value="5"></i>
-                        </div>
-                    </div>
-                `;
-            } else if (product.current_user_rating_score !== null) {
+            // Keep the block that displays the existing rating if available
+            if (product.current_user_rating_score !== null) {
                  // User has already rated this trade
                  ratingInputHTML = `<div class="already-rated">You rated: ${generateStars(product.current_user_rating_score)}</div>`;
             }
@@ -161,7 +144,7 @@ const addDataToHTML = () => {
                     ${ratingInputHTML}
                     <p class="price">Unit Price: ${formattedPrice}</p>
                     <p class="quantity-display">Quantity: ${product.quantity}</p>
-                    ${product.description ? `<p class="description">${product.description}</p>` : ''}
+                    ${product.description ? `<p class="description">Description: ${product.description}</p>` : ''}
                     ${product.place ? `<p class="place"><i class='bx bx-map-pin'></i> ${product.place}</p>` : ''}
                     <div class="card-footer">
                          ${product.business_name ? `<span><i class='bx bx-store-alt'></i> ${product.business_name} ${product.seller_average_rating !== null ? '<span class="seller-rating-display">' + generateStars(product.seller_average_rating) + '</span>' : '<span class="no-rating">(Not Rated)</span>'}</span>` : ''}
@@ -270,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Search button element not found!");
     }
 
-
     // --- Sort Handling (Update options) ---
     const sortDropdown = document.querySelector('.sort-dropdown');
     const sortBtn = document.querySelector('.sort-btn');
@@ -281,31 +263,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         sortOptions.forEach(option => {
             option.addEventListener('click', function() {
-                const sortType = this.dataset.sort; // e.g., 'name', 'price', 'business_name', 'place'
+                // Read the new data attributes
+                const sortBy = this.dataset.sortBy;
+                const sortOrder = this.dataset.sortOrder;
 
-                // Update sortBy based on button clicked
-                // Assuming default 'asc' order
-                switch(sortType) {
-                    case 'name':
-                        currentSortBy = 'name';
-                        break;
-                    case 'price':
-                        currentSortBy = 'price';
-                        break;
-                    case 'business_name': // Match backend parameter
-                         currentSortBy = 'business_name';
-                         break;
-                    case 'place': // Added sort by place
-                        currentSortBy = 'place';
-                        break;
-                    default:
-                         currentSortBy = 'name';
-                         break;
+                // Update the current sorting state if attributes exist
+                if (sortBy && sortOrder) {
+                    currentSortBy = sortBy;
+                    currentSortOrder = sortOrder;
+                    console.log(`Sorting by: ${currentSortBy}, Order: ${currentSortOrder}`); // Debug log
+
+                    // Close dropdown and fetch new data
+                    sortDropdown.classList.remove('active');
+                    fetchAndDisplayProducts();
+                } else {
+                    console.error("Sort attributes not found on button:", this);
                 }
-                currentSortOrder = 'asc'; // Reset to asc for simplicity, or implement toggle
-
-                sortDropdown.classList.remove('active');
-                fetchAndDisplayProducts();
             });
         });
 
@@ -325,7 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error("Sort elements not found!");
     }
-
 
     // --- Add Product Handling (Include description and place) ---
     const addTradeForm = document.getElementById('add-trade-form');
@@ -376,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/trades', {
+                const response = await fetch('http://127.0.0.1:8080/api/trades', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -397,7 +369,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 fetchAndDisplayProducts();
                 addTradeForm.reset();
-                alert('Your trade item has been added successfully!');
+                showNotification('Your trade item has been added successfully!', 'success');
+                
+                // Hide the form container
+                const formContainer = document.getElementById('formVisible') || document.getElementById('formHidden');
+                if (formContainer) {
+                    formContainer.style.display = 'none';
+                    formContainer.id = 'formHidden';
+                }
 
             } catch (error) {
                 console.error('Error adding trade:', error);
@@ -409,16 +388,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Export CSV Button Handler (New) ---
-    const exportBtn = document.getElementById('export-csv-btn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', () => {
-            // Construct the full URL for the export endpoint
-            const exportUrl = 'http://127.0.0.1:5000/api/trades/export';
-            // Trigger download by navigating to the URL
-            window.location.href = exportUrl;
+    const exportTradesBtn = document.getElementById('export-csv-btn');
+    if (exportTradesBtn) {
+        exportTradesBtn.addEventListener('click', async () => {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                // Use showNotification if available and preferred
+                alert('Please log in to export trades.');
+                return;
+            }
+
+            console.log("Attempting to export trades...");
+            try {
+                const response = await fetch('http://127.0.0.1:8080/api/trades/export', { // Correct endpoint
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    // Handle the file download
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    // Get filename from Content-Disposition header or use default
+                    const disposition = response.headers.get('content-disposition');
+                    let filename = 'trades_export.csv'; // Default filename for trades
+                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        const filenameRegex = /filename[^;=\n]*=((['"])(?<filename>.*?)\2|(?<filename>[^;\n]*))/i;
+                        const matches = filenameRegex.exec(disposition);
+                        if (matches != null && matches.groups && matches.groups.filename) {
+                            filename = matches.groups.filename.replace(/['\"]/g, '');
+                        }
+                    }
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(downloadUrl); // Clean up
+                    console.log("Trade export download initiated.");
+                } else {
+                    // Handle errors (e.g., 403 Forbidden if not admin, 500 Internal Server Error)
+                    const errorData = await response.json();
+                    console.error('Export failed:', response.status, errorData);
+                    alert(`Error exporting trades: ${errorData.message || response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Error during trade export fetch:', error);
+                alert('An unexpected error occurred during export.');
+            }
         });
-    } else {
-        console.error("Export CSV button not found!");
     }
 
     // --- Header Scroll Behavior (Keep as is or adapt if needed) ---
@@ -488,13 +509,6 @@ const addToCartHandler = async (tradeId, quantity) => {
         return;
     }
 
-    // --- Check if requested quantity exceeds available quantity --- 
-    if (quantity > product.quantity) {
-        showNotification(`You cannot add more items than available (Available: ${product.quantity}).`, 'warning');
-        return; 
-    }
-    // --- End quantity check ---
-
     // --- Prevent seller from adding own item --- 
     if (loggedInUserId && product.seller_id === loggedInUserId) {
         showNotification('You cannot add your own listing to the cart.', 'warning');
@@ -502,10 +516,17 @@ const addToCartHandler = async (tradeId, quantity) => {
     }
     // --- End prevention check --- 
 
+    // --- Check if requested quantity exceeds available quantity --- 
+    if (quantity > product.quantity) {
+        showNotification(`You cannot add more items than available (Available: ${product.quantity}).`, 'warning');
+        return; 
+    }
+    // --- End quantity check ---
+
     const productName = product.name || 'Item'; // Fallback name
 
     try {
-        const response = await fetch('http://127.0.0.1:5000/api/cart', {
+        const response = await fetch('http://127.0.0.1:8080/api/cart', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -534,7 +555,7 @@ async function submitRating(tradeId, ratingValue, token) {
     // Maybe add a loading indicator near the stars?
     console.log(`Submitting rating: ${ratingValue} for trade ID: ${tradeId}`); 
     try {
-        const response = await fetch(`http://127.0.0.1:5000/api/trades/${tradeId}/rate`, { 
+        const response = await fetch(`http://127.0.0.1:8080/api/trades/${tradeId}/rate`, { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -559,26 +580,6 @@ async function submitRating(tradeId, ratingValue, token) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const addNewTradeBtn = document.getElementById('add-new-trade-btn'); // Button to open the form
-    const addTradeFormContainer = document.getElementById('add-trade-form-container'); // Form container
-
-    if (addNewTradeBtn && addTradeFormContainer) {
-        addNewTradeBtn.addEventListener('click', () => {
-            // Toggle the 'hidden' and 'visible' classes
-            if (addTradeFormContainer.classList.contains('hidden')) {
-                addTradeFormContainer.classList.remove('hidden');
-                addTradeFormContainer.classList.add('visible');
-            } else {
-                addTradeFormContainer.classList.remove('visible');
-                addTradeFormContainer.classList.add('hidden');
-            }
-        });
-    } else {
-        console.error("Add New Trade button or form container not found!");
-    }
-});
-
 function toggleForm() {
     const div = document.getElementById("formHidden") || document.getElementById("formVisible");
 
@@ -589,82 +590,5 @@ function toggleForm() {
       div.style.display = "none";
       div.id = "formHidden";
     }
-  }
-
-
-  const container = document.querySelector('.container');
-const LoginLink = document.querySelector('.SignInLink');
-const RegisterLink = document.querySelector('.SignUpLink');
-
-if (RegisterLink && container) {
-    RegisterLink.addEventListener('click', () => {
-        container.classList.add('active');
-    });
 }
-
-if (LoginLink && container) {
-    LoginLink.addEventListener('click', () => {
-        container.classList.remove('active');
-    });
-}
-
-// --- Added Form Submission Logic ---
-const loginForm = document.querySelector('.form-box form'); // Target the form within .form-box
-const usernameInput = document.getElementById('username');
-const passwordInput = document.getElementById('password');
-
-if (loginForm) {
-    loginForm.addEventListener('submit', async (event) => {
-        event.preventDefault(); // Prevent default form submission
-
-        const username = usernameInput.value;
-        const password = passwordInput.value;
-
-        // Basic client-side check
-        if (!username || !password) {
-            console.error('Login Error: Please enter both username (email) and password.');
-            // TODO: Show user-friendly message in the UI
-            alert('Please enter both username (email) and password.');
-            return;
-        }
-
-        try {
-            // Use the full URL to your running Flask backend
-            const response = await fetch('http://127.0.0.1:5000/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }), // 'username' field holds email
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.token) {
-                console.log('Login successful!', result);
-                // --- Store the JWT in localStorage ---
-                localStorage.setItem('authToken', result.token);
-                // Optionally store user info too, but token is key
-                if(result.user) {
-                    localStorage.setItem('userInfo', JSON.stringify(result.user));
-                }
-
-                // --- Redirect to a protected page (e.g., profile) ---
-                // You'll need to create profile.html
-                window.location.href = '../Profile/profile.html'; // Adjust path if needed
-            } else {
-                console.error('Login failed:', result.message || 'Invalid credentials');
-                 // TODO: Show user-friendly error message in the UI
-                alert(`Login failed: ${result.message || 'Invalid credentials'}`);
-            }
-        } catch (error) {
-            console.error('Login error during fetch:', error);
-             // TODO: Show user-friendly error message in the UI
-            alert('An error occurred during login. Please check the console and try again.');
-        }
-    });
-} else {
-    console.error('Login form not found!');
-}
-
 
