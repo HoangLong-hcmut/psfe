@@ -8,7 +8,7 @@ let debounceTimer;
 // --- Centralized Fetching and Displaying --- 
 const fetchAndDisplayProducts = () => {
     // Build the API URL with query parameters
-    let apiUrl = 'http://127.0.0.1:8080/api/trades?';
+    let apiUrl = `${API_BASE_URL}/api/trades?`;
     const params = [];
     if (currentSearch) {
         params.push(`search=${encodeURIComponent(currentSearch)}`);
@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                const response = await fetch('http://127.0.0.1:8080/api/trades', {
+                const response = await fetch(`${API_BASE_URL}/api/trades`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.log("Attempting to export trades...");
             try {
-                const response = await fetch('http://127.0.0.1:8080/api/trades/export', { // Correct endpoint
+                const response = await fetch(`${API_BASE_URL}/api/trades/export`, { // Correct endpoint
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -526,7 +526,7 @@ const addToCartHandler = async (tradeId, quantity) => {
     const productName = product.name || 'Item'; // Fallback name
 
     try {
-        const response = await fetch('http://127.0.0.1:8080/api/cart', {
+        const response = await fetch(`${API_BASE_URL}/api/cart`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -555,7 +555,7 @@ async function submitRating(tradeId, ratingValue, token) {
     // Maybe add a loading indicator near the stars?
     console.log(`Submitting rating: ${ratingValue} for trade ID: ${tradeId}`); 
     try {
-        const response = await fetch(`http://127.0.0.1:8080/api/trades/${tradeId}/rate`, { 
+        const response = await fetch(`${API_BASE_URL}/api/trades/${tradeId}/rate`, { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

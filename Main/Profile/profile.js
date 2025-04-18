@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Updating trade ${tradeId} with data:`, updatedData);
 
         try {
-            const response = await fetch(`http://127.0.0.1:8080/api/trades/${tradeId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/trades/${tradeId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -330,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Fetch full profile data from the new endpoint
-            const response = await fetch('http://127.0.0.1:8080/api/profile', { // Changed endpoint
+            const response = await fetch(`${API_BASE_URL}/api/profile`, { // Changed endpoint
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'
@@ -425,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Fetch User Listings --- (Separate function)
     async function fetchListingsData(token) {
         try {
-            const response = await fetch('http://127.0.0.1:8080/api/profile/stats', { // Keep using stats endpoint for listings
+            const response = await fetch(`${API_BASE_URL}/api/profile/stats`, { // Keep using stats endpoint for listings
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'
@@ -490,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Optional: Add more validation here if needed
 
             try {
-                const response = await fetch('http://127.0.0.1:8080/api/profile/payment', {
+                const response = await fetch(`${API_BASE_URL}/api/profile/payment`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -536,7 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cartSection = document.querySelector('.profile-cart');
 
         try {
-            const cartResponse = await fetch('http://127.0.0.1:8080/api/cart', {
+            const cartResponse = await fetch(`${API_BASE_URL}/api/cart`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!cartResponse.ok) {
@@ -563,7 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const incomingOrdersSection = document.querySelector('.profile-incoming-orders');
 
         try {
-            const response = await fetch('http://127.0.0.1:8080/api/profile/incoming_orders', {
+            const response = await fetch(`${API_BASE_URL}/api/profile/incoming_orders`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!response.ok) {
@@ -809,7 +809,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function removeCartItem(cartItemId, token) {
         const errorDiv = document.getElementById('error'); // To show potential errors
         try {
-            const response = await fetch(`http://127.0.0.1:8080/api/cart/items/${cartItemId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/cart/items/${cartItemId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -834,7 +834,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function removeListing(tradeId, token) {
         const errorDiv = document.getElementById('error');
         try {
-            const response = await fetch(`http://127.0.0.1:8080/api/trades/${tradeId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/trades/${tradeId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -857,7 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const errorDiv = document.getElementById('error');
         console.log(`Submitting rating: ${ratingValue} for cart item ID: ${cartItemId}`); // Debug log
         try {
-            const response = await fetch(`http://127.0.0.1:8080/api/cart/items/${cartItemId}/rate`, {
+            const response = await fetch(`${API_BASE_URL}/api/cart/items/${cartItemId}/rate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -897,7 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`http://127.0.0.1:8080/api/cart/items/${cartItemId}/order`, {
+            const response = await fetch(`${API_BASE_URL}/api/cart/items/${cartItemId}/order`, {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${token}`,
@@ -936,7 +936,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function acceptIncomingOrder(cartItemId, token) {
         console.log(`Entering acceptIncomingOrder for cartItemId: ${cartItemId}`); // Log 3: Function entered
         try {
-            const response = await fetch(`http://127.0.0.1:8080/api/seller/orders/accept`, {
+            const response = await fetch(`${API_BASE_URL}/api/seller/orders/accept`, {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${token}`,
@@ -968,7 +968,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function declineIncomingOrder(cartItemId, token) {
         try {
-            const response = await fetch(`http://127.0.0.1:8080/api/seller/orders/decline`, {
+            const response = await fetch(`${API_BASE_URL}/api/seller/orders/decline`, {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${token}`,
@@ -1000,7 +1000,7 @@ document.addEventListener('DOMContentLoaded', () => {
         paymentModal.style.display = 'block';
 
         try {
-            const response = await fetch(`http://127.0.0.1:8080/api/cart/items/${cartItemId}/seller-payment-info`, {
+            const response = await fetch(`${API_BASE_URL}/api/cart/items/${cartItemId}/seller-payment-info`, {
                  headers: { 'Authorization': `Bearer ${token}` }
             });
             const sellerInfo = await response.json();
@@ -1065,7 +1065,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 confirmPaymentButton.disabled = true; // Prevent double clicks
 
                 // --- Add backend base URL --- 
-                const response = await fetch(`http://127.0.0.1:8080/api/cart/items/${currentCartItemIdForPayment}/confirm-payment`, {
+                const response = await fetch(`${API_BASE_URL}/api/cart/items/${currentCartItemIdForPayment}/confirm-payment`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -1100,7 +1100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function completeIncomingOrder(cartItemId, token) {
         try {
             // --- Add backend base URL --- 
-            const response = await fetch(`http://127.0.0.1:8080/api/seller/orders/${cartItemId}/complete`, {
+            const response = await fetch(`${API_BASE_URL}/api/seller/orders/${cartItemId}/complete`, {
                  method: 'POST',
                  headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -1124,7 +1124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function refuseIncomingOrder(cartItemId, token) {
         try {
             // --- Add backend base URL --- 
-            const response = await fetch(`http://127.0.0.1:8080/api/seller/orders/${cartItemId}/refuse_payment`, {
+            const response = await fetch(`${API_BASE_URL}/api/seller/orders/${cartItemId}/refuse_payment`, {
                  method: 'POST',
                  headers: { 'Authorization': `Bearer ${token}` }
             });

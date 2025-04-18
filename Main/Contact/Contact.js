@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 try {
-                    const response = await fetch('http://127.0.0.1:8080/api/contact', {
+                    const response = await fetch(`${API_BASE_URL}/api/contact`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 try {
-                    const response = await fetch('http://127.0.0.1:8080/api/contacts/export', {
+                    const response = await fetch(`${API_BASE_URL}/api/contacts/export`, {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${exportToken}`
