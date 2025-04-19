@@ -56,7 +56,7 @@ if (loginForm) {
 
                 // --- Redirect to a protected page (e.g., profile) ---
                 // You'll need to create profile.html
-                window.location.href = '../Profile/profile.html'; // Adjust path if needed
+                window.location.href = '../Profile/Profile.html'; // Adjust path if needed
             } else {
                 console.error('Login failed:', result.message || 'Invalid credentials');
                  // TODO: Show user-friendly error message in the UI
