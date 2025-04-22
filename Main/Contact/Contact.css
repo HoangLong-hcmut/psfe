@@ -8,7 +8,7 @@
 :root {
     --primary-color: #76B65B;
     --secondary-color: #9FD485;
-    --background-color: #F6FFE8;
+    --background-color: #F6F9F4;
     --text-color: #4A4A4A;
     --card-background: #FFFFFF;
 }
@@ -56,10 +56,30 @@ header {
 
 .logo span {
     color: var(--primary-color);
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     font-weight: 500;
 }
 
+/* Mobile Menu Button */
+.menu-btn {
+    display: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: var(--primary-color);
+    z-index: 1002;
+    border: none;
+    background: none;
+    padding: 0.5rem;
+}
+
+.menu-btn i {
+    font-size: 1.8rem;
+    display: block;
+}
+
+
+
+/* Navbar Styles */
 .navbar {
     display: flex;
     gap: 2.5rem;
@@ -73,6 +93,15 @@ header {
     font-size: 0.9rem;
     transition: all 0.3s ease;
     opacity: 0.8;
+    /* Add properties for icon alignment */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Add rule for icons */
+.navbar a i {
+    font-size: 1.2rem;
 }
 
 .navbar a:hover,
@@ -210,9 +239,10 @@ header {
     background-color: var(--primary-color);
     color: white;
     border: none;
-    padding: 0.75rem 1.5rem;
+    padding: 0.7rem 1.5rem;
     border-radius: 8px;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
     width: 100%;
@@ -226,9 +256,9 @@ header {
 
 /* Footer Styles */
 footer {
-    padding: 3rem 0 1.5rem;
+    padding: 3rem 0 0;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
-    background-color: var(--card-background);
+    background-color: var(--background-color);
 }
 
 .footer-content {
@@ -244,6 +274,10 @@ footer {
     color: var(--primary-color);
     margin-bottom: 1rem;
     font-size: 1.1rem;
+}
+
+#contact-info {
+    min-width: 350px;
 }
 
 .footer-section p {
@@ -264,18 +298,15 @@ footer {
     color: var(--text-color);
     text-decoration: none;
     font-size: 0.9rem;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    transition: color 0.3s ease;
 }
 
 .footer-section ul li a:hover {
     color: var(--primary-color);
-    transform: translateX(5px);
 }
 
 .footer-section ul li i {
+    margin-right: 0.5rem;
     color: var(--primary-color);
 }
 
@@ -297,7 +328,6 @@ footer {
 
 .footer-bottom {
     text-align: center;
-    padding-top: 2rem;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     max-width: 1200px;
     margin: 2rem auto 0;
@@ -308,6 +338,7 @@ footer {
     color: var(--text-color);
     font-size: 0.9rem;
 }
+
 
 /* Animations */
 @keyframes fadeInUp {
@@ -344,11 +375,7 @@ footer {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-    header {
-        padding: 1rem;
-    }
-
+@media (max-width: 1025px) {
     .contact-container {
         grid-template-columns: 1fr;
         gap: 2rem;
@@ -362,12 +389,58 @@ footer {
 
     .info-card {
         flex: 1;
-        min-width: 250px;
+        min-width: 350px;
     }
 
     .footer-content {
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
+    }
+}
+
+@media (max-width: 845px) {
+    .menu-btn {
+        display: block;
+    }
+
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100vh;
+        background-color: var(--card-background);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 1rem;
+        transition: left 0.3s ease;
+        z-index: 1001;
+        padding: 4rem 1rem 1rem;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar.active {
+        left: 0;
+    }
+
+    .navbar a {
+        font-size: 1rem;
+        padding: 0.5rem 0.75rem;
+        width: 100%;
+        text-align: left;
+        justify-content: flex-start;
+        border-radius: 0.5rem;
+        transition: background-color 0.3s ease;
+    }
+
+    .navbar a:hover {
+        background-color: rgba(118, 182, 91, 0.1);
+    }
+
+    .navbar a i {
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
     }
 }
 
@@ -387,7 +460,11 @@ footer {
     .footer-content {
         grid-template-columns: 1fr;
     }
-} 
+
+    .navbar {
+        width: 80%;
+    }
+}
 
 @keyframes rotate {
     0% {

@@ -22,12 +22,15 @@
                 <img src="../Image/Green Organic Illustrative Zero Waste Recycle logo 1.png" alt="TransferCircle Logo" class="rotating-logo">
                 <span>Transfer Circle</span>
             </div>
+            <div class="menu-btn">
+                <i class='bx bx-menu'></i>
+            </div>
             <nav class="navbar">
-                <a href="../index.html">Home</a>
-                <a href="../Trade/Trade.html" class="active">Trade</a>
-                <a href="../Contact/Contact.html">Contact</a>
-                <a href="../Profile/Profile.html">Profile</a>
-                <a href="../Login/Login.html">Log in</a>
+                <a href="../index.html"><i class='bx bx-home-alt'></i>Home</a>
+                <a href="Trade.html" class="active"><i class='bx bx-transfer'></i>Trade</a>
+                <a href="../Contact/Contact.html"><i class='bx bx-envelope'></i>Contact</a>
+                <a href="../Profile/Profile.html"><i class='bx bx-user'></i>Profile</a>
+                <a href="../Login/Login.html"><i class='bx bx-user-plus'></i>Login</a>
             </nav>
         </header>
 
@@ -76,26 +79,27 @@
                         <input type="text" id="product-price" required placeholder=" ">
                         <label for="product-price">Unit Price (VND)</label>
                       </div>
-                      
+                                            
                       <div class="form-group">
-                        <input type="text" id="product-image" placeholder=" ">
-                        <label for="product-image">Image URL</label>
+                        <input type="number" id="product-quantity" required min="1" placeholder=" ">
+                        <label for="product-quantity">Quantity</label>
                       </div>
                       
+                      <div class="form-group">
+                        <input type="text" id="product-place" required placeholder=" ">
+                        <label for="product-place">Address</label>
+                      </div>
+
                       <div class="form-group">
                         <input type="text" id="product-description" required placeholder=" ">
                         <label for="product-description">Description</label>
                       </div>
                       
                       <div class="form-group">
-                        <input type="number" id="product-quantity" min="1" placeholder=" ">
-                        <label for="product-quantity">Quantity</label>
+                        <input type="text" id="product-image" required placeholder=" ">
+                        <label for="product-image">Image URL</label>
                       </div>
                       
-                      <div class="form-group">
-                        <input type="text" id="product-place" required placeholder=" ">
-                        <label for="product-place">Place</label>
-                      </div>
                       <div class="form-group">
                         <button type="submit" class="submit-btn">Add Trade</button>
                       </div>
@@ -110,26 +114,21 @@
                     <i class='bx bx-export'></i> Export trades to CSV
                 </button>
             </div> -->
-            <div class="load-more-container">
-                <button class="load-more-btn">
-                    See More Cards <i class='bx bx-chevron-down'></i>
-                </button>
-            </div>
         </main>
 
         <footer>
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>About</h3>
-                    <p>TransferCircle is a platform for sharing and trading development resources.</p>
+                    <p>TransferCircle is a platform that connects people who want to exchange their products sustainably.</p>
                 </div>
                 <div class="footer-section">
                     <h3>Quick Links</h3>
                     <ul>
-                        <li><a href="../index.html">Home</a></li>
-                        <li><a href="../Trade/Trade.html">Trading Area</a></li>
-                        <li><a href="../Contact/Contact.html">Contact</a></li>
-                        <li><a href="../Profile/Profile.html">Profile</a></li>
+                        <li><a href="../index.html"><i class='bx bx-home'></i>Home</a></li>
+                        <li><a href="Trade.html"><i class='bx bx-transfer'></i>Trade</a></li>
+                        <li><a href="../Contact/Contact.html"><i class='bx bx-envelope'></i>Contact</a></li>
+                        <li><a href="../Profile/Profile.html"><i class='bx bx-user'></i>Profile</a></li>
                     </ul>
                 </div>
                 <div class="footer-section" id="contact-info">
@@ -151,10 +150,11 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 TransferCircle. All rights reserved.</p>
+                <p>&copy; 2025 TransferCircle. All rights reserved.</p>
             </div>
         </footer>
     </div>
+    
     <!-- Load config FIRST -->
     <script src="../js/config.js"></script>
     <!-- Then load the page-specific script -->

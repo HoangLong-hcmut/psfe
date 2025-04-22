@@ -1,20 +1,3 @@
-const container = document.querySelector('.container');
-const LoginLink = document.querySelector('.SignInLink');
-const RegisterLink = document.querySelector('.SignUpLink');
-
-if (RegisterLink && container) {
-    RegisterLink.addEventListener('click', () => {
-        container.classList.add('active');
-    });
-}
-
-if (LoginLink && container) {
-    LoginLink.addEventListener('click', () => {
-        container.classList.remove('active');
-    });
-}
-
-// --- Added Form Submission Logic ---
 const loginForm = document.querySelector('.form-box form'); // Target the form within .form-box
 const usernameInput = document.getElementById('username');
 const passwordInput = document.getElementById('password');
@@ -56,7 +39,7 @@ if (loginForm) {
 
                 // --- Redirect to a protected page (e.g., profile) ---
                 // You'll need to create profile.html
-                window.location.href = '../Profile/Profile.html'; // Adjust path if needed
+                window.location.href = '../Profile/profile.html'; // Adjust path if needed
             } else {
                 console.error('Login failed:', result.message || 'Invalid credentials');
                  // TODO: Show user-friendly error message in the UI
@@ -70,4 +53,31 @@ if (loginForm) {
     });
 } else {
     console.error('Login form not found!');
+}
+
+// Mobile Menu Toggle
+const menuBtn = document.querySelector('.menu-btn');
+const navbar = document.querySelector('.navbar');
+
+if (menuBtn && navbar) {
+    menuBtn.addEventListener('click', () => {
+        navbar.classList.toggle('active');
+        menuBtn.classList.toggle('active');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!menuBtn.contains(e.target) && !navbar.contains(e.target)) {
+            navbar.classList.remove('active');
+            menuBtn.classList.remove('active');
+        }
+    });
+
+    // Close menu when clicking a nav link
+    navbar.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            navbar.classList.remove('active');
+            menuBtn.classList.remove('active');
+        });
+    });
 }

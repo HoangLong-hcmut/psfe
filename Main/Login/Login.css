@@ -23,77 +23,16 @@
     }
 }
 
-@keyframes fadeInRight {
-    from {
-        opacity: 0;
-        transform: translateX(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes typing {
-    0%, 100% {
-        width: 100%;
-    }
-    40%, 60% {
-        width: 0;
-    }
-}
-
-@keyframes blink {
-    from, to {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0;
-    }
-}
-
-@keyframes typewriter {
-    from {
-        width: 0;
-        border-right: 5px solid white;
-    }
-    to {
-        width: 100%;
-        border-right: 5px solid white;
-    }
-}
-
-@keyframes blinkTextCursor {
-    from, to {
-        border-right-color: white;
-    }
-    50% {
-        border-right-color: transparent;
-    }
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 5%;
+    padding: 1rem 7%;
     background-color: var(--card-background);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
     background: var(--background-color);
 }
@@ -102,12 +41,11 @@ body {
     position: relative;
     width: 100%;
     max-width: 1200px;
-    min-height: 85vh;
+    min-height: 70vh;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 2rem 4rem;
-    gap: 10rem;
+    margin: 5rem auto 0;
 }
 
 .form-box {
@@ -197,6 +135,13 @@ body {
     font-size: 0.95rem;
     transition: color 0.3s ease;
     opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar a i {
+    font-size: 1.2rem;
 }
 
 .navbar a:hover,
@@ -211,18 +156,8 @@ body {
     gap: 0.75rem;
 }
 
-.rotating-logo {
-    width: 32px;
-    height: 32px;
-    animation: rotate 4s linear infinite;
-}
-
-.logo:hover .rotating-logo {
-    animation-play-state: paused;
-}
-
 .logo span {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     font-weight: 600;
     color: white;
     transition: 0.7s ease;
@@ -230,12 +165,6 @@ body {
 
 .logo span:hover {
     color: black;
-}
-.logo i {
-    font-size: 1.5rem;
-    color: var(--primary-color);
-    animation: rotate 4s linear infinite;
-    display: inline-block;
 }
 
 .input-box i {
@@ -354,11 +283,6 @@ body {
     }
 }
 
-/* Remove old typing animation styles */
-.typing-text::before,
-.typing-text::after {
-    display: none;
-}
 
 .info-content p {
     font-size: 20px;
@@ -391,63 +315,96 @@ body {
 .info-content p span:nth-child(11) { animation-delay: 3s; }
 .info-content p span:nth-child(12) { animation-delay: 3.1s; }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-    .container {
-        padding: 2rem;
-    }
-    
-    .info-content h2 {
-        font-size: 72px;
-    }
-    
-    .info-content p {
-        font-size: 18px;
-    }
+/* Mobile Menu Button */
+.menu-btn {
+    display: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: white;
 }
 
-@media (max-width: 768px) {
+
+.menu-btn i {
+    font-size: 1.8rem;
+    display: block;
+}
+
+@media (max-width: 1250px) {
+    .info-content {
+        text-align: center;
+        padding: 0 1rem;
+    }
+
+    .info-content h2 {
+        font-size: 3rem;
+    }
+
+    .info-content p {
+        font-size: 1rem;
+    }
+
     .container {
-        flex-direction: column;
-        padding: 1.5rem;
+        flex-direction: column-reverse;
+        gap: 3rem;
+        padding: 1rem 2rem;
+        margin-top: 2rem;
+    }
+
+    .form-box {
+        max-width: 50%;
     }
     
     .form-box {
-        margin-bottom: 3rem;
+        padding: 2rem;
     }
-    
-    .info-content {
-        text-align: center;
-    }
-    
-    .info-content h2 {
-        font-size: 48px;
-    }
-    
-    .info-content p {
-        font-size: 16px;
-        margin: 0 auto;
+
+    .form-box h2 {
+        font-size: 2rem;
     }
 }
 
-/* Example Styling for the home link container (adjust as needed) */
-.home-link {
-    margin-top: 20px; /* Add some space above */
-    text-align: center; /* Center the link */
-}
+@media (max-width: 845px) {
+    .menu-btn {
+        display: block;
+    }
 
-/* Example Styling for the home link itself (make it look like a button or just a link) */
-.home-link a, .home-button { /* Target both the link inside the div and the button */
-    display: inline-block; /* Allows padding and margins */
-    padding: 8px 15px;
-    background-color: #eee; /* Example background */
-    color: #333; /* Example text color */
-    text-decoration: none; /* Remove underline from link */
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    transition: background-color 0.2s ease; /* Smooth hover effect */
-}
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100vh;
+        background-color: var(--background-color);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 1rem;
+        transition: left 0.3s ease;
+        z-index: 1001;
+        padding: 4rem 1rem 1rem;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
 
-.home-link a:hover, .home-button:hover {
-    background-color: #ddd; /* Example hover background */
+    .navbar.active {
+        left: 0;
+    }
+
+    .navbar a {
+        font-size: 1.2rem;
+        padding: 0.5rem 0.75rem;
+        width: 100%;
+        text-align: left;
+        justify-content: flex-start;
+        border-radius: 0.5rem;
+        transition: background-color 0.3s ease;
+    }
+
+    .navbar a:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar a i {
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+    }
 }

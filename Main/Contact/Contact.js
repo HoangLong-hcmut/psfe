@@ -23,9 +23,34 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Check Login Status (Moved from HTML) ---
     const token = localStorage.getItem('authToken');
 
+    let isTokenValid = false; // Flag to track token validity
+
     if (token) {
-        // User IS logged in
-        console.log("Contact.js: User is logged in.");
+        try {
+            const payloadBase64Url = token.split('.')[1];
+            const payloadBase64 = payloadBase64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const decodedPayload = JSON.parse(atob(payloadBase64));
+            const expirationTime = decodedPayload.exp * 1000; // Convert seconds to milliseconds
+            const currentTime = Date.now();
+
+            if (expirationTime < currentTime) {
+                console.log("Contact.js: Token expired (client-side check).");
+                localStorage.removeItem('authToken'); // Clear expired token
+                // Don't set isTokenValid = true
+            } else {
+                // Token is valid
+                isTokenValid = true;
+            }
+        } catch (error) {
+            console.error('Error checking token validity or token is malformed:', error);
+            localStorage.removeItem('authToken'); // Clear potentially malformed token
+        }
+    } // End of initial token check block
+
+    // --- Set UI and Listeners based on Token Validity ---
+    if (isTokenValid) {
+        // User IS logged in and token is valid
+        console.log("Contact.js: User is logged in with a valid token.");
         if (contactForm) {
             contactForm.style.display = 'block';
         }
@@ -35,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Add form submission listener only if logged in
         if (contactForm) {
-             contactForm.addEventListener('submit', async (event) => {
+            contactForm.addEventListener('submit', async (event) => {
                 event.preventDefault(); // Prevent default form submission
 
                 const formData = {
@@ -102,12 +127,14 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Contact.js: Contact form not found.");
         }
 
-        // Export button listener for logged-in users (moved inside token check)
+        // Export button listener for logged-in users
         if (exportBtn) {
             exportBtn.addEventListener('click', async () => {
                 const exportToken = localStorage.getItem('authToken'); // Re-check token just in case
                 if (!exportToken) {
                     alert('Authentication error. Please log in again.');
+                    if (contactForm) contactForm.style.display = 'none';
+                    if (loginPromptMessage) loginPromptMessage.style.display = 'block';
                     return;
                 }
 
@@ -162,8 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
     } else {
-        // User is NOT logged in
-        console.log("Contact.js: User is not logged in.");
+        // User is NOT logged in (no token OR token was invalid/expired)
+        console.log("Contact.js: User is not logged in or token is invalid/expired.");
         if (contactForm) {
             contactForm.style.display = 'none';
         }
@@ -180,4 +207,45 @@ document.addEventListener('DOMContentLoaded', () => {
              console.log("Contact.js: Export button not found (logged out check).");
         }
     }
+
+    // --- Add menu button functionality (Copied from Profile.js) ---
+    const menuBtn = document.querySelector('.menu-btn');
+    const navbar = document.querySelector('.navbar');
+    
+    if (menuBtn && navbar) {
+        menuBtn.addEventListener('click', () => {
+            navbar.classList.toggle('active');
+            menuBtn.classList.toggle('active');
+            // Add/remove body overflow style based on navbar state
+            if (navbar.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = ''; // Revert to default
+            }
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!menuBtn.contains(e.target) && !navbar.contains(e.target)) {
+                if (navbar.classList.contains('active')) { // Only act if closing
+                    navbar.classList.remove('active');
+                    menuBtn.classList.remove('active');
+                    document.body.style.overflow = ''; // Restore scroll
+                }
+            }
+        });
+
+        // Close menu when clicking a nav link
+        navbar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (navbar.classList.contains('active')) { // Only act if closing
+                    navbar.classList.remove('active');
+                    menuBtn.classList.remove('active');
+                    document.body.style.overflow = ''; // Restore scroll
+                }
+            });
+        });
+    }
+    // --- End menu button functionality ---
+
 }); 

@@ -8,7 +8,7 @@
 :root {
     --primary-color: #76B65B;
     --secondary-color: #AED581;
-    --background-color: #F1F8E9;
+    --background-color: #F6F9F4;
     --text-color: #333333;
     --highlight-color: #4FB8E8;
     --card-background: #FFFFFF;
@@ -217,7 +217,7 @@ body {
 }
 
 .logo span {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     font-weight: 500;
     color: var(--primary-color);
 }
@@ -225,6 +225,7 @@ body {
 .navbar {
     display: flex;
     gap: 2.5rem;
+    align-items: center;
 }
 
 .navbar a {
@@ -234,28 +235,19 @@ body {
     font-size: 0.9rem;
     transition: color 0.3s ease;
     opacity: 0.8;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar a i {
+    font-size: 1.2rem;
 }
 
 .navbar a:hover,
 .navbar a.active {
     color: var(--primary-color);
     opacity: 1;
-}
-
-.profile {
-    margin-left: 2rem;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid #76B65B;
-}
-
-.profile img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
 }
 
 #formHidden {
@@ -630,70 +622,10 @@ main {
     margin-top: 1rem;
 }
 
-.load-more-container {
-    display: flex;
-    justify-content: center;
-    flex-direction: row;
-    align-items: center;
-    margin-top: 3rem;
-}
-
-.load-more-btn {
-    padding: 1rem 2.5rem;
-    background-color: var(--button-primary);
-    border: none;
-    border-radius: 15px;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.load-more-btn:hover {
-    background-color: var(--button-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-.load-more-btn i {
-    font-size: 1.2rem;
-    transition: transform 0.3s ease;
-}
-
-.load-more-btn:hover i {
-    transform: translateY(3px);
-}
-
-.tech-stack {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.tech-stack img {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-}
-
-.stars {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    color: #333;
-    font-size: 0.9rem;
-}
-
-.stars i {
-    color: #FFD700;
-}
 
 /* Footer Styles */
 footer {
-    padding: 3rem 0 1.5rem;
+    padding: 3rem 0 2rem;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     margin-top: 3rem;
     background-color: var(--background-color);
@@ -772,7 +704,7 @@ footer {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 1025px) {
     .footer-content {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -857,133 +789,7 @@ footer {
     opacity: 0.7;
 }
 
-/* Your Listings Section */
-.your-listings-section {
-    margin: 3rem 0;
-    padding: 2rem;
-    background-color: rgba(139, 195, 74, 0.1);
-    border-radius: 30px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
 
-.your-listings-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px dashed rgba(104, 159, 56, 0.3);
-}
-
-.your-listings-title {
-    font-size: 1.8rem;
-    color: var(--button-primary);
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-}
-
-.your-listings-title i {
-    font-size: 1.6rem;
-    color: var(--primary-color);
-}
-
-.your-listings-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-}
-
-.listing-card {
-    background-color: var(--card-dark);
-    padding: 2rem;
-    border-radius: 24px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-}
-
-/* First column, even rows */
-.listing-card:nth-child(4n + 2) {
-    background-color: var(--card-light);
-}
-
-/* Second column, odd rows */
-.listing-card:nth-child(4n + 3) {
-    background-color: var(--card-light);
-}
-
-.listing-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-}
-
-.listing-card h3 {
-    color: var(--text-color);
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    text-transform: capitalize;
-    letter-spacing: 0.5px;
-    position: relative;
-    padding-bottom: 0.5rem;
-}
-
-.listing-card h3::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 50px;
-    height: 2px;
-    background-color: var(--primary-color);
-    transition: width 0.3s ease;
-}
-
-.listing-card:hover h3::after {
-    width: 100px;
-}
-
-.listing-card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 16px;
-    margin-bottom: 1.5rem;
-}
-
-.listing-stats {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 1rem;
-    padding: 0.8rem 1rem;
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.2rem;
-}
-
-.stat-value {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--button-primary);
-    text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
-}
-
-.stat-label {
-    font-size: 0.9rem;
-    color: var(--text-color);
-    opacity: 0.9;
-    font-weight: 500;
-}
 
 .listing-details {
     display: flex;
@@ -1058,65 +864,77 @@ footer {
     box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
 }
 
-.listing-card::before {
-    content: 'Your Listing';
-    position: absolute;
-    top: 1.2rem;
-    right: -3rem;
-    background-color: var(--primary-color);
-    color: white;
-    padding: 0.4rem 3rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transform: rotate(45deg);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    letter-spacing: 0.5px;
-}
 
-.no-listings {
-    text-align: center;
-    padding: 3rem;
-    background-color: var(--card-background);
-    border-radius: 24px;
-    border: 2px dashed var(--secondary-color);
-}
 
-.no-listings i {
-    font-size: 3rem;
-    color: var(--secondary-color);
-    margin-bottom: 1rem;
-}
-
-.no-listings h3 {
-    color: var(--button-primary);
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.no-listings p {
-    color: var(--text-color);
-    opacity: 0.8;
-    margin-bottom: 1.5rem;
-}
-
-.create-listing-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.8rem 1.5rem;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 500;
+/* Mobile Menu Button */
+.menu-btn {
+    display: none;
+    font-size: 1.8rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    color: var(--primary-color);
+    z-index: 1002;
+    border: none;
+    background: none;
+    padding: 0.5rem;
 }
 
-.create-listing-btn:hover {
-    background-color: var(--button-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(104, 159, 56, 0.2);
+.menu-btn i {
+    font-size: 1.8rem;
+    display: block;
+}
+
+
+
+/* Mobile Styles */
+@media (max-width: 845px) {
+    .menu-btn {
+        display: block;
+    }
+
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100vh;
+        background-color: var(--card-background);
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 1rem;
+        transition: left 0.3s ease;
+        z-index: 1001;
+        padding: 4rem 1rem 1rem;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar.active {
+        left: 0;
+    }
+
+    .navbar a {
+        font-size: 1rem;
+        padding: 0.5rem 0.75rem;
+        width: 100%;
+        text-align: left;
+        justify-content: flex-start;
+        border-radius: 0.5rem;
+        transition: background-color 0.3s ease;
+    }
+
+    .navbar a:hover {
+        background-color: rgba(118, 182, 91, 0.1);
+    }
+
+    .navbar a i {
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        width: 80%;
+    }
 }
 

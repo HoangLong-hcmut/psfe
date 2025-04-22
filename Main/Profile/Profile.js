@@ -57,12 +57,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (incomingOrdersSection) incomingOrdersSection.style.display = 'none';
     if (statsSection) statsSection.style.display = 'none';
     if (profileActionsDiv) profileActionsDiv.style.display = 'none';
+    const paymentSection = document.querySelector('.profile-payment-info');
+    if (paymentSection) paymentSection.style.display = 'none';
 
     // --- Logic based on login state ---
     if (token) {
         console.log("Token found, fetching profile data...");
+        document.body.classList.remove('guest-view-active'); // Ensure class is removed for logged-in users
         fetchProfileData(token);
-        if (profileActionsDiv) profileActionsDiv.style.display = 'block'; // Show logout/edit
+        if (profileActionsDiv) profileActionsDiv.style.display = ''; // Reset display style
 
         if (logoutButton) {
             logoutButton.addEventListener('click', () => {
@@ -76,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     } else {
         console.log("No token found, showing guest view elements...");
+        document.body.classList.add('guest-view-active'); // Add class for guest view
         loadingDiv.style.display = 'none';
         // Show a message or redirect for guests
         if (profileFullname) profileFullname.textContent = 'Guest';
@@ -373,18 +377,19 @@ document.addEventListener('DOMContentLoaded', () => {
             await fetchIncomingOrders(token); // Fetch incoming orders
             calculateAndDisplayStats(); // Calculate stats based on fetched listings/orders
 
-            // --- Show relevant sections ---
-            if (cartSection) cartSection.style.display = 'block';
-            if (listingsSection) listingsSection.style.display = 'block';
-            if (incomingOrdersSection) incomingOrdersSection.style.display = 'block';
-            if (statsSection) statsSection.style.display = 'block';
+            // --- Show relevant sections by resetting inline display style --- 
+            if (cartSection) cartSection.style.display = '';
+            if (listingsSection) listingsSection.style.display = '';
+            if (incomingOrdersSection) incomingOrdersSection.style.display = '';
+            if (statsSection) statsSection.style.display = '';
             const paymentSection = document.querySelector('.profile-payment-info');
-            if (paymentSection) paymentSection.style.display = 'block';
+            if (paymentSection) paymentSection.style.display = '';
 
 
         } catch (error) {
             console.error('Error fetching or processing profile data:', error); // Log 5: Catch block error
-            errorDiv.textContent = `Error loading profile: ${error.message}. Please try again later.`;
+            document.body.classList.add('guest-view-active'); // Add class for guest view
+            errorDiv.textContent = ``;
             
             // Hide sections on error
             if (profileFullname) profileFullname.textContent = 'Guest';
@@ -532,9 +537,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     async function fetchCartData(token) {
-        const cartContainer = document.getElementById('cart-items-container');
-        const cartSection = document.querySelector('.profile-cart');
-
         try {
             const cartResponse = await fetch(`${API_BASE_URL}/api/cart`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -546,7 +548,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const cartData = await cartResponse.json();
 
             // Populate Cart
-            if (cartSection) cartSection.style.display = 'block';
             renderCart(cartData.cart || []);
 
         } catch (error) {
@@ -559,9 +560,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- New Function to Fetch Incoming Orders ---
     async function fetchIncomingOrders(token) {
-        const incomingOrdersContainer = document.getElementById('incoming-orders-container');
-        const incomingOrdersSection = document.querySelector('.profile-incoming-orders');
-
         try {
             const response = await fetch(`${API_BASE_URL}/api/profile/incoming_orders`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -573,7 +571,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             // Populate Incoming Orders
-            if (incomingOrdersSection) incomingOrdersSection.style.display = 'block';
             renderIncomingOrders(data.incoming_orders || []);
 
         } catch (error) {
@@ -597,27 +594,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
         listings.forEach(item => {
             const card = document.createElement('div');
-            card.className = 'listing-card'; // Use a class for styling
+            card.className = 'listing-card';
             const formattedPrice = typeof item.price === 'number' ? item.price.toFixed(0) + ' VND' : item.price;
-            const listedDate = new Date(item.created_at).toLocaleDateString();
+            const listedDate = new Date(item.created_at).toLocaleString();
             const productRatingHTML = item.average_product_rating !== null ? generateStars(item.average_product_rating) : '<span class="no-rating">Not Rated</span>';
 
             card.innerHTML = `
-                <img src="${item.image || '../Image/placeholder.png'}" alt="${item.name}">
-                <div class="listing-details">
-                    <h5>${item.name}</h5>
-                    <p>Unit Price: ${formattedPrice}</p>
-                    <p class="quantity-display">Quantity: ${item.quantity}</p>
-                        <p>Status: <span class="status-badge status-${item.status === 'Available' ? 'available' : 'outofstock'}">${item.status || 'N/A'}</span></p>
-                    <p>Listed: ${listedDate}</p>
-                    <p>Avg. Rating: ${productRatingHTML}</p>
-                    ${item.description ? `<p class="description">Description: ${item.description}</p>` : ''}
-                    ${item.place ? `<p class="place"><i class='bx bx-map-pin'></i> ${item.place}</p>` : ''}
-                        <!-- Action Buttons -->
-                        <div class="listing-actions">
-                            <button class="edit-listing-btn" data-trade-id="${item.id}" title="Edit this listing"><i class='bx bx-edit'></i> Edit</button>
-                            <button class="remove-listing-btn" data-trade-id="${item.id}" title="Remove this listing"><i class='bx bx-trash'></i> Remove</button>
+                <div class="listing-image">
+                    ${item.image ? `<img src="${item.image}" alt="${item.name}">` : ''}
+                    <h3 class="listing-title">${item.name}</h3>
+                </div>
+                <div class="listing-content">
+                    <div class="listing-details">
+                        <div class="detail-row">
+                            <span class="detail-label"><i class='bx bx-money'></i> Unit Price</span>
+                            <span class="detail-value">${formattedPrice}</span>
                         </div>
+                        <div class="detail-row">
+                            <span class="detail-label"><i class='bx bx-package'></i> Quantity</span>
+                            <span class="detail-value">${item.quantity}</span>
+                        </div>
+                        ${item.place ? `
+                        <div class="detail-row">
+                            <span class="detail-label"><i class='bx bx-map-pin'></i> Address</span>
+                            <span class="detail-value">${item.place}</span>
+                        </div>
+                        ${item.description ? `
+                        <div class="detail-row">
+                            <span class="detail-label"><i class='bx bx-text'></i> Description</span>
+                            <span class="detail-value">${item.description}</span>
+                        </div>
+                        ` : ''}
+                        <div class="detail-row">
+                            <span class="detail-label"><i class='bx bx-star'></i> Avg. Rating</span>
+                            <span class="detail-value">${productRatingHTML}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label"><i class='bx bx-calendar'></i> Listed At</span>
+                            <span class="detail-value">${listedDate}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label"><i class='bx bx-check-circle'></i> Status</span>
+                            <span class="detail-value status-${item.status === 'Available' ? 'available' : 'unavailable'}">${item.status || 'N/A'}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="listing-actions">
+                        <button class="edit-listing-btn" data-trade-id="${item.id}">
+                            <i class='bx bx-edit'></i> Edit
+                        </button>
+                        <button class="remove-listing-btn" data-trade-id="${item.id}">
+                            <i class='bx bx-trash'></i> Remove
+                        </button>
+                    </div>
                 </div>
             `;
             listingsContainer.appendChild(card);
@@ -631,13 +660,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cartItems && cartItems.length > 0) {
             cartItems.forEach(item => {
                 const cartItemCard = document.createElement('div');
-                cartItemCard.className = 'cart-item-card';
+                cartItemCard.className = 'item-card';
                 cartItemCard.dataset.tradeId = item.id; // Use trade ID for context
                 cartItemCard.dataset.cartItemId = item.cart_item_id; // Store cart item ID if available
 
-                const price = item.price || 0;
+                const price = item.price.toFixed(0);
                 const quantity = item.quantity || 0;
-                const total = (price * quantity).toFixed(0);
+                const total = (price * quantity).toFixed(0) + ' VND';
                 const status = item.cart_status || 'pending'; // Get status
                 let statusText = status.charAt(0).toUpperCase() + status.slice(1);
                 let actionButtonHTML = '';
@@ -711,27 +740,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
                 cartItemCard.innerHTML = `
-                    <div class="cart-item-image">
-                        <img src="${item.image || '../Image/placeholder.png'}" alt="${item.name}">
+                    <div class="item-image">
+                        ${item.image ? `<img src="${item.image}" alt="${item.name}">` : ''}
+                        <h3 class="item-title">${item.name}</h3>
                     </div>
-                    <div class="cart-item-details">
-                        <h5>${item.name || 'Trade Item'}</h5>
-                        <p>Quantity: ${quantity}</p>
-                        <p>Unit Price: ${price.toFixed(0)} VND</p>
-                        <p>Total: <strong>${total} VND</strong></p>
-                        <p>Seller: ${item.business_name || 'N/A'} ${item.seller_email ? `(${item.seller_email})` : ''}</p>
-                        ${item.trade_description ? `<p class="description">Description: ${item.trade_description}</p>` : ''}
-                        ${item.trade_place ? `<p class="place"><i class='bx bx-map-pin'></i> ${item.trade_place}</p>` : ''}
-                        <p>Status: <span class="status-badge status-${status}">${statusText}</span></p>
-                    </div>
-                    <div class="cart-item-actions">
-                        ${actionButtonHTML}
+                    <div class="item-content">
+                        <div class="item-details">
+                            <div class="item-detail-row">
+                                <span class="item-detail-label"><i class='bx bx-user'></i> Seller</span>
+                                <span class="item-detail-value">${item.business_name || 'N/A'} ${item.seller_email ? `(${item.seller_email})` : ''}</span>
+                            </div>
+                            <div class="item-detail-row">
+                                <span class="item-detail-label"><i class='bx bx-money'></i> Unit Price</span>
+                                <span class="item-detail-value">${price} VND</span>
+                            </div>
+                            <div class="item-detail-row">
+                                <span class="item-detail-label"><i class='bx bx-package'></i> Quantity</span>
+                                <span class="item-detail-value">${quantity}</span>
+                            </div>
+                            <div class="item-detail-row">
+                                <span class="item-detail-label"><i class='bx bx-money'></i> Total Price</span>
+                                <span class="item-detail-value">${total}</span>
+                            </div>
+                            <div class="item-detail-row">
+                                <span class="item-detail-label"><i class='bx bx-map-pin'></i> Address</span>
+                                <span class="item-detail-value">${item.trade_place}</span>
+                            </div>
+                            <div class="item-detail-row">
+                                <span class="item-detail-label"><i class='bx bx-text'></i> Description</span>
+                                <span class="item-detail-value">${item.trade_description}</span>
+                            </div>
+                            <div class="item-detail-row">
+                                <span class="item-detail-label"><i class='bx bx-check-circle'></i> Status</span>
+                                <span class="item-detail-value">${statusText}</span>
+                            </div>
+                        </div>
+                        <div class="item-actions">
+                            ${actionButtonHTML}
+                        </div>
                     </div>
                 `;
                 cartContainer.appendChild(cartItemCard);
             });
         } else {
-            cartContainer.innerHTML = '<p>Your cart is currently empty.</p>';
+            cartContainer.innerHTML = '<p>Your cart is empty.</p>';
         }
     }
 
@@ -748,7 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const price = order.trade_price || 0;
                 const quantity = order.ordered_quantity || 0;
-                const total = (price * quantity).toFixed(0);
+                const total = (price * quantity).toFixed(0) + ' VND';
                 const status = order.status || 'ordered'; // Get status from order data if available
                 let actionButtonHTML = '';
 
@@ -765,7 +817,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (status === 'payment_confirmed') { // NEW: Buyer confirmed payment
                      actionButtonHTML = `
                         <button class="item-btn complete-order-btn" data-cart-item-id="${order.cart_item_id}">
-                            <i class='bx bx-check-circle'></i> Complete Payment
+                            <i class='bx bx-check-circle'></i> Confirm Payment
                         </button>
                         <button class="item-btn refuse-order-btn" data-cart-item-id="${order.cart_item_id}">
                             <i class='bx bx-x-circle'></i> Refuse Payment
@@ -783,24 +835,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 orderCard.innerHTML = `
                     <div class="order-item-image">
-                        <img src="${order.trade_image || '../Image/placeholder.png'}" alt="${order.trade_name}">
+                        ${order.trade_image ? `<img src="${order.trade_image}" alt="${order.trade_name}">` : ''}
+                        <h3 class="order-item-title">${order.trade_name}</h3>
                     </div>
-                    <div class="order-item-details">
-                        <h5>${order.trade_name || 'Trade Item'}</h5>
-                        <p>Quantity Ordered: ${quantity}</p>
-                        <p>Total Price: <strong>${total} VND</strong></p>
-                        <p>Buyer: ${order.buyer_fullname || 'N/A'} ${order.buyer_email ? `(${order.buyer_email})` : ''}</p>
-                        <p>Ordered At: ${new Date(order.ordered_at).toLocaleString()}</p>
-                        <p>Status: <span class="status-badge status-${status}">${status === 'accepted' ? 'Accepted (Awaiting Payment)' : (status.charAt(0).toUpperCase() + status.slice(1))}</span></p>
-                    </div>
-                    <div class="order-item-actions">
-                         ${actionButtonHTML}
+                    <div class="order-item-content">
+                        <div class="order-item-details">
+                            <div class="order-detail-row">
+                                <span class="order-detail-label"><i class='bx bx-money'></i> Total Price</span>
+                                <span class="order-detail-value">${total}</span>
+                            </div>
+                            <div class="order-detail-row">
+                                <span class="order-detail-label"><i class='bx bx-package'></i> Quantity</span>
+                                <span class="order-detail-value">${quantity}</span>
+                            </div>
+                            <div class="order-detail-row">
+                                <span class="order-detail-label"><i class='bx bx-user'></i> Buyer</span>
+                                <span class="order-detail-value">${order.buyer_fullname || 'N/A'} ${order.buyer_email ? `(${order.buyer_email})` : ''}</span>
+                            </div>
+                            <div class="order-detail-row">
+                                <span class="order-detail-label"><i class='bx bx-calendar'></i> Ordered At</span>
+                                <span class="order-detail-value">${new Date(order.ordered_at).toLocaleString()}</span>
+                            </div>
+                            <div class="order-detail-row">
+                                <span class="order-detail-label"><i class='bx bx-check-circle'></i> Status</span>
+                                <span class="order-detail-value">${status === 'accepted' ? 'Accepted (Awaiting Payment)' : (status.charAt(0).toUpperCase() + status.slice(1))}</span>
+                            </div>
+                        </div>
+                        <div class="order-item-actions">
+                            ${actionButtonHTML}
+                        </div>
                     </div>
                 `;
                 incomingOrdersContainer.appendChild(orderCard);
             });
         } else {
-            incomingOrdersContainer.innerHTML = '<p>You have no incoming orders matching the current filter.</p>';
+            incomingOrdersContainer.innerHTML = '<p>You have no incoming orders.</p>';
         }
     }
 
@@ -1197,5 +1266,44 @@ document.addEventListener('DOMContentLoaded', () => {
         const autoCloseTimeout = setTimeout(closeNotification, duration);
         closeButton.addEventListener('click', () => clearTimeout(autoCloseTimeout));
     };
+
+    // Add menu button functionality
+    const menuBtn = document.querySelector('.menu-btn');
+    const navbar = document.querySelector('.navbar');
+    
+    if (menuBtn && navbar) {
+        menuBtn.addEventListener('click', () => {
+            navbar.classList.toggle('active');
+            menuBtn.classList.toggle('active');
+            // Add/remove body overflow style based on navbar state
+            if (navbar.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = ''; // Revert to default
+            }
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!menuBtn.contains(e.target) && !navbar.contains(e.target)) {
+                if (navbar.classList.contains('active')) { // Only act if closing
+                    navbar.classList.remove('active');
+                    menuBtn.classList.remove('active');
+                    document.body.style.overflow = ''; // Restore scroll
+                }
+            }
+        });
+
+        // Close menu when clicking a nav link
+        navbar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (navbar.classList.contains('active')) { // Only act if closing
+                    navbar.classList.remove('active');
+                    menuBtn.classList.remove('active');
+                    document.body.style.overflow = ''; // Restore scroll
+                }
+            });
+        });
+    }
 
 }); // End of DOMContentLoaded event listener

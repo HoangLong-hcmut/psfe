@@ -137,7 +137,9 @@ const addDataToHTML = () => {
             // --- End Rating Input Logic ---
 
             newProduct.innerHTML = `
-                <img src="${product.image || './Image/placeholder.png'}" alt="${product.name}" class="trade-card-img">
+                <div class="trade-card-img-container">
+                    ${product.image ? `<img src="${product.image}" alt="${product.name}" class="trade-card-img">` : ''}
+                </div>
                 <div class="card-content">
                     <h3>${product.name}</h3>
                     <div class="card-rating">Avg Rating: ${ratingHTML}</div>
@@ -485,6 +487,46 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.error("Trade grid not found, cannot attach cart listener.");
     }
+
+    // --- Add menu button functionality (Copied from Profile.js) ---
+    const menuBtn = document.querySelector('.menu-btn');
+    const navbar = document.querySelector('.navbar');
+    
+    if (menuBtn && navbar) {
+        menuBtn.addEventListener('click', () => {
+            navbar.classList.toggle('active');
+            menuBtn.classList.toggle('active');
+            // Add/remove body overflow style based on navbar state
+            if (navbar.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = ''; // Revert to default
+            }
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!menuBtn.contains(e.target) && !navbar.contains(e.target)) {
+                if (navbar.classList.contains('active')) { // Only act if closing
+                    navbar.classList.remove('active');
+                    menuBtn.classList.remove('active');
+                    document.body.style.overflow = ''; // Restore scroll
+                }
+            }
+        });
+
+        // Close menu when clicking a nav link
+        navbar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (navbar.classList.contains('active')) { // Only act if closing
+                    navbar.classList.remove('active');
+                    menuBtn.classList.remove('active');
+                    document.body.style.overflow = ''; // Restore scroll
+                }
+            });
+        });
+    }
+    // --- End menu button functionality --- 
 
 }); // End of DOMContentLoaded
 

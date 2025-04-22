@@ -253,21 +253,6 @@ body::after {
     text-decoration: underline;
 }
 
-.info-content {
-    text-align: right;
-    color: white;
-    max-width: 600px;
-}
-
-.info-content h2 {
-    font-size: 96px;
-    font-weight: 700;
-    line-height: 1.1;
-    margin-bottom: 1.5rem;
-    letter-spacing: -2px;
-    position: relative;
-}
-
 .typing-line {
     display: block;
     margin-bottom: 0.2em;
@@ -295,45 +280,6 @@ body::after {
     margin-left: -4px;
 }
 
-.info-content p {
-    font-size: 20px;
-    line-height: 1.5;
-    color: white;
-    font-weight: 400;
-    max-width: 500px;
-    margin-left: auto;
-    overflow: hidden;
-}
-
-.info-content p span {
-    display: inline-block;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeIn 0.5s ease forwards;
-}
-
-.info-content p span:nth-child(1) { animation-delay: 2s; }
-.info-content p span:nth-child(2) { animation-delay: 2.1s; }
-.info-content p span:nth-child(3) { animation-delay: 2.2s; }
-.info-content p span:nth-child(4) { animation-delay: 2.3s; }
-.info-content p span:nth-child(5) { animation-delay: 2.4s; }
-.info-content p span:nth-child(6) { animation-delay: 2.5s; }
-.info-content p span:nth-child(7) { animation-delay: 2.6s; }
-.info-content p span:nth-child(8) { animation-delay: 2.7s; }
-.info-content p span:nth-child(9) { animation-delay: 2.8s; }
-.info-content p span:nth-child(10) { animation-delay: 2.9s; }
-.info-content p span:nth-child(11) { animation-delay: 3s; }
-
-@media (max-width: 1200px) {
-    .info-content h2 {
-        font-size: 72px;
-    }
-    
-    .info-content p {
-        font-size: 18px;
-    }
-}
-
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
@@ -345,19 +291,6 @@ body::after {
     
     .form-box h2 {
         font-size: 1.75rem;
-    }
-    
-    .info-content {
-        text-align: center;
-    }
-    
-    .info-content h2 {
-        font-size: 48px;
-    }
-    
-    .info-content p {
-        font-size: 16px;
-        margin: 0 auto;
     }
     
     .terms {
