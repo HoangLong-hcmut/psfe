@@ -53,7 +53,7 @@ body {
     padding: 2.5rem;
     border-radius: 32px;
     width: 100%;
-    max-width: 420px;
+    width: 420px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     animation: fadeInUp 0.6s ease-out;
 }
@@ -349,18 +349,6 @@ body {
         padding: 1rem 2rem;
         margin-top: 2rem;
     }
-
-    .form-box {
-        max-width: 50%;
-    }
-    
-    .form-box {
-        padding: 2rem;
-    }
-
-    .form-box h2 {
-        font-size: 2rem;
-    }
 }
 
 @media (max-width: 845px) {
@@ -406,5 +394,11 @@ body {
     .navbar a i {
         font-size: 1.2rem;
         margin-right: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-box h2 {
+        font-size: 2rem;
     }
 }
