@@ -575,10 +575,6 @@ main {
 
 /* Small Mobile Devices */
 @media (max-width: 480px) {
-    .navbar a {
-        font-size: 1rem;
-    }
-
     .hero h1 {
         font-size: 1.5rem;
     }
@@ -1061,6 +1057,10 @@ footer {
 }
 
 @media (max-width: 480px) {
+    .navbar {
+        width: 60%;
+    }
+
     .footer-content {
         grid-template-columns: 1fr;
     }
