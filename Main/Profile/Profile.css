@@ -1634,7 +1634,6 @@ body.guest-view-active {
 }
 
 .profile-payment-info .payment-form .item-btn {
-    padding: 0.6rem 1.2rem;
     font-size: 0.9rem;
     font-weight: 500;
     border-radius: 6px;
@@ -1657,6 +1656,7 @@ body.guest-view-active {
     background: #40bb44;
     color: white;
     border:  1px solid #45a049;
+    padding: 9.6px 19.2px;
 }
 
 .profile-payment-info .payment-form .save-btn:hover {
@@ -1668,6 +1668,7 @@ body.guest-view-active {
     background: #f44336;
     color: white;
     border:  1px solid #da190b;
+    padding: 9.6px 19.2px;
 }
 
 .profile-payment-info .payment-form .cancel-btn:hover {
