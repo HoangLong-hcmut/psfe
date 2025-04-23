@@ -197,7 +197,7 @@ header {
     font-weight: 800;
     color: var(--text-color);
     margin-bottom: 0.5rem;
-    padding-left: 1rem;
+    padding-left: 1.5rem;
 }
 
 .profile-header {
@@ -1418,6 +1418,7 @@ footer {
     transform: translateY(-2px);
 }
 
+
 /* Styles for displaying the rating the user submitted */
 .already-rated {
     margin-top: 10px; /* Add some space */
@@ -1540,4 +1541,134 @@ body.guest-view-active {
     .profile-content {
         padding: 2rem 0 4.9rem;
     }
+}
+
+/* Payment Information Section Styles */
+.profile-payment-info #payment-info-display {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e9ecef;
+}
+
+.profile-payment-info #payment-info-display p {
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+    color: #495057;
+    display: flex; /* Use flex for alignment */
+    align-items: baseline; /* Align text baseline */
+    text-align: left; /* Override potential centered text */
+    padding: 0; /* Reset padding */
+    background: none; /* Reset background */
+}
+
+.profile-payment-info #payment-info-display p strong {
+    min-width: 180px; /* Ensure labels align */
+    color: #343a40;
+    font-weight: 600;
+    display: inline-block; /* Needed for min-width */
+    margin-right: 0.5rem;
+}
+
+.profile-payment-info #payment-info-display span {
+    color: #6c757d; /* Slightly muted color for values */
+}
+
+#edit-payment-info-btn {
+    margin-top: 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+}
+
+#edit-payment-info-btn:hover {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+}
+
+.profile-payment-info .payment-form {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.profile-payment-info .payment-form h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.8rem;
+}
+
+.profile-payment-info .payment-form .form-group {
+    margin-bottom: 1.2rem;
+}
+
+.profile-payment-info .payment-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #495057;
+    font-size: 0.95rem;
+}
+
+.profile-payment-info .payment-form input[type="text"],
+.profile-payment-info .payment-form select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-payment-info .payment-form input[type="text"]:focus,
+.profile-payment-info .payment-form select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(118, 182, 91, 0.25);
+    outline: none;
+}
+
+.profile-payment-info .payment-form .form-actions {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.profile-payment-info .payment-form .item-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+.profile-payment-info .payment-form .save-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.profile-payment-info .payment-form .save-btn:hover {
+    background-color: #5a9444; /* Darker shade for hover */
+    transform: translateY(-1px);
+}
+
+.profile-payment-info .payment-form .cancel-btn {
+    background-color: #6c757d; /* Grey */
+    color: white;
+    border: none;
+}
+
+.profile-payment-info .payment-form .cancel-btn:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
 }
