@@ -1641,15 +1641,15 @@ body.guest-view-active {
     border-radius: 6px;
 }
 
-
-
-.profile-payment-info .payment-form .edit-btn {
+#edit-payment-info-btn {
+    margin-top: 1rem;
     background-color: #eab002;
-    color: #ffffff;
+    color: white;
     border: 1px solid #d39f03;
+    padding: 0.6rem 1.2rem;
 }
 
-.profile-payment-info .payment-form .edit-btn:hover {
+#edit-payment-info-btn:hover {
     background-color: #d39f03;
     transform: translateY(-2px);
 }
