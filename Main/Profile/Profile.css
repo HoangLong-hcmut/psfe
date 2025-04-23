@@ -196,7 +196,8 @@ header {
     font-size: 2rem;
     font-weight: 800;
     color: var(--text-color);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
 }
 
 .profile-header {
