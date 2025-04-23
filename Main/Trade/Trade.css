@@ -941,6 +941,10 @@ footer {
         font-size: 1.8rem;
     }
 
+    .search-input {
+        font-size: 0.9rem;
+    }
+
     .search-btn {
         padding: 0.8rem 1rem;
         font-size: 0.8rem;
