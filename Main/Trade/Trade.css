@@ -936,5 +936,9 @@ footer {
     .navbar {
         width: 60%;
     }
+    
+    .add-trade-container h2 {
+        font-size: 1.5rem;
+    }
 }
 
