@@ -1530,6 +1530,6 @@ footer {
 /* Sticky Footer Layout for Guest View */
 body.guest-view-active {
     .profile-content {
-        padding: 2rem 0 5.3rem;
+        padding: 2rem 0 5.1rem;
     }
 }
