@@ -1646,7 +1646,7 @@ body.guest-view-active {
     background-color: #eab002;
     color: white;
     border: 1px solid #d39f03;
-    padding: 0.6rem 1.2rem;
+    padding: 0.5rem 0.8rem;
 }
 
 #edit-payment-info-btn:hover {
