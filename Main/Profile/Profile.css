@@ -1547,32 +1547,49 @@ body.guest-view-active {
 .profile-payment-info #payment-info-display {
     background: #f8f9fa;
     border-radius: 8px;
-    padding: 1.5rem;
+    padding: 2rem; /* Increased padding */
     margin-bottom: 1.5rem;
     border: 1px solid #e9ecef;
 }
 
 .profile-payment-info #payment-info-display p {
-    margin-bottom: 0.8rem;
+    margin-bottom: 1rem; /* Adjusted spacing */
+    padding-bottom: 1rem; /* Add padding below text */
     font-size: 1rem;
     color: #495057;
     display: flex; /* Use flex for alignment */
     align-items: baseline; /* Align text baseline */
     text-align: left; /* Override potential centered text */
-    padding: 0; /* Reset padding */
+    padding-left: 0; /* Reset padding */
     background: none; /* Reset background */
+    border-bottom: 1px solid #eee; /* Add subtle divider */
+}
+
+/* Remove border and extra spacing from the last paragraph */
+.profile-payment-info #payment-info-display p:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
 }
 
 .profile-payment-info #payment-info-display p strong {
     min-width: 180px; /* Ensure labels align */
-    color: #343a40;
-    font-weight: 600;
+    color: #6c757d; /* Make label slightly lighter */
+    font-weight: 500; /* Slightly less bold label */
+    font-size: 0.9rem; /* Slightly smaller label */
     display: inline-block; /* Needed for min-width */
-    margin-right: 0.5rem;
+    margin-right: 1rem; /* Increased space after label */
 }
 
 .profile-payment-info #payment-info-display span {
-    color: #6c757d; /* Slightly muted color for values */
+    color: #343a40; /* Make value darker */
+    font-weight: 500; /* Ensure value font weight is normal/medium */
+}
+
+/* Style the edit button if needed, potentially move outside display div in HTML later */
+.profile-payment-info #payment-info-display #edit-payment-info-btn {
+    margin-top: 1.5rem; /* Add space above button */
+    /* Keep existing button styles or add more */
 }
 
 .profile-payment-info .payment-form {
@@ -1685,7 +1702,7 @@ body.guest-view-active {
   /* Add custom arrow using background properties */
   background-image: linear-gradient(45deg, transparent 50%, #555 50%), linear-gradient(135deg, #555 50%, transparent 50%);
   background-position: calc(100% - 20px) center, calc(100% - 15px) center; /* Position the arrow parts */
-  background-size: 6px 6px, 6px 6px; /* Size of the arrow */
+  background-size: 5px 6px, 5px 6px; /* Size of the arrow */
   background-repeat: no-repeat;
 
   padding-right: 40px; /* Add padding to prevent text overlap */
@@ -1693,12 +1710,3 @@ body.guest-view-active {
   /* Optional: Adjust cursor */
   cursor: pointer;
 }
-
-/* Optional: Remove arrow on disabled state if needed */
-/*
-.profile-payment-info .payment-form #edit-bank-name:disabled {
-  background-image: none;
-}
-*/
-
-/* Ensure this comes after general input/select styles if they exist */
