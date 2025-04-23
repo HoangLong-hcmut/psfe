@@ -194,9 +194,9 @@ header {
 
 .profile-title {
     font-size: 2rem;
-    font-weight: 600;
+    font-weight: 800;
     color: var(--text-color);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .profile-header {
