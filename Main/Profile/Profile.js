@@ -462,13 +462,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (editPaymentBtn && paymentForm && paymentDisplayDiv) {
         editPaymentBtn.addEventListener('click', () => {
-            // Populate form with current values before showing
-            if (userProfileData) {
-                editBankNameInput.value = userProfileData.bank_name || '';
-                editAccNameInput.value = userProfileData.bank_account_name || '';
-                editAccNumInput.value = userProfileData.bank_account_number || '';
+            // Check if the form is currently hidden
+            if (paymentForm.classList.contains('hidden-form')) {
+                // Populate form with current values before showing
+                if (userProfileData) {
+                    editBankNameInput.value = userProfileData.bank_name || '';
+                    editAccNameInput.value = userProfileData.bank_account_name || '';
+                    editAccNumInput.value = userProfileData.bank_account_number || '';
+                }
+                // Show the form, hide the display
+                paymentForm.classList.remove('hidden-form');
+            } else {
+                // Form is visible, so hide it and show the display
+                paymentForm.classList.add('hidden-form');
+                paymentForm.reset(); 
             }
-            paymentForm.classList.remove('hidden-form');
         });
     }
 
