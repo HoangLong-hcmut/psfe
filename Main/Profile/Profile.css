@@ -1656,7 +1656,7 @@ body.guest-view-active {
     background: #40bb44;
     color: white;
     border:  1px solid #45a049;
-    padding: 9.6px 19.2px;
+    padding: 9.6px 13px;
 }
 
 .profile-payment-info .payment-form .save-btn:hover {
@@ -1668,10 +1668,37 @@ body.guest-view-active {
     background: #f44336;
     color: white;
     border:  1px solid #da190b;
-    padding: 9.6px 19.2px;
+    padding: 9.6px 40px;
 }
 
 .profile-payment-info .payment-form .cancel-btn:hover {
     background: #da190b;
     transform: translateY(-2px);
 }
+
+/* --- Custom Arrow for Bank Select Dropdown --- */
+.profile-payment-info .payment-form #edit-bank-name {
+  appearance: none; /* Remove default browser styling */
+  -webkit-appearance: none; /* Safari/Chrome */
+  -moz-appearance: none; /* Firefox */
+
+  /* Add custom arrow using background properties */
+  background-image: linear-gradient(45deg, transparent 50%, #555 50%), linear-gradient(135deg, #555 50%, transparent 50%);
+  background-position: calc(100% - 20px) center, calc(100% - 15px) center; /* Position the arrow parts */
+  background-size: 6px 6px, 6px 6px; /* Size of the arrow */
+  background-repeat: no-repeat;
+
+  padding-right: 40px; /* Add padding to prevent text overlap */
+
+  /* Optional: Adjust cursor */
+  cursor: pointer;
+}
+
+/* Optional: Remove arrow on disabled state if needed */
+/*
+.profile-payment-info .payment-form #edit-bank-name:disabled {
+  background-image: none;
+}
+*/
+
+/* Ensure this comes after general input/select styles if they exist */
