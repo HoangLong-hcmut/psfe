@@ -1654,6 +1654,19 @@ body.guest-view-active {
     border-radius: 6px;
 }
 
+
+
+.profile-payment-info .payment-form .edit-btn {
+    background-color: #eab002;
+    color: #ffffff;
+    border: 1px solid #d39f03;
+}
+
+.profile-payment-info .payment-form .edit-btn:hover {
+    background-color: #d39f03;
+    transform: translateY(-2px);
+}
+
 .profile-payment-info .payment-form .save-btn {
     background: #40bb44;
     color: white;
