@@ -84,9 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('guest-view-active'); // Add class for guest view
         loadingDiv.style.display = 'none';
         // Show a message or redirect for guests
-        if (profileHeaderSection) profileHeaderSection.style.display = '';
         if (profileFullname) profileFullname.textContent = 'Guest';
         if (profileEmail) profileEmail.textContent = 'Please log in to view your profile.';
+        if (profileHeaderSection) profileHeaderSection.style.display = '';
         // Optionally hide stats/cart/listings for guests or show a prompt
         if (statsSection) statsSection.style.display = 'none';
         if (cartSection) cartSection.style.display = 'none';
@@ -361,9 +361,9 @@ document.addEventListener('DOMContentLoaded', () => {
             userProfileData = data.user_profile; // Store the user profile data
 
             // --- Update Basic Profile Header ---
-            if (profileHeaderSection) profileHeaderSection.style.display = '';
             if (profileFullname) profileFullname.textContent = userProfileData.fullname || 'N/A';
             if (profileEmail) profileEmail.textContent = userProfileData.email || 'N/A';
+            if (profileHeaderSection) profileHeaderSection.style.display = '';
 
             // --- Update Payment Information Display ---
             const bankNameDisplay = document.getElementById('display-bank-name');
@@ -396,9 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
             errorDiv.textContent = ``;
             
             // Hide sections on error
-            if (profileHeaderSection) profileHeaderSection.style.display = '';
             if (profileFullname) profileFullname.textContent = 'Guest';
             if (profileEmail) profileEmail.textContent = 'Please log in to view your profile.';
+            if (profileHeaderSection) profileHeaderSection.style.display = '';
             if (cartSection) cartSection.style.display = 'none';
             if (listingsSection) listingsSection.style.display = 'none';
             if (incomingOrdersSection) incomingOrdersSection.style.display = 'none';
