@@ -1547,14 +1547,14 @@ body.guest-view-active {
 .profile-payment-info #payment-info-display {
     background: #f8f9fa;
     border-radius: 8px;
-    padding: 2rem; /* Increased padding */
+    padding: 1.2rem; /* Decreased padding */
     margin-bottom: 1.5rem;
     border: 1px solid #e9ecef;
 }
 
 .profile-payment-info #payment-info-display p {
-    margin-bottom: 1rem; /* Adjusted spacing */
-    padding-bottom: 1rem; /* Add padding below text */
+    margin-bottom: 0.6rem; /* Decreased spacing */
+    padding-bottom: 0.6rem; /* Decreased padding below text */
     font-size: 1rem;
     color: #495057;
     display: flex; /* Use flex for alignment */
@@ -1574,8 +1574,8 @@ body.guest-view-active {
 
 .profile-payment-info #payment-info-display p strong {
     min-width: 180px; /* Ensure labels align */
-    color: #6c757d; /* Make label slightly lighter */
-    font-weight: 500; /* Slightly less bold label */
+    color: #495057; /* Adjust label color if needed, back to slightly darker */
+    font-weight: 600; /* Increased font weight */
     font-size: 0.9rem; /* Slightly smaller label */
     display: inline-block; /* Needed for min-width */
     margin-right: 1rem; /* Increased space after label */
