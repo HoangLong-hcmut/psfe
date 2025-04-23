@@ -1589,6 +1589,9 @@ body.guest-view-active {
 }
 
 .profile-payment-info .payment-form {
+    max-width: 500px; /* Limit form width */
+    margin-left: auto; /* Center the form */
+    margin-right: auto; /* Center the form */
     margin-top: 1.5rem;
     padding: 1.5rem;
     background: #f8f9fa;
