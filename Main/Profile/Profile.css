@@ -1575,19 +1575,6 @@ body.guest-view-active {
     color: #6c757d; /* Slightly muted color for values */
 }
 
-#edit-payment-info-btn {
-    margin-top: 1rem;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 0.6rem 1.2rem;
-}
-
-#edit-payment-info-btn:hover {
-    background-color: var(--secondary-color);
-    color: var(--text-color);
-}
-
 .profile-payment-info .payment-form {
     max-width: 500px; /* Limit form width */
     margin-left: auto; /* Center the form */
