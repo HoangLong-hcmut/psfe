@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileActionsDiv = document.getElementById('profile-actions');
     const logoutButton = document.getElementById('logout-button');
     // Header elements
+    const profileHeaderSection = document.querySelector('.profile-header');
     const profileFullname = document.getElementById('profile-fullname');
     const profileEmail = document.getElementById('profile-email');
     // Stats elements
@@ -52,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadingDiv.style.display = 'block'; // Show loading initially
     errorDiv.textContent = '';
     // Hide content sections until data is loaded or guest view is confirmed
+    if (profileHeaderSection) profileHeaderSection.style.display = 'none';
     if (cartSection) cartSection.style.display = 'none';
     if (listingsSection) listingsSection.style.display = 'none';
     if (incomingOrdersSection) incomingOrdersSection.style.display = 'none';
@@ -82,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('guest-view-active'); // Add class for guest view
         loadingDiv.style.display = 'none';
         // Show a message or redirect for guests
+        if (profileHeaderSection) profileHeaderSection.style.display = '';
         if (profileFullname) profileFullname.textContent = 'Guest';
         if (profileEmail) profileEmail.textContent = 'Please log in to view your profile.';
         // Optionally hide stats/cart/listings for guests or show a prompt
@@ -358,6 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
             userProfileData = data.user_profile; // Store the user profile data
 
             // --- Update Basic Profile Header ---
+            if (profileHeaderSection) profileHeaderSection.style.display = '';
             if (profileFullname) profileFullname.textContent = userProfileData.fullname || 'N/A';
             if (profileEmail) profileEmail.textContent = userProfileData.email || 'N/A';
 
@@ -392,6 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errorDiv.textContent = ``;
             
             // Hide sections on error
+            if (profileHeaderSection) profileHeaderSection.style.display = '';
             if (profileFullname) profileFullname.textContent = 'Guest';
             if (profileEmail) profileEmail.textContent = 'Please log in to view your profile.';
             if (cartSection) cartSection.style.display = 'none';
