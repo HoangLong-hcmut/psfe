@@ -1655,23 +1655,23 @@ body.guest-view-active {
 }
 
 .profile-payment-info .payment-form .save-btn {
-    background-color: var(--primary-color);
+    background: #40bb44;
     color: white;
-    border: none;
+    border:  1px solid #45a049;
 }
 
 .profile-payment-info .payment-form .save-btn:hover {
-    background-color: #5a9444; /* Darker shade for hover */
-    transform: translateY(-1px);
+    background-color: #5a9444;
+    transform: translateY(-2px);
 }
 
 .profile-payment-info .payment-form .cancel-btn {
-    background-color: #6c757d; /* Grey */
+    background: #f44336;
     color: white;
-    border: none;
+    border:  1px solid #da190b;
 }
 
 .profile-payment-info .payment-form .cancel-btn:hover {
-    background-color: #5a6268;
-    transform: translateY(-1px);
+    background: #da190b;
+    transform: translateY(-2px);
 }
