@@ -192,6 +192,13 @@ header {
     padding: 2rem 0;
 }
 
+.profile-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+}
+
 .profile-header {
     background: white;
     border-radius: 15px;
