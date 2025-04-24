@@ -382,16 +382,8 @@ header {
     display: block;
 }
 
-.stat-card p {
-    animation: countUp 0.5s ease-out forwards;
-}
-
-.stat-card:nth-child(2) p {
-    animation-delay: 0.2s;
-}
-
-.stat-card:nth-child(3) p {
-    animation-delay: 0.4s;
+.stat-card:nth-child(3) h3{
+    margin-bottom: 1.5rem;
 }
 
 /* Add animation for loading stats */
@@ -548,10 +540,6 @@ footer {
         text-align: center;
     }
 
-    .profile-stats {
-        grid-template-columns: 1fr;
-    }
-
     .profile-actions {
         width: 100%;
         justify-content: center;
@@ -563,6 +551,22 @@ footer {
     .profile-stats {
         flex-direction: column;
         gap: 1rem;
+    }
+    
+    .stat-card:nth-child(1) h3{
+        margin-bottom: 0.4rem;
+    }
+
+    .stat-card:nth-child(2) h3{
+        margin-bottom: 0.4rem;
+    }
+
+    .stat-card:nth-child(1){
+        padding-bottom: 1rem;
+    }
+
+    .stat-card:nth-child(2){
+        padding-bottom: 1rem;
     }
 }
 
@@ -1545,9 +1549,10 @@ body.guest-view-active {
 
 /* Payment Information Section Styles */
 .profile-payment-info #payment-info-display {
-    background: #f8f9fa;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    padding: 1.2rem; /* Decreased padding */
+    padding: 1.2rem;
     margin-bottom: 1.5rem;
     border: 1px solid #e9ecef;
 }
@@ -1560,9 +1565,8 @@ body.guest-view-active {
     display: flex; /* Use flex for alignment */
     align-items: baseline; /* Align text baseline */
     text-align: left; /* Override potential centered text */
-    padding-left: 0; /* Reset padding */
     background: none; /* Reset background */
-    border-bottom: 1px solid #eee; /* Add subtle divider */
+    border: 1px solid #eee; /* Add subtle divider */
 }
 
 /* Remove border and extra spacing from the last paragraph */
@@ -1576,9 +1580,9 @@ body.guest-view-active {
     min-width: 180px; /* Ensure labels align */
     color: #495057; /* Adjust label color if needed, back to slightly darker */
     font-weight: 600; /* Increased font weight */
-    font-size: 0.9rem; /* Slightly smaller label */
+    font-size: 1rem; /* Slightly smaller label */
     display: inline-block; /* Needed for min-width */
-    margin-right: 1rem; /* Increased space after label */
+    margin-right: 3rem; /* Increased space after label */
 }
 
 .profile-payment-info #payment-info-display span {
@@ -1586,11 +1590,6 @@ body.guest-view-active {
     font-weight: 500; /* Ensure value font weight is normal/medium */
 }
 
-/* Style the edit button if needed, potentially move outside display div in HTML later */
-.profile-payment-info #payment-info-display #edit-payment-info-btn {
-    margin-top: 1.5rem; /* Add space above button */
-    /* Keep existing button styles or add more */
-}
 
 .profile-payment-info .payment-form {
     max-width: 500px; /* Limit form width */
@@ -1598,7 +1597,8 @@ body.guest-view-active {
     margin-right: auto; /* Center the form */
     margin-top: 1.5rem;
     padding: 1.5rem;
-    background: #f8f9fa;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     border: 1px solid #e9ecef;
 }
@@ -1614,14 +1614,15 @@ body.guest-view-active {
 }
 
 .profile-payment-info .payment-form .form-group {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.5rem;
 }
 
 .profile-payment-info .payment-form label {
     display: block;
     font-weight: 700;
     color: #495057;
-    font-size: 1rem;
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
 }
 
 .profile-payment-info .payment-form input[type="text"],
@@ -1656,8 +1657,13 @@ body.guest-view-active {
     border-radius: 6px;
 }
 
+/* Style the edit button if needed, potentially move outside display div in HTML later */
+.profile-payment-info #payment-info-display #edit-payment-info-btn {
+    margin-top: 1.5rem;
+    margin-left: 3rem;
+}
+
 #edit-payment-info-btn {
-    margin-top: 1rem;
     background-color: #eab002;
     color: white;
     border: 1px solid #d39f03;
