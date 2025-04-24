@@ -650,6 +650,10 @@ footer {
     font-size: 1.1rem;
 }
 
+#contact-info {
+    min-width: 350px;
+}
+
 .footer-section p {
     color: var(--text-color);
     font-size: 0.9rem;
@@ -659,11 +663,9 @@ footer {
 .footer-section ul {
     list-style: none;
 }
+
 .footer-section ul li {
     margin-bottom: 0.5rem;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
 }
 
 .footer-section ul li a {
