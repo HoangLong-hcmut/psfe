@@ -1720,14 +1720,14 @@ body.guest-view-active {
 
 @media (max-width: 480px) {
     .profile-payment-info #payment-info-display p strong {
-        min-width: 210px;
+        min-width: 100px;
         font-weight: 700;
-        font-size: 1.1rem;
-        margin-right: 3rem;
+        font-size: 0.8rem;
+        margin-right: 2rem;
     }
     
     .profile-payment-info #payment-info-display span {
         font-weight: 500;
-        font-size: 1rem;
+        font-size: 0.8rem;
     }
 }
