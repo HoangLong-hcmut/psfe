@@ -791,81 +791,6 @@ footer {
 
 
 
-.listing-details {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin: 1.5rem 0;
-}
-
-.detail-item {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    font-size: 0.95rem;
-    color: var(--text-color);
-    font-weight: 500;
-    border-left: 3px solid var(--primary-color);
-    padding-left: 0.8rem;
-    opacity: 0.9;
-}
-
-.detail-item i {
-    color: var(--primary-color);
-    font-size: 1.1rem;
-}
-
-.listing-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 2px dashed rgba(0, 0, 0, 0.1);
-}
-
-.listing-action-btn {
-    flex: 1;
-    padding: 0.9rem 1.8rem;
-    border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.edit-btn {
-    background-color: var(--button-primary);
-    color: white;
-}
-
-.delete-btn {
-    background-color: white;
-    color: #dc3545;
-    border: 2px solid #dc3545;
-}
-
-.edit-btn:hover {
-    background-color: var(--button-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(104, 159, 56, 0.3);
-}
-
-.delete-btn:hover {
-    background-color: #dc3545;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
-}
-
-
-
 /* Mobile Menu Button */
 .menu-btn {
     display: none;
@@ -952,6 +877,17 @@ footer {
    
     .search-btn i {
         font-size: 1rem;
+    }
+}
+
+@media (max-width: 570px) {
+    #add-trade-form {
+        gap: 0.5rem;
+    }
+
+    .add-trade-container {
+        padding-top: 1.5rem;
+        padding-bottom: 2rem;
     }
 }
 

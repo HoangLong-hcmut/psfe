@@ -164,22 +164,22 @@ const addDataToHTML = () => {
     } else {
         // Provide feedback when no products match search/filters
         if (currentSearch) {
-            tradeGridHTML.innerHTML = '<p>No trades found matching your search.</p>';
+            tradeGridHTML.innerHTML = '<p>No trade found matching your search.</p>';
         } else {
-             tradeGridHTML.innerHTML = '<p>No trades currently available.</p>';
+            tradeGridHTML.innerHTML = '<p>No trade currently available.</p>';
         }
     }
 
     // --- Add Rating Event Listener ---
     tradeGridHTML.addEventListener('click', (event) => {
         if (event.target.classList.contains('rate-star')) {
-             const star = event.target;
-             const ratingControls = star.closest('.rate-trade-controls');
-             const tradeId = ratingControls?.dataset.tradeId;
-             const ratingValue = star.dataset.value;
-             const token = localStorage.getItem('authToken');
+            const star = event.target;
+            const ratingControls = star.closest('.rate-trade-controls');
+            const tradeId = ratingControls?.dataset.tradeId;
+            const ratingValue = star.dataset.value;
+            const token = localStorage.getItem('authToken');
 
-             if (tradeId && ratingValue && token) {
+            if (tradeId && ratingValue && token) {
                 // --- Visual Feedback --- 
                 const stars = ratingControls.querySelectorAll('.rate-star');
                 stars.forEach(s => {
@@ -197,11 +197,11 @@ const addDataToHTML = () => {
                     // Currently, fetchAndDisplayProducts() refreshes, so controls are removed anyway on success.
                     // If refresh wasn't happening, you might do: ratingControls.classList.remove('disabled');
                 }); 
-             } else if (!token) {
-                 showNotification('Please log in to rate trades.', 'warning');
-             } else {
-                console.error("Missing tradeId or ratingValue for rating action.");
-             }
+            } else if (!token) {
+                showNotification('Please log in to rate trades.', 'warning');
+            } else {
+            console.error("Missing tradeId or ratingValue for rating action.");
+            }
         }
     });
     // --- End Rating Event Listener ---
