@@ -327,7 +327,7 @@ main {
     background-color: var(--card-dark);
     font-size: 1rem;
     color: white;
-    min-width: 0;
+    min-width: 200px;
 }
 
 .search-btn {
