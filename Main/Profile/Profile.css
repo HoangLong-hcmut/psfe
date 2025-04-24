@@ -1724,11 +1724,11 @@ body.guest-view-active {
 
     .profile-payment-info #payment-info-display p strong {
         min-width: 150px;
-        font-size: 1rem;
-        margin-right: 2rem;
+        font-size: 0.9rem;
+        margin-right: 1rem;
     }
     
     .profile-payment-info #payment-info-display span {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
 }
