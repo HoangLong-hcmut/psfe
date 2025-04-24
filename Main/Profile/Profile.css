@@ -1730,7 +1730,7 @@ body.guest-view-active {
     .profile-payment-info #payment-info-display p strong {
         min-width: 150px;
         font-size: 1rem;
-        margin-right: 0rem;
+        margin-right: 0.5rem;
     }
     
     .profile-payment-info #payment-info-display span {
