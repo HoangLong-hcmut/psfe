@@ -27,12 +27,12 @@
     width: 90%;
     max-width: 600px;
     padding: 2.5rem;
-    border: none;
     border-radius: 20px;
     background-color: var(--card-background);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     animation: fadeInUp 0.5s ease-out;
+    justify-content: center;
 }
 
 .add-trade-container h2 {
