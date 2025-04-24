@@ -17,6 +17,8 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
+    display: flex; /* Added */
+    flex-direction: column; /* Added */
 }
 
 /* Header Styles */
@@ -1547,7 +1549,7 @@ footer {
 /* Sticky Footer Layout for Guest View */
 body.guest-view-active {
     .profile-content {
-        padding: 2rem 0 4.4rem;
+        padding: 2rem 0 4.5rem;
     }
 }
 
@@ -1755,4 +1757,14 @@ body.guest-view-active {
         padding: 0.6rem;
         font-size: 0.9rem;
     }
+}
+
+.container {
+    display: flex; /* Added */
+    flex-direction: column; /* Added */
+    flex-grow: 1; /* Added */
+}
+
+main {
+    flex-grow: 1; /* Added */
 }
