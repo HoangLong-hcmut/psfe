@@ -1739,6 +1739,19 @@ body.guest-view-active {
 
     /* Style the edit button if needed, potentially move outside display div in HTML later */
     .profile-payment-info #payment-info-display #edit-payment-info-btn {
-        margin-left: 1.5rem;
+        margin-left: 1rem;
+    }
+
+    .profile-payment-info .payment-form h3 {
+        font-size: 1.2rem;
+    }
+    
+    .profile-payment-info .payment-form label {
+        font-size: 0.9rem;
+    }
+    
+    .profile-payment-info .payment-form input[type="text"],
+    .profile-payment-info .payment-form select {
+        font-size: 0.9rem;
     }
 }
