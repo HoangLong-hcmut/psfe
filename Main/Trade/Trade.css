@@ -32,7 +32,6 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     animation: fadeInUp 0.5s ease-out;
-    justify-content: center;
 }
 
 .add-trade-container h2 {
@@ -328,6 +327,7 @@ main {
     background-color: var(--card-dark);
     font-size: 1rem;
     color: white;
+    min-width: 0;
 }
 
 .search-btn {
