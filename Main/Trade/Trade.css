@@ -170,8 +170,8 @@ body {
     margin: 0 auto;
     padding: 0 2rem;
     padding-top: 80px; /* Add space for fixed header */
-    display: flex;          /* Added */
-    flex-direction: column; /* Added */
+    display: flex;         
+    flex-direction: column;
     flex-grow: 1;           /* Added - Make container fill body space */
 }
 
