@@ -65,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Logic based on login state ---
     if (token) {
         console.log("Token found, fetching profile data...");
+        document.body.classList.remove('guest-view-active'); // Remove guest class if present
         fetchProfileData(token);
         if (profileActionsDiv) profileActionsDiv.style.display = ''; // Reset display style
 
@@ -81,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.log("No token found, showing guest view elements...");
         loadingDiv.style.display = 'none';
+        document.body.classList.add('guest-view-active'); // Add guest class to body
         // Show a message or redirect for guests
         if (profileFullname) profileFullname.textContent = 'Guest';
         if (profileEmail) profileEmail.textContent = 'Please log in to view your profile.';
@@ -391,6 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error fetching or processing profile data:', error); // Log 5: Catch block error
             errorDiv.textContent = ``;
+            document.body.classList.add('guest-view-active'); // Add guest class to body
             
             // Hide sections on error
             if (profileFullname) profileFullname.textContent = 'Guest';
