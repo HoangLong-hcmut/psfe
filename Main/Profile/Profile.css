@@ -1752,6 +1752,7 @@ body.guest-view-active {
     
     .profile-payment-info .payment-form input[type="text"],
     .profile-payment-info .payment-form select {
+        padding: 0.6rem;
         font-size: 0.9rem;
     }
 }
