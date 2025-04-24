@@ -1567,7 +1567,6 @@ body.guest-view-active {
     padding: 0.7rem;
     padding-left: 1.5rem;
     font-size: 1rem;
-    color: #495057;
     display: flex;
     align-items: baseline;
     text-align: left;
@@ -1719,15 +1718,17 @@ body.guest-view-active {
 
 
 @media (max-width: 480px) {
+    .profile-payment-info #payment-info-display p {
+        padding-left: 0.7rem;
+    }
+
     .profile-payment-info #payment-info-display p strong {
-        min-width: 100px;
-        font-weight: 700;
-        font-size: 0.8rem;
+        min-width: 150px;
+        font-size: 1rem;
         margin-right: 2rem;
     }
     
     .profile-payment-info #payment-info-display span {
-        font-weight: 500;
-        font-size: 0.8rem;
+        font-size: 1rem;
     }
 }
