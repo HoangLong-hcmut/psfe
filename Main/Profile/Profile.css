@@ -1718,6 +1718,11 @@ body.guest-view-active {
 
 
 @media (max-width: 480px) {
+    .profile-payment-info #payment-info-display {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
     .profile-payment-info #payment-info-display p {
         padding-left: 0.7rem;
     }
@@ -1725,7 +1730,7 @@ body.guest-view-active {
     .profile-payment-info #payment-info-display p strong {
         min-width: 150px;
         font-size: 0.9rem;
-        margin-right: 1rem;
+        margin-right: 0rem;
     }
     
     .profile-payment-info #payment-info-display span {
