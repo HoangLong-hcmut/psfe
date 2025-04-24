@@ -193,9 +193,6 @@ const addDataToHTML = () => {
 
                 console.log(`Rating ${ratingValue} clicked for trade ${tradeId}`); 
                 submitRating(tradeId, parseInt(ratingValue, 10), token).finally(() => {
-                    // Re-enable controls only if the submission fails? 
-                    // Currently, fetchAndDisplayProducts() refreshes, so controls are removed anyway on success.
-                    // If refresh wasn't happening, you might do: ratingControls.classList.remove('disabled');
                 }); 
             } else if (!token) {
                 showNotification('Please log in to rate trades.', 'warning');

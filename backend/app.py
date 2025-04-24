@@ -1046,7 +1046,7 @@ def get_profile_stats():
                LEFT JOIN ratings r ON t.id = r.trade_id
                WHERE t.user_id = %s
                GROUP BY t.id
-               ORDER BY t.created_at DESC""",
+               ORDER BY t.created_at ASC""",
             (user_id,)
         )
         listings_raw = cursor.fetchall()
@@ -1123,7 +1123,7 @@ def export_trades_csv():
         conn = get_db() # Use PostgreSQL connection
         cursor = conn.cursor() # Standard cursor is fine
         # SQL query should be compatible with PostgreSQL
-        cursor.execute("SELECT id, name, price, quantity, image, description, place, user_id, user_fullname, created_at FROM trades ORDER BY created_at DESC")
+        cursor.execute("SELECT id, name, price, quantity, image, description, place, user_id, user_fullname, created_at FROM trades ORDER BY created_at ASC")
         trades = cursor.fetchall()
 
         # Use StringIO to create CSV in memory (No change needed here)
@@ -1486,7 +1486,7 @@ def get_incoming_orders():
                 -- AND ci.status = 'ordered' -- Old Filter: REMOVE OR COMMENT OUT
                 AND ci.status IN ('ordered', 'accepted', 'payment_confirmed') -- CORRECTED FILTER
             ORDER BY
-                ci.added_at DESC; -- Show newest orders first
+                ci.added_at ASC; -- Show oldest orders first
         """
         cursor.execute(query, (seller_id,))
         incoming_orders_raw = cursor.fetchall()
@@ -1847,7 +1847,7 @@ def export_contacts_to_csv_string():
     try:
         conn = get_db()
         cursor = conn.cursor() # Standard cursor is fine
-        cursor.execute("SELECT id, name, email, subject, message, submitted_at FROM contacts ORDER BY submitted_at DESC")
+        cursor.execute("SELECT id, name, email, subject, message, submitted_at FROM contacts ORDER BY submitted_at ASC")
         contacts = cursor.fetchall()
 
         # Use StringIO to create CSV in memory
