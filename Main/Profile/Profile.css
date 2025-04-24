@@ -1736,4 +1736,9 @@ body.guest-view-active {
     .profile-payment-info #payment-info-display span {
         font-size: 0.9rem;
     }
+
+    /* Style the edit button if needed, potentially move outside display div in HTML later */
+    .profile-payment-info #payment-info-display #edit-payment-info-btn {
+        margin-left: 1.5rem;
+    }
 }
