@@ -198,14 +198,12 @@ header {
 }
 
 /* Profile Content Styles */
-main.profile-content {
-    margin-top: 80px;
+.profile-content {
+    margin-top: 80px; /* Adjust this value based on your header height */
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
     padding: 2rem 0;
-    flex-grow: 1;
-    width: 100%;
 }
 
 .profile-title {
@@ -455,11 +453,9 @@ main.profile-content {
 
 /* Footer Styles */
 footer {
-    padding: 3rem 0 2rem;
+    padding: 3rem 0 0;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     background-color: var(--background-color);
-    width: 100%;
-    flex-shrink: 0;
 }
 
 .footer-content {
