@@ -1747,7 +1747,7 @@ body.guest-view-active {
     }
     
     .profile-payment-info .payment-form label {
-        font-size: 0.9rem;
+        font-size: 1rem;
     }
     
     .profile-payment-info .payment-form input[type="text"],
