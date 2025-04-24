@@ -868,7 +868,7 @@ footer {
     }
 
     .search-btn {
-        padding: 0.7rem;
+        padding: 0.5rem;
         font-size: 0.9rem;
     }
    
@@ -884,11 +884,8 @@ footer {
 
     .add-trade-container {
         gap: 1rem;
-    }
-
-    .add-trade-container {
+        padding: 1.5rem;
         padding-top: 1rem;
-        padding-bottom: 1.5rem;
     }
 
     .submit-btn {
