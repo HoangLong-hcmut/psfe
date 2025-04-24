@@ -1552,7 +1552,7 @@ body.guest-view-active {
     background: #ffffff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    padding: 2rem;
+    padding: 1.9rem;
     padding-top: 0.8rem;
     margin-bottom: 2rem;
     border: 1px solid #e9ecef;
@@ -1655,7 +1655,7 @@ body.guest-view-active {
 
 /* Style the edit button if needed, potentially move outside display div in HTML later */
 .profile-payment-info #payment-info-display #edit-payment-info-btn {
-    margin-top: 1.5rem;
+    margin-top: 1.2rem;
     margin-left: 2rem;
 }
 
@@ -1663,7 +1663,7 @@ body.guest-view-active {
     background-color: #eab002;
     color: white;
     border: 1px solid #d39f03;
-    padding: 0.5rem 0.8rem;
+    padding: 0.6rem 0.8rem;
 }
 
 #edit-payment-info-btn:hover {
