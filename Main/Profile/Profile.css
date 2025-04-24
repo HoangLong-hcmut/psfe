@@ -1552,49 +1552,45 @@ body.guest-view-active {
     background: #ffffff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    padding: 1.2rem;
-    margin-bottom: 1.5rem;
+    padding: 2rem;
+    padding-top: 0.8rem;
+    margin-bottom: 2rem;
     border: 1px solid #e9ecef;
 }
 
 .profile-payment-info #payment-info-display p {
-    margin-bottom: 0.6rem; /* Decreased spacing */
-    padding-bottom: 0.6rem; /* Decreased padding below text */
+    margin-bottom: 0.6rem;
+    padding: 0.7rem;
+    padding-left: 1.5rem;
     font-size: 1rem;
     color: #495057;
-    display: flex; /* Use flex for alignment */
-    align-items: baseline; /* Align text baseline */
-    text-align: left; /* Override potential centered text */
-    background: none; /* Reset background */
-    border: 1px solid #eee; /* Add subtle divider */
-}
-
-/* Remove border and extra spacing from the last paragraph */
-.profile-payment-info #payment-info-display p:last-of-type {
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
+    display: flex;
+    align-items: baseline;
+    text-align: left;
+    background: none;
+    border: 1px solid #ced4da;
 }
 
 .profile-payment-info #payment-info-display p strong {
-    min-width: 180px; /* Ensure labels align */
-    color: #495057; /* Adjust label color if needed, back to slightly darker */
-    font-weight: 600; /* Increased font weight */
-    font-size: 1rem; /* Slightly smaller label */
-    display: inline-block; /* Needed for min-width */
-    margin-right: 3rem; /* Increased space after label */
+    min-width: 210px;
+    color: #495057;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: inline-block;
+    margin-right: 3rem;
 }
 
 .profile-payment-info #payment-info-display span {
-    color: #343a40; /* Make value darker */
-    font-weight: 500; /* Ensure value font weight is normal/medium */
+    color: #495057;
+    font-weight: 500;
+    font-size: 1rem;
 }
 
 
 .profile-payment-info .payment-form {
-    max-width: 500px; /* Limit form width */
-    margin-left: auto; /* Center the form */
-    margin-right: auto; /* Center the form */
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
     margin-top: 1.5rem;
     padding: 1.5rem;
     background: #ffffff;
@@ -1660,7 +1656,7 @@ body.guest-view-active {
 /* Style the edit button if needed, potentially move outside display div in HTML later */
 .profile-payment-info #payment-info-display #edit-payment-info-btn {
     margin-top: 1.5rem;
-    margin-left: 3rem;
+    margin-left: 2rem;
 }
 
 #edit-payment-info-btn {
