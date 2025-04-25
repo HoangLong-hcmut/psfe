@@ -123,7 +123,7 @@ const addDataToHTML = () => {
             newProduct.dataset.productId = product.id;
 
             // Format price safely
-            const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price || 0);
+            const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', currencyDisplay: 'code' }).format(product.price || 0);
             // Generate average rating stars
             const ratingHTML = generateStars(product.rating);
 
