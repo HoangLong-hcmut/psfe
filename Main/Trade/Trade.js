@@ -123,7 +123,7 @@ const addDataToHTML = () => {
             newProduct.dataset.productId = product.id;
 
             // Format price safely
-            const formattedPrice = typeof product.price === 'number' ? product.price.toFixed(0) + ' VND' : product.price;
+            const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price || 0);
             // Generate average rating stars
             const ratingHTML = generateStars(product.rating);
 
@@ -317,6 +317,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!isNaN(parsedQuantity) && parsedQuantity >= 1) {
                     quantity = parsedQuantity;
                 }
+
+                else {
+                    showNotification('Quantity must be an integer.', 'error');
+                    return;
+                }
             }
 
             // Validate required fields
@@ -325,15 +330,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Validate price format (simple check)
-            if (isNaN(parseFloat(price))) {
-                 showNotification('Invalid Price format. Please enter a number.', 'error');
-                 return;
+            // Validate price format (number)
+            const priceValue = parseInt(price, 10);
+            if (isNaN(priceValue)) {
+                showNotification('Price must be an integer.', 'error');
+                return;
             }
 
             const tradeData = {
                 name,
-                price: parseFloat(price), // Ensure price is a number
+                price: priceValue, // Use the validated numeric value
                 image: image || null, // Send null if empty
                 description: description || null,
                 place: place || null,

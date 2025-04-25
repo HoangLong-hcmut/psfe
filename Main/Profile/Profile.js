@@ -608,7 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
         listings.forEach(item => {
             const card = document.createElement('div');
             card.className = 'listing-card';
-            const formattedPrice = typeof item.price === 'number' ? item.price.toFixed(0) + ' VND' : item.price;
+            const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price || 0);
             const listedDate = new Date(item.created_at).toLocaleString();
             const productRatingHTML = item.average_product_rating !== null ? generateStars(item.average_product_rating) : '<span class="no-rating">Not Rated</span>';
 
@@ -677,9 +677,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 cartItemCard.dataset.tradeId = item.id; // Use trade ID for context
                 cartItemCard.dataset.cartItemId = item.cart_item_id; // Store cart item ID if available
 
-                const price = item.price.toFixed(0);
+                const price = item.price || 0;
                 const quantity = item.quantity || 0;
-                const total = (price * quantity).toFixed(0) + ' VND';
+
+                // Calculate the raw total
+                const rawTotal = price * quantity;
+                const priceFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+                const totalFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rawTotal);
                 const status = item.cart_status || 'pending'; // Get status
                 let statusText = status.charAt(0).toUpperCase() + status.slice(1);
                 let actionButtonHTML = '';
@@ -765,7 +769,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <div class="item-detail-row">
                                 <span class="item-detail-label"><i class='bx bx-money'></i> Unit Price</span>
-                                <span class="item-detail-value">${price} VND</span>
+                                <span class="item-detail-value">${priceFormatted} VND</span>
                             </div>
                             <div class="item-detail-row">
                                 <span class="item-detail-label"><i class='bx bx-package'></i> Quantity</span>
@@ -773,7 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <div class="item-detail-row">
                                 <span class="item-detail-label"><i class='bx bx-money'></i> Total Price</span>
-                                <span class="item-detail-value">${total}</span>
+                                <span class="item-detail-value">${totalFormatted}</span>
                             </div>
                             <div class="item-detail-row">
                                 <span class="item-detail-label"><i class='bx bx-map-pin'></i> Address</span>
@@ -813,7 +817,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const price = order.trade_price || 0;
                 const quantity = order.ordered_quantity || 0;
-                const total = (price * quantity).toFixed(0) + ' VND';
+
+                // Calculate the raw total
+                const rawTotal = price * quantity;
+                const totalFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rawTotal);
                 const status = order.status || 'ordered'; // Get status from order data if available
                 let actionButtonHTML = '';
 
@@ -855,7 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="order-item-details">
                             <div class="order-detail-row">
                                 <span class="order-detail-label"><i class='bx bx-money'></i> Total Price</span>
-                                <span class="order-detail-value">${total}</span>
+                                <span class="order-detail-value">${totalFormatted}</span>
                             </div>
                             <div class="order-detail-row">
                                 <span class="order-detail-label"><i class='bx bx-package'></i> Quantity</span>
