@@ -709,7 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (status === 'accepted') { // NEW: Seller accepted, awaiting payment
                      statusText = 'Accepted (Awaiting Payment)';
                      actionButtonHTML = `
-                         <button class="item-btn pay-btn" data-trade-id="${item.id}" data-cart-item-id="${item.cart_item_id}" data-amount="${totalFormatted}" data-trade-name="${item.name}">
+                         <button class="item-btn pay-btn" data-trade-id="${item.id}" data-cart-item-id="${item.cart_item_id}" data-amount="${rawTotal}" data-trade-name="${item.name}">
                              <i class='bx bx-qr'></i> Pay Now
                          </button>
                          <button class="item-btn remove-cart-item-btn" data-cart-item-id="${item.cart_item_id}" title="Cancel Order">
@@ -1084,7 +1084,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function showPaymentModal(cartItemId, amount, tradeName, token) {
         if (!paymentModal || !paymentQRCodeContainer || !paymentAmountSpan) return;
         
-        paymentAmountSpan.textContent = `${amount} VND`;
+        paymentAmountSpan.textContent = `${amount}`;
         paymentQRCodeContainer.innerHTML = '<p>Fetching seller payment info...</p>'; // Loading state
         paymentModal.style.display = 'block';
 
