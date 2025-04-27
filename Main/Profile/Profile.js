@@ -1084,7 +1084,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function showPaymentModal(cartItemId, amount, tradeName, token) {
         if (!paymentModal || !paymentQRCodeContainer || !paymentAmountSpan) return;
         
-        paymentAmountSpan.textContent = `${amount} VND`;
+        paymentAmountSpan.textContent = `${amount}`;
         paymentQRCodeContainer.innerHTML = '<p>Fetching seller payment info...</p>'; // Loading state
         paymentModal.style.display = 'block';
 
