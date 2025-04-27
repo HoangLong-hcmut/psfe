@@ -424,8 +424,12 @@ def login():
                     }), 200
             
             else:
-                print(f"Login failed for email: {email}. User exists: {user_row is not None}, Status: {user_row['status'] if user_row else 'N/A'}")
+                # User exists, but password doesn't match (or status is not active, though handled above)
+                print(f"Login failed for email: {email}. Incorrect password or inactive account.")
                 return jsonify({"message": "Incorrect email or password"}), 401
+        else: # User not found (email doesn't exist)
+            print(f"Login failed for email: {email}. User not found.")
+            return jsonify({"message": "Incorrect email address."}), 401
 
     # Catch PostgreSQL errors
     except psycopg2.Error as e:
