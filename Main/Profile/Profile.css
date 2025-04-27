@@ -1269,22 +1269,20 @@ footer {
     top: 0;
     width: 100%; /* Full width */
     height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
     background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
-    display: flex; /* Added */
-    align-items: center; /* Added - Vertical centering */
-    justify-content: center; /* Added - Horizontal centering */
+    padding-top: 60px; /* Location of the box */
 }
 
 .modal-content {
     background-color: #fefefe;
+    margin: 5% auto; /* 5% from the top and centered */
     padding: 20px;
     border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
     max-width: 500px; /* Maximum width */
     border-radius: 8px;
     position: relative; /* For positioning the close button */
-    max-height: 85vh; /* Added - Limit height */
-    overflow-y: auto; /* Added - Allow content box to scroll vertically */
 }
 
 .close-button {
@@ -1367,6 +1365,7 @@ footer {
 /* Payment Modal Styles */
 .modal#paymentModal .modal-content {
     max-width: 450px; /* Adjust width as needed */
+    text-align: center;
 }
 
 #payment-qr-code-container {
