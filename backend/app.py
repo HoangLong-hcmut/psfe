@@ -426,7 +426,7 @@ def login():
             else:
                 # User exists, but password doesn't match (or status is not active, though handled above)
                 print(f"Login failed for email: {email}. Incorrect password or inactive account.")
-                return jsonify({"message": "Incorrect email or password"}), 401
+                return jsonify({"message": "Incorrect password."}), 401
         else: # User not found (email doesn't exist)
             print(f"Login failed for email: {email}. User not found.")
             return jsonify({"message": "Incorrect email address."}), 401
