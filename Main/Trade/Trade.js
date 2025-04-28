@@ -139,9 +139,11 @@ const addDataToHTML = () => {
             newProduct.innerHTML = `
                 <div class="trade-card-img-container">
                     ${product.image ? `<img src="${product.image}" alt="${product.name}" class="trade-card-img">` : '<div class="trade-card-img-placeholder">No Image</div>'}
-                    <button type="button" class="add-to-cart-btn" data-product-id="${product.id}" title="Add to cart">
-                        <i class='bx bx-plus'></i>
-                    </button>
+                    <div class="add-to-cart-controls"> 
+                        <button type="button" class="add-to-cart-btn" data-product-id="${product.id}" title="Add to cart">
+                            <i class='bx bx-plus'></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="card-content">
                     <div class="card-header">
