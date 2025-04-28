@@ -154,9 +154,7 @@ const addDataToHTML = () => {
                     ${product.description ? `<p class="description">Description: ${product.description}</p>` : ''}
                     ${product.place ? `<p class="place"><i class='bx bx-map-pin'></i> ${product.place}</p>` : ''}
                     ${product.business_name ? `<span><i class='bx bx-store-alt'></i> ${product.business_name} ${product.seller_average_rating !== null ? '<span class="seller-rating-display">' + generateStars(product.seller_average_rating) + '</span>' : '<span class="no-rating">(Not Rated)</span>'}</span>` : ''}
-                    <div class="add-to-cart-controls"> 
-                        <input type="number" class="quantity-input" value="1" min="1" max="${product.quantity}" data-product-id="${product.id}">
-                    </div>
+                    <input type="number" class="quantity-input" value="1" min="1" max="${product.quantity}" data-product-id="${product.id}">            
                 </div>
             `;
             tradeGridHTML.appendChild(newProduct);
