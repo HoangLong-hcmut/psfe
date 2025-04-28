@@ -612,6 +612,66 @@ main {
     margin-top: auto;
 }
 
+.trade-card .location {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+    font-weight: 500;
+    border-left: 3px solid var(--primary-color);
+    padding-left: 0.8rem;
+}
+
+.trade-card .location i {
+    color: var(--primary-color);
+}
+
+.trade-card .business {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    border-left: 3px solid var(--primary-color);
+    padding-left: 0.8rem;
+}
+
+.trade-card .business i {
+    color: var(--primary-color);
+}
+
+.trade-card .add-to-cart {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px dashed rgba(0, 0, 0, 0.1);
+}
+
+.trade-card input[type="number"] {
+    width: 90px;
+    padding: 0.6rem;
+    border: 2px solid var(--secondary-color);
+    border-radius: 10px;
+    font-size: 1rem;
+    text-align: center;
+    font-weight: 500;
+    color: var(--text-color);
+    background-color: rgba(255, 255, 255, 0.9);
+    transition: all 0.3s ease;
+}
+
+.trade-card input[type="number"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(139, 195, 74, 0.2);
+}
+
 
 /* Footer Styles */
 footer {
