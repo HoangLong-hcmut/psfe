@@ -1716,7 +1716,7 @@ body.guest-view-active {
 }
 
 
-@media (max-width: 500px) {
+@media (max-width: 550px) {
     .profile-payment-info #payment-info-display {
         padding-left: 1rem;
         padding-right: 1rem;
