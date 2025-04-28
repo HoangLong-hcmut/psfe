@@ -12,6 +12,12 @@
     --text-color: #333333;
     --highlight-color: #4FB8E8;
     --card-background: #FFFFFF;
+    --card-border-color: #E0E0E0;
+    --star-color: #FFA726;
+    --description-color: #666666;
+    --price-color: #333333;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --card-hover-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     --card-light: #DCEDC8;
     --card-dark: #9CCC65;
     --button-primary: #689F38;
@@ -441,192 +447,169 @@ main {
 /* Trade Grid Styles */
 .trade-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
-    padding: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
 }
 
 .trade-card {
-    background-color: var(--card-dark);
-    padding: 2rem;
-    border-radius: 24px;
+    background-color: var(--card-background);
+    padding: 0;
+    border-radius: 16px;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-/* First column, even rows */
-.trade-card:nth-child(4n + 2) {
-    background-color: var(--card-light);
-}
-
-/* Second column, odd rows */
-.trade-card:nth-child(4n + 3) {
-    background-color: var(--card-light);
+    border: 1px solid var(--card-border-color);
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
 }
 
 .trade-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.trade-card-img-container {
+    position: relative;
+    width: 100%;
+    padding-top: 75%;
+    overflow: hidden;
+}
+
+.trade-card-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.trade-card-img-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.add-item-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--card-border-color);
+    border-radius: 50%;
+    color: #555;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    line-height: 1;
+}
+
+.add-item-btn i {
+    line-height: 1;
+    display: block;
+}
+
+.add-item-btn:hover {
+    background-color: white;
+    color: var(--primary-color);
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-content {
+    padding: 1rem 1.25rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .trade-card h3 {
     color: var(--text-color);
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: 600;
-    margin-bottom: 1rem;
-    text-transform: capitalize;
-    letter-spacing: 0.5px;
+    margin-bottom: 0;
+    letter-spacing: 0;
     position: relative;
-    padding-bottom: 0.5rem;
+    padding-bottom: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
 }
 
 .trade-card h3::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 50px;
-    height: 2px;
-    background-color: var(--primary-color);
-    transition: width 0.3s ease;
+    display: none;
 }
 
-.trade-card:hover h3::after {
-    width: 100px;
-}
-
-.trade-card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 16px;
-    margin-bottom: 1.5rem;
-}
-
-.trade-card .rating {
+.card-rating {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    color: var(--text-color);
-    font-size: 0.95rem;
-    font-weight: 500;
-    background-color: rgba(255, 255, 255, 0.3);
-    padding: 0.4rem 0.8rem;
-    border-radius: 8px;
-    width: fit-content;
+    gap: 0.2rem;
+    color: var(--star-color);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.card-rating .no-rating {
+    display: none;
+}
+
+.card-rating i.bx {
+    font-size: 1.1em;
+}
+
+.trade-card .description {
+    font-size: 0.85rem;
+    color: var(--description-color);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: calc(2 * 1.4 * 0.85rem);
 }
 
 .trade-card .price {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--text-color);
-    margin-bottom: 1rem;
-    text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
-}
-
-.trade-card .quantity {
-    font-size: 1rem;
-    color: var(--text-color);
-    margin-bottom: 1rem;
-    opacity: 0.9;
-    font-weight: 500;
-}
-
-.trade-card .location {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-    color: var(--text-color);
-    margin-bottom: 1.5rem;
-    opacity: 0.9;
-    font-weight: 500;
-    border-left: 3px solid var(--primary-color);
-    padding-left: 0.8rem;
-}
-
-.trade-card .location i {
-    color: var(--primary-color);
-}
-
-.trade-card .business {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-    color: var(--text-color);
-    margin-bottom: 1.5rem;
-    font-weight: 500;
-    border-left: 3px solid var(--primary-color);
-    padding-left: 0.8rem;
-}
-
-.trade-card .business i {
-    color: var(--primary-color);
-}
-
-.trade-card .add-to-cart {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 2px dashed rgba(0, 0, 0, 0.1);
-}
-
-.trade-card input[type="number"] {
-    width: 90px;
-    padding: 0.6rem;
-    border: 2px solid var(--secondary-color);
-    border-radius: 10px;
-    font-size: 1rem;
-    text-align: center;
-    font-weight: 500;
-    color: var(--text-color);
-    background-color: rgba(255, 255, 255, 0.9);
-    transition: all 0.3s ease;
-}
-
-.trade-card input[type="number"]:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(139, 195, 74, 0.2);
-}
-
-.trade-card .add-to-cart button {
-    background-color: var(--button-primary);
-    color: white;
-    padding: 0.9rem 1.8rem;
-    border: none;
-    border-radius: 12px;
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: var(--price-color);
+    margin-bottom: 0.25rem;
 }
 
-.trade-card .add-to-cart button:hover {
-    background-color: var(--button-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(104, 159, 56, 0.3);
-}
-
-.trade-card .add-to-cart button i {
-    font-size: 1.1rem;
-}
-
-.card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1rem;
+.trade-card .quantity-display {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 0;
+    margin-top: auto;
 }
 
 

@@ -1585,6 +1585,7 @@ body.guest-view-active {
 }
 
 .profile-payment-info #payment-info-display p strong {
+    min-width: 210px;
     width: 210px;
     color: #495057;
     font-weight: 700;
@@ -1738,6 +1739,7 @@ body.guest-view-active {
     }
 
     .profile-payment-info #payment-info-display p strong {
+        min-width: 150px;
         width: 150px;
         font-size: 1rem;
         margin-right: 0.5rem;

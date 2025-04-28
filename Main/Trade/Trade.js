@@ -138,25 +138,22 @@ const addDataToHTML = () => {
 
             newProduct.innerHTML = `
                 <div class="trade-card-img-container">
-                    ${product.image ? `<img src="${product.image}" alt="${product.name}" class="trade-card-img">` : ''}
+                    ${product.image ? `<img src="${product.image}" alt="${product.name}" class="trade-card-img">` : '<div class="trade-card-img-placeholder">No Image</div>'}
+                    <button type="button" class="add-item-btn" data-product-id="${product.id}" title="Add to cart">
+                        <i class='bx bx-plus'></i>
+                    </button>
                 </div>
                 <div class="card-content">
-                    <h3>${product.name}</h3>
-                    <div class="card-rating">Avg Rating: ${ratingHTML}</div>
-                    ${ratingInputHTML}
-                    <p class="price">Unit Price: ${formattedPrice}</p>
-                    <p class="quantity-display">Quantity: ${product.quantity}</p>
-                    ${product.description ? `<p class="description">Description: ${product.description}</p>` : ''}
-                    ${product.place ? `<p class="place"><i class='bx bx-map-pin'></i> ${product.place}</p>` : ''}
-                    <div class="card-footer">
-                         ${product.business_name ? `<span><i class='bx bx-store-alt'></i> ${product.business_name} ${product.seller_average_rating !== null ? '<span class="seller-rating-display">' + generateStars(product.seller_average_rating) + '</span>' : '<span class="no-rating">(Not Rated)</span>'}</span>` : ''}
-                         <div class="add-to-cart-controls"> 
-                             <input type="number" class="quantity-input" value="1" min="1" max="${product.quantity}" data-product-id="${product.id}">
-                             <button type="button" class="add-to-cart-btn" data-product-id="${product.id}">
-                                 <i class='bx bx-cart-add'></i> Add to Cart
-                             </button>
-                         </div>
+                    <div class="card-header">
+                        <h3 title="${product.name}">${product.name}</h3>
+                        <div class="card-rating">${ratingHTML}</div>
                     </div>
+                    ${product.description ? `<p class="description" title="${product.description}">${product.description}</p>` : ''}
+                    <p class="price">${formattedPrice}</p>
+                    <p class="quantity-display">Available: ${product.quantity}</p>
+                    
+                    
+                    <!-- Removed elements: place, business info, old add-to-cart controls -->
                 </div>
             `;
             tradeGridHTML.appendChild(newProduct);
@@ -636,4 +633,5 @@ function toggleForm() {
       div.id = "formHidden";
     }
 }
+
 
