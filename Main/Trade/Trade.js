@@ -139,11 +139,9 @@ const addDataToHTML = () => {
             newProduct.innerHTML = `
                 <div class="trade-card-img-container">
                     ${product.image ? `<img src="${product.image}" alt="${product.name}" class="trade-card-img">` : '<div class="trade-card-img-placeholder">No Image</div>'}
-                    <div class="add-to-cart-controls"> 
-                        <button type="button" class="add-to-cart-btn" data-product-id="${product.id}" title="Add to cart">
-                            <i class='bx bx-plus'></i>
-                        </button>
-                    </div>
+                    <button type="button" class="add-to-cart-btn" data-product-id="${product.id}" title="Add to cart">
+                        <i class='bx bx-plus'></i>
+                    </button>
                 </div>
                 <div class="card-content">
                     <div class="card-header">
@@ -469,22 +467,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Delegation for Add to Cart --- 
     if (tradeGridHTML) {
         tradeGridHTML.addEventListener('click', (event) => {
-            // Check if the clicked element is an add-to-cart button
-            if (event.target.closest('.add-to-cart-btn')) {
+            const button = event.target.closest('.add-to-cart-btn');
+            if (button) {
                 event.preventDefault(); // Prevent any default button behavior
                 event.stopPropagation(); // Stop the event from bubbling up
-                const button = event.target.closest('.add-to-cart-btn');
                 const tradeId = button.dataset.productId;
                 
-                // Find the corresponding quantity input
-                const controlsWrapper = button.closest('.add-to-cart-controls');
-                const quantityInput = controlsWrapper ? controlsWrapper.querySelector('.quantity-input') : null;
-                const quantity = quantityInput ? parseInt(quantityInput.value, 10) : 1;
+                if (tradeId) {
+                    const card = button.closest('.trade-card');
+                    const quantityInput = card ? card.querySelector(`.quantity-input[data-product-id="${tradeId}"]`) : null;
+                    const quantity = quantityInput ? parseInt(quantityInput.value, 10) : 1;
 
-                if (tradeId && quantity > 0) {
-                    addToCartHandler(parseInt(tradeId, 10), quantity);
+                    // Validate quantity (must be a positive number)
+                    if (!isNaN(quantity) && quantity > 0) {
+                        addToCartHandler(parseInt(tradeId, 10), quantity);
+                    } else {
+                        showNotification('Please enter a valid quantity greater than 0.', 'warning');
+                        console.error("Invalid quantity selected for trade ID:", tradeId, quantityInput.value);
+                    }
                 } else {
-                    console.error("Could not get trade ID or valid quantity for cart action.");
+                    console.error("Could not get trade ID from the clicked button.");
+                    showNotification('Error: Item ID missing.', 'error'); // User feedback
                 }
             }
             // Add more delegated events here if needed (e.g., for rating clicks)
