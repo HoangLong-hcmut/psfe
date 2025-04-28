@@ -1269,14 +1269,13 @@ footer {
     top: 0;
     width: 100%; /* Full width */
     height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
     background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
     padding-top: 60px; /* Location of the box */
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: 5% auto; /* 5% from the top and centered */
+    margin: auto;
     padding: 20px;
     border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
@@ -1717,7 +1716,7 @@ body.guest-view-active {
 }
 
 
-@media (max-width: 480px) {
+@media (max-width: 500px) {
     .profile-payment-info #payment-info-display {
         padding-left: 1rem;
         padding-right: 1rem;
