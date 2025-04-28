@@ -162,6 +162,17 @@ header {
         width: 60%;
     }
 
+    .listing-item-image img {
+        width: 250px;
+    }
+
+    .order-item-image img {
+        width: 250px;
+    }
+    
+    .item-image img {
+        width: 250px;
+    }
 }
 
 /* Animation for mobile menu */
@@ -1574,7 +1585,7 @@ body.guest-view-active {
 }
 
 .profile-payment-info #payment-info-display p strong {
-    min-width: 210px;
+    width: 210px;
     color: #495057;
     font-weight: 700;
     font-size: 1.1rem;
@@ -1727,7 +1738,7 @@ body.guest-view-active {
     }
 
     .profile-payment-info #payment-info-display p strong {
-        min-width: 150px;
+        width: 150px;
         font-size: 1rem;
         margin-right: 0.5rem;
     }
