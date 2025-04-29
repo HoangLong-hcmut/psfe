@@ -610,7 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.className = 'listing-card';
             const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', currencyDisplay: 'code' }).format(item.price || 0);
             const listedDate = new Date(item.created_at).toLocaleString();
-            const productRatingHTML = item.average_product_rating !== null ? generateStars(item.average_product_rating) : '<span class="no-rating">Not Rated</span>';
+            const productRatingHTML = item.average_product_rating !== null ? generateStars(item.average_product_rating) : '<span class="no-rating">Not Rated Yet</span>';
 
             card.innerHTML = `
                 <div class="listing-image">
@@ -707,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
                          </button>
                      `; // Maybe add cancel button later
                 } else if (status === 'accepted') { // NEW: Seller accepted, awaiting payment
-                     statusText = 'Accepted (Awaiting Payment)';
+                     statusText = 'Order Accepted (Awaiting Payment)';
                      actionButtonHTML = `
                          <button class="item-btn pay-btn" data-trade-id="${item.id}" data-cart-item-id="${item.cart_item_id}" data-amount="${rawTotal}" data-trade-name="${item.name}">
                              <i class='bx bx-qr'></i> Pay Now
@@ -717,7 +717,7 @@ document.addEventListener('DOMContentLoaded', () => {
                          </button>
                     `;
                 } else if (status === 'payment_confirmed') { // NEW: Buyer paid, awaiting seller completion
-                    statusText = 'Payment Confirmed (Awaiting Completion)';
+                    statusText = 'Payment Done (Awaiting Confirmation)';
                     actionButtonHTML = '<span class="status-text">Awaiting seller confirmation.</span>'; // No actions for buyer
                 } else if (status === 'completed') {
                     statusText = 'Order Completed';
@@ -846,7 +846,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                      // Handle other statuses like 'accepted' (awaiting payment) if needed
                      if (status === 'accepted') {
-                         actionButtonHTML = `<span class="status-text status-accepted">Awaiting Buyer Payment...</span>`; // Updated text
+                         actionButtonHTML = `<span class="status-text status-accepted">Awaiting Buyer Payment.</span>`; // Updated text
                      } else {
                          actionButtonHTML = `<span class="status-text">Status: ${status}</span>`; // Fallback
                      }
@@ -878,7 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <div class="order-detail-row">
                                 <span class="order-detail-label"><i class='bx bx-check-circle'></i> Status</span>
-                                <span class="order-detail-value">${status === 'accepted' ? 'Accepted (Awaiting Payment)' : (status.charAt(0).toUpperCase() + status.slice(1))}</span>
+                                <span class="order-detail-value">${status === 'accepted' ? 'Order Accepted (Awaiting Payment)' : status === 'payment_confirmed' ? 'Payment Done (Awaiting Confirmation)' : (status.charAt(0).toUpperCase() + status.slice(1))}</span>
                             </div>
                         </div>
                         <div class="order-item-actions">
@@ -1238,7 +1238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to generate star ratings HTML (copied from Trade.js)
     const generateStars = (rating) => {
         if (rating === null || rating === undefined || rating < 0 || rating > 5) {
-            return '<span class="no-rating">Not rated</span>';
+            return '<span class="no-rating">Not rated Yet</span>';
         }
         const fullStars = Math.floor(rating);
         const halfStar = rating % 1 >= 0.5 ? 1 : 0;
@@ -1247,8 +1247,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < fullStars; i++) starsHTML += '<i class="bx bxs-star"></i>';
         if (halfStar) starsHTML += '<i class="bx bxs-star-half"></i>';
         for (let i = 0; i < emptyStars; i++) starsHTML += '<i class="bx bx-star"></i>';
-        // Add numeric value next to stars
-        return `<span class="rating-value">(${rating.toFixed(1)})</span> ${starsHTML}`;
+        return `${starsHTML}`;
     };
 
     // Function to show notifications (Ensure #notification-area exists in Profile.html)

@@ -60,7 +60,7 @@ const generateStars = (rating) => {
     for (let i = 0; i < fullStars; i++) starsHTML += '<i class="bx bxs-star"></i>';
     if (halfStar) starsHTML += '<i class="bx bxs-star-half"></i>';
     for (let i = 0; i < emptyStars; i++) starsHTML += '<i class="bx bx-star"></i>';
-    return `<span class="rating-value">(${rating.toFixed(1)})</span> ${starsHTML}`;
+    return `${starsHTML}`;
 };
 
 // Function to show notifications
