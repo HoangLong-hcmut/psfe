@@ -543,7 +543,7 @@ main {
 
 .trade-card h3 {
     color: var(--text-color);
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     margin-bottom: 0;
     letter-spacing: 0;
@@ -569,10 +569,6 @@ main {
 
 .card-rating .no-rating {
     display: none;
-}
-
-.card-rating i.bx {
-    font-size: 1.1em;
 }
 
 .trade-card .description {
