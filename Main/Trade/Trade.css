@@ -638,15 +638,14 @@ main {
     overflow: hidden;
     text-overflow: ellipsis;
     margin-right: 5px;
-}
-
-.business-info-line .business i {
-    margin-right: 4px;
+    gap: 0.5rem;
+    font-size: 0.9rem;
 }
 
 .business-info-line .seller-rating-display {
     flex-shrink: 0;
     white-space: nowrap;
+    font-size: 0.9em;
 }
 
 .business-info-line .seller-rating-display.no-rating {
