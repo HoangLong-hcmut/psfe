@@ -1244,9 +1244,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const halfStar = rating % 1 >= 0.5 ? 1 : 0;
         const emptyStars = 5 - fullStars - halfStar;
         let starsHTML = '';
-        for (let i = 0; i < fullStars; i++) starsHTML += '<i class="bx bxs-star"></i>';
-        if (halfStar) starsHTML += '<i class="bx bxs-star-half"></i>';
-        for (let i = 0; i < emptyStars; i++) starsHTML += '<i class="bx bx-star"></i>';
+        for (let i = 0; i < fullStars; i++) starsHTML += '<i class="bx bxs-star" style="color: #FFA726;"></i>';
+        if (halfStar) starsHTML += '<i class="bx bxs-star-half" style="color: #FFA726;"></i>';
+        for (let i = 0; i < emptyStars; i++) starsHTML += '<i class="bx bx-star" style="color: #FFA726;"></i>';
         return `${starsHTML}`;
     };
 

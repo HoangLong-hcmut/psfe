@@ -51,15 +51,15 @@ const fetchAndDisplayProducts = () => {
 // Function to generate star ratings HTML
 const generateStars = (rating) => {
     if (rating === null || rating === undefined || rating < 0 || rating > 5) {
-        return '<span class="no-rating">Not rated</span>'; // Or return empty string
+        return '<span class="no-rating">Not rated Yet</span>'; // Or return empty string
     }
     const fullStars = Math.floor(rating);
     const halfStar = rating % 1 >= 0.5 ? 1 : 0;
     const emptyStars = 5 - fullStars - halfStar;
     let starsHTML = '';
-    for (let i = 0; i < fullStars; i++) starsHTML += '<i class="bx bxs-star"></i>';
-    if (halfStar) starsHTML += '<i class="bx bxs-star-half"></i>';
-    for (let i = 0; i < emptyStars; i++) starsHTML += '<i class="bx bx-star"></i>';
+    for (let i = 0; i < fullStars; i++) starsHTML += '<i class="bx bxs-star" style="color: #FFA726;"></i>';
+    if (halfStar) starsHTML += '<i class="bx bxs-star-half" style="color: #FFA726;"></i>';
+    for (let i = 0; i < emptyStars; i++) starsHTML += '<i class="bx bx-star" style="color: #FFA726;"></i>';
     return `${starsHTML}`;
 };
 
@@ -127,15 +127,6 @@ const addDataToHTML = () => {
             // Generate average rating stars
             const ratingHTML = generateStars(product.rating);
 
-            // --- Rating Input Logic ---
-            let ratingInputHTML = '';
-            // Keep the block that displays the existing rating if available
-            if (product.current_user_rating_score !== null) {
-                 // User has already rated this trade
-                 ratingInputHTML = `<div class="already-rated">You rated: ${generateStars(product.current_user_rating_score)}</div>`;
-            }
-            // --- End Rating Input Logic ---
-
             newProduct.innerHTML = `
                 <div class="trade-card-img-container">
                     ${product.image ? `<img src="${product.image}" alt="${product.name}" class="trade-card-img">` : '<div class="trade-card-img-placeholder">No Image</div>'}
@@ -152,7 +143,7 @@ const addDataToHTML = () => {
                     <p class="price">Unit Price: ${formattedPrice}</p>
                     <p class="quantity-display">Available: ${product.quantity}</p>
                     ${product.place ? `<p class="place"><i class='bx bx-map-pin'></i> ${product.place}</p>` : ''}
-                    ${product.business_name ? `<span><i class='bx bx-store-alt'></i> ${product.business_name} ${product.seller_average_rating !== null ? '<span class="seller-rating-display">' + generateStars(product.seller_average_rating) + '</span>' : '<span class="no-rating">(Not Rated)</span>'}</span>` : ''}
+                    ${product.business_name ? `<span><i class='bx bx-store-alt'></i> ${product.business_name} ${product.seller_average_rating !== null ? '<span class="seller-rating-display">' + generateStars(product.seller_average_rating) + '</span>' : '<span class="no-rating">(Not Rated Yet)</span>'}</span>` : ''}
                     <input type="number" class="quantity-input" value="1" min="1" max="${product.quantity}" data-product-id="${product.id}">            
                 </div>
             `;

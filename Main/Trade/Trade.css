@@ -562,7 +562,6 @@ main {
 .card-rating {
     display: flex;
     align-items: center;
-    gap: 0.2rem;
     color: #FFA726;
     font-size: 0.9rem;
     white-space: nowrap;

@@ -486,7 +486,6 @@ def get_trades():
         sort_order = 'asc'
 
     # --- Build the SQL Query ---
-    params = []
     # Base selection (AVG is standard SQL)
     select_clause = """
         SELECT
@@ -498,13 +497,6 @@ def get_trades():
               FROM ratings sr
               WHERE sr.seller_id = t.user_id) as seller_average_rating
     """
-
-    # Add current user's *average* rating for this trade if logged in - Use %s placeholder
-    if current_user_id is not None:
-        select_clause += ", (SELECT AVG(ur.rating_score) FROM ratings ur WHERE ur.trade_id = t.id AND ur.user_id = %s) AS current_user_rating_score" # Use AVG() here
-        params.append(current_user_id) # Add user_id to params list FIRST
-    else:
-        select_clause += ", NULL AS current_user_rating_score" # Return NULL if not logged in
 
     # FROM and JOIN clauses (LEFT JOIN is standard SQL)
     from_join_clause = """
@@ -541,7 +533,7 @@ def get_trades():
     sql += order_by_clause
 
     # Combine params (user ID first if present, then WHERE params)
-    final_params = tuple(params + where_params) # Ensure it's a tuple
+    final_params = tuple(where_params) # Ensure it's a tuple, removed params for user_id
 
     # --- End Build SQL Query ---
 
@@ -561,9 +553,6 @@ def get_trades():
              if trade.get('rating') is not None: trade['rating'] = float(trade['rating'])
              if trade.get('seller_average_rating') is not None:
                 trade['seller_average_rating'] = float(trade['seller_average_rating'])
-             # Handle potential None for current_user_rating_score before float conversion
-             if trade.get('current_user_rating_score') is not None: 
-                 trade['current_user_rating_score'] = float(trade['current_user_rating_score'])
              # quantity (INTEGER) and seller_id (INTEGER) should be fine
 
         cursor.close()
