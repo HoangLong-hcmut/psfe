@@ -653,6 +653,18 @@ main {
     color: #888;
 }
 
+@media (max-width: 480px) {
+    .trade-card h3 {
+        font-size: 1.2rem;
+    }
+
+    .add-to-cart-btn {
+        width: 72px;
+        height: 72px;
+        font-size: 3rem;
+    }
+}
+
 /* Footer Styles */
 footer {
     padding: 3rem 0 2rem;
