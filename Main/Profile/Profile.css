@@ -902,7 +902,7 @@ footer {
     display: flex;
     gap: 0.8rem;
     margin-top: 1rem;
-    justify-content: flex-end;
+    justify-content: space-between;
     padding-top: 1rem;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
