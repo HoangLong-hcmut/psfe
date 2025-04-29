@@ -619,7 +619,7 @@ main {
 
 .trade-card input[type="number"] {
     width: 80px;
-    padding: 0.5rem;
+    padding: 0.4rem;
     border: 2px solid #AED581;
     border-radius: 10px;
     font-size: 1rem;
@@ -629,9 +629,6 @@ main {
     transition: all 0.3s ease;
 }
 
-.trade-card input[type="number"]:focus {
-    border-color: var(--primary-color);
-}
 
 
 /* Footer Styles */
