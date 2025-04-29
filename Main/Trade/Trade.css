@@ -595,15 +595,9 @@ main {
 .trade-card .quantity-display {
     font-size: 0.8rem;
     margin-bottom: 0;
-    margin-top: auto;
 }
 
 .trade-card .location {
-    gap: 0.5rem;
-    font-size: 0.9rem;
-}
-
-.trade-card .business {
     gap: 0.5rem;
     font-size: 0.9rem;
 }
@@ -624,12 +618,41 @@ main {
     border-radius: 10px;
     font-size: 1rem;
     text-align: center;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--text-color);
     transition: all 0.3s ease;
 }
 
+.business-info-line {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-top: 5px;
+    overflow: hidden;
+}
 
+.business-info-line .business {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 5px;
+}
+
+.business-info-line .business i {
+    margin-right: 4px;
+}
+
+.business-info-line .seller-rating-display {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.business-info-line .seller-rating-display.no-rating {
+    font-size: 0.8em;
+    color: #888;
+}
 
 /* Footer Styles */
 footer {
@@ -798,8 +821,6 @@ footer {
     opacity: 0.7;
 }
 
-
-
 /* Mobile Menu Button */
 .menu-btn {
     display: none;
@@ -816,8 +837,6 @@ footer {
     font-size: 1.8rem;
     display: block;
 }
-
-
 
 /* Mobile Styles */
 @media (max-width: 845px) {

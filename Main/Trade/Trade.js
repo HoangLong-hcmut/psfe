@@ -143,7 +143,12 @@ const addDataToHTML = () => {
                     <p class="price">Unit Price: ${formattedPrice}</p>
                     <p class="quantity-display">Available: ${product.quantity}</p>
                     ${product.place ? `<p class="location"><i class='bx bx-map-pin'></i> ${product.place}</p>` : ''}
-                    ${product.business_name ? `<span class="business"><i class='bx bx-store-alt'></i> ${product.business_name} ${product.seller_average_rating !== null ? '<span class="seller-rating-display">' + generateStars(product.seller_average_rating) + '</span>' : '<span class="no-rating">(Not Rated Yet)</span>'}</span>` : ''}
+                    ${product.business_name ? `
+                    <div class="business-info-line">
+                        <span class="business" title="${product.business_name}"><i class='bx bx-store-alt'></i> ${product.business_name}</span>
+                        ${product.seller_average_rating !== null ? `<span class="seller-rating-display">${generateStars(product.seller_average_rating)}</span>` : '<span class="seller-rating-display no-rating">(Not Rated Yet)</span>'}
+                    </div>
+                    ` : ''}
                     <input type="number" class="quantity-input" value="1" min="1" max="${product.quantity}" data-product-id="${product.id}">            
                 </div>
             `;
