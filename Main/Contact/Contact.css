@@ -1,4 +1,4 @@
-* {
+﻿* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -19,7 +19,7 @@ body {
     line-height: 1.6;
 }
 
-/* Header Styles */
+
 header {
     display: flex;
     justify-content: space-between;
@@ -60,7 +60,7 @@ header {
     font-weight: 700;
 }
 
-/* Mobile Menu Button */
+
 .menu-btn {
     display: none;
     font-size: 1.8rem;
@@ -79,7 +79,7 @@ header {
 
 
 
-/* Navbar Styles */
+
 .navbar {
     display: flex;
     gap: 2.5rem;
@@ -93,13 +93,13 @@ header {
     font-size: 0.9rem;
     transition: all 0.3s ease;
     opacity: 0.8;
-    /* Add properties for icon alignment */
+    
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-/* Add rule for icons */
+
 .navbar a i {
     font-size: 1.2rem;
 }
@@ -110,7 +110,7 @@ header {
     opacity: 1;
 }
 
-/* Contact Content Styles */
+
 .contact-content {
     max-width: 1200px;
     margin: 7rem auto 3rem;
@@ -254,7 +254,7 @@ header {
     box-shadow: 0 4px 12px rgba(118, 182, 91, 0.2);
 }
 
-/* Footer Styles */
+
 footer {
     padding: 3rem 0 0;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
@@ -340,7 +340,7 @@ footer {
 }
 
 
-/* Animations */
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -374,7 +374,7 @@ footer {
     }
 }
 
-/* Responsive Design */
+
 @media (max-width: 1025px) {
     .contact-container {
         grid-template-columns: 1fr;
@@ -481,7 +481,7 @@ footer {
     }
 }
 
-/* Export Button Styling */
+
 .export-section {
     text-align: center;
     margin-top: 2rem;
@@ -489,7 +489,7 @@ footer {
 }
 
 .export-btn {
-    background-color: var(--button-primary, #689F38); /* Use primary button color or default */
+    background-color: var(--button-primary, #689F38); 
     color: white;
     padding: 12px 25px;
     border: none;
@@ -498,7 +498,7 @@ footer {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: inline-flex; /* Align icon and text */
+    display: inline-flex; 
     align-items: center;
     gap: 0.5rem;
 }
@@ -508,7 +508,7 @@ footer {
 }
 
 .export-btn:hover {
-    background-color: var(--button-hover, #7CB342); /* Use hover color or default */
+    background-color: var(--button-hover, #7CB342); 
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(104, 159, 56, 0.2);
 }

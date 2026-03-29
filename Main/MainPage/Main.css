@@ -1,4 +1,4 @@
-* {
+﻿* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -21,7 +21,7 @@ body {
     min-height: 100vh;
 }
 
-/* Header Styles */
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -38,7 +38,7 @@ body {
     transition: transform 0.3s ease;
 }
 
-/* Add this class for header hide/show behavior */
+
 .header--hidden {
     transform: translateY(-100%);
 }
@@ -73,7 +73,7 @@ body {
     display: inline-block;
 }
 
-/* Mobile Menu Button */
+
 .menu-btn {
     display: none;
     font-size: 1.8rem;
@@ -91,7 +91,7 @@ body {
 }
 
 
-/* Navigation Styles */
+
 .navbar {
     display: flex;
     gap: 2.5rem;
@@ -123,16 +123,16 @@ body {
     opacity: 1;
 }
 
-/* Main Content */
+
 main {
-    margin-top: 80px; /* Adjust this value based on your header height */
+    margin-top: 80px; 
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
     padding: 2rem 2rem;
 }
 
-/* Hero Section */
+
 .hero {
     margin-bottom: 4rem;
 }
@@ -330,7 +330,7 @@ main {
     color: #5865F2;
 }
 
-/* What we do Section */
+
 .what-we-do {
     margin-top: 4rem;
     text-align: left;
@@ -462,7 +462,7 @@ main {
 }
 
 
-/* Mobile Responsive Styles */
+
 @media (max-width: 845px) {
     .menu-btn {
         display: block;
@@ -508,7 +508,7 @@ main {
         margin-right: 0.5rem;
     }
 
-    /* Adjust main content for mobile */
+    
     main {
         padding: 2rem 1rem;
     }
@@ -573,7 +573,7 @@ main {
     }
 }
 
-/* Small Mobile Devices */
+
 @media (max-width: 480px) {
     .hero h1 {
         font-size: 1.5rem;
@@ -590,7 +590,7 @@ main {
     }
 }
 
-/* Trade News Section */
+
 .trade-news {
     margin: 4rem 0;
 }
@@ -864,7 +864,7 @@ main {
     }
 }
 
-/* Business Around Section */
+
 .business-around {
     margin: 4rem 0;
 }
@@ -967,7 +967,7 @@ main {
     }
 }
 
-/* Footer Styles */
+
 footer {
     padding: 3rem 0 0;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
@@ -1049,7 +1049,7 @@ footer {
     font-size: 0.9rem;
 }
 
-/* Responsive Design */
+
 @media (max-width: 1025px) {
     .footer-content {
         grid-template-columns: repeat(2, 1fr);
@@ -1067,7 +1067,7 @@ footer {
 }
 
 
-/* Icons */
+
 [class^="icon-"] {
     font-size: 1.2rem;
     color: var(--primary-color);
@@ -1078,12 +1078,12 @@ footer {
     color: var(--secondary-color);
 }
 
-/* Add hover pause effect */
+
 .logo:hover i {
     animation-play-state: paused;
 }
 
-/* Add the rotation keyframes */
+
 @keyframes rotate {
     from {
         transform: rotate(0deg);
@@ -1093,7 +1093,7 @@ footer {
     }
 }
 
-/* Section Headers */
+
 section h2 {
     font-size: 2rem;
     color: var(--primary-color);

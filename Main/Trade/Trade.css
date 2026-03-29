@@ -166,13 +166,12 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
-    padding-top: 80px; /* Add space for fixed header */
+    padding-top: 80px;
     display: flex;         
     flex-direction: column;
-    flex-grow: 1;           /* Added - Make container fill body space */
+    flex-grow: 1;
 }
 
-/* Header Styles */
 .header {
     display: flex;
     justify-content: space-between;
@@ -189,7 +188,6 @@ body {
     transition: transform 0.3s ease;
 }
 
-/* Add this class for header hide/show behavior */
 .header--hidden {
     transform: translateY(-100%);
 }
@@ -259,9 +257,8 @@ body {
     display: block;
 }
 
-/* Main Content Styles */
 main {
-    padding: 2rem 0;  /* Increased top padding to account for fixed header */
+    padding: 2rem 0;
     flex-grow: 1;
 }
 
@@ -435,7 +432,6 @@ main {
     color: white;
 }
 
-/* Trade Grid Styles */
 .trade-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -665,7 +661,6 @@ main {
     }
 }
 
-/* Footer Styles */
 footer {
     padding: 3rem 0 2rem;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
@@ -746,7 +741,6 @@ footer {
     font-size: 0.9rem;
 }
 
-/* Responsive Design */
 @media (max-width: 1025px) {
     .footer-content {
         grid-template-columns: repeat(2, 1fr);
@@ -759,52 +753,50 @@ footer {
     }
 }
 
-/* Add styles for notification area and notifications */
 #notification-area {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 1000; /* Ensure it's above other content */
+    z-index: 1000;
     display: flex;
-    flex-direction: column-reverse; /* New notifications appear above old ones */
+    flex-direction: column-reverse;
     gap: 10px;
 }
 
 .notification {
-    padding: 15px 40px 15px 15px; /* Add padding for close button */
+    padding: 15px 40px 15px 15px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     opacity: 1;
     transition: opacity 0.5s ease-out, transform 0.3s ease-out;
     min-width: 250px;
     max-width: 350px;
-    position: relative; /* Needed for absolute positioning of close button */
-    background-color: #fff; /* Default background */
-    border-left: 5px solid #ccc; /* Default border */
+    position: relative;
+    background-color: #fff;
+    border-left: 5px solid #ccc;
     font-size: 0.9rem;
 }
 
 .notification.success {
-    background-color: #e9f7ef; /* Light green */
-    color: #1d7b4f; /* Dark green */
-    border-left-color: #48c774; /* Green border */
+    background-color: #e9f7ef;
+    color: #1d7b4f;
+    border-left-color: #48c774;
 }
 
 .notification.error {
-    background-color: #feecf0; /* Light red */
-    color: #cc0f35; /* Dark red */
-    border-left-color: #f14668; /* Red border */
+    background-color: #feecf0;
+    color: #cc0f35;
+    border-left-color: #f14668;
 }
 
 .notification.warning {
-    background-color: #fff3cd; /*warning yellow */
+    background-color: #fff3cd;
     color: #856404;
     border-left: 5px solid #ffc107;
 }
 
-/* Style for links within notifications */
 .notification a {
-    color: inherit; /* Inherit color from parent */
+    color: inherit;
     text-decoration: underline;
     font-weight: 500;
     margin-left: 5px;
@@ -814,7 +806,6 @@ footer {
     text-decoration: none;
 }
 
-/* Close button style */
 .notification-close-btn {
     position: absolute;
     top: 5px;
@@ -824,7 +815,7 @@ footer {
     font-size: 1.2rem;
     line-height: 1;
     cursor: pointer;
-    color: inherit; /* Inherit color */
+    color: inherit;
     padding: 5px;
 }
 
@@ -832,7 +823,6 @@ footer {
     opacity: 0.7;
 }
 
-/* Mobile Menu Button */
 .menu-btn {
     display: none;
     font-size: 1.8rem;
@@ -849,7 +839,6 @@ footer {
     display: block;
 }
 
-/* Mobile Styles */
 @media (max-width: 845px) {
     .menu-btn {
         display: block;

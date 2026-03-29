@@ -12,7 +12,6 @@
     <link rel="icon" type="image/png" href="../Image/Green Organic Illustrative Zero Waste Recycle logo 1.png">
 </head>
 <body>
-    <!-- Add Notification Area Here -->
     <div id="notification-area"></div>
 
     <div class="container">
@@ -73,7 +72,6 @@
                 </div>
             </section>
 
-            <!-- New Payment Information Section -->
             <section class="profile-section profile-payment-info">
                 <h2><i class='bx bx-credit-card'></i>Payment Information</h2>
                 <div id="payment-info-display">
@@ -169,7 +167,6 @@
                 </form>
             </section>
 
-            <!-- Add Cart Section -->
             <section class="profile-section profile-cart">
                 <h2><i class='bx bx-cart'></i>Your Cart</h2>
                 <div class="cart-items-grid" id="cart-items-container">
@@ -184,7 +181,6 @@
                 </div>
             </section>
 
-            <!-- New Incoming Orders Section -->
             <section class="profile-section profile-incoming-orders">
                 <h2><i class='bx bx-package'></i>Incoming Orders</h2>
                 <div class="incoming-orders-grid" id="incoming-orders-container">
@@ -237,32 +233,24 @@
         // Header scroll behavior
         let lastScroll = 0;
         const header = document.querySelector('header');
-        // Optional: Set a threshold - header only hides after scrolling down this many pixels
-        // Use header's actual height if available, otherwise default to 50px
         const scrollThreshold = header ? header.offsetHeight : 50; 
 
         window.addEventListener('scroll', () => {
             const currentScroll = window.pageYOffset;
 
-            if (!header) return; // Exit if header element not found
+            if (!header) return;
 
-            // Hide header if scrolling down past the threshold
             if (currentScroll > lastScroll && currentScroll > scrollThreshold) {
-                // Scrolling Down
                 header.classList.add('header--hidden');
             } 
-            // Show header if scrolling up 
             else if (currentScroll < lastScroll) {
-                // Scrolling Up
                 header.classList.remove('header--hidden');
             }
             
-            // Update last scroll position. Ensure it doesn't go below 0.
             lastScroll = currentScroll <= 0 ? 0 : currentScroll; 
         });
     </script>
     
-    <!-- Edit Listing Modal -->
     <div id="editListingModal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
@@ -300,9 +288,7 @@
             </form>
         </div>
     </div>
-    <!-- End Edit Listing Modal -->
 
-    <!-- Payment QR Code Modal -->
     <div id="paymentModal" class="modal">
         <div class="modal-content payment-modal-content">
             <span class="close-button payment-close-btn">&times;</span>
@@ -318,11 +304,8 @@
             </div>
         </div>
     </div>
-    <!-- End Payment QR Code Modal -->
 
-    <!-- Load config FIRST -->
     <script src="../js/config.js"></script>
-    <!-- Then load the page-specific script -->
     <script src="Profile.js"></script>
 </body>
 </html> 

@@ -1,17 +1,17 @@
 import psycopg2
-import psycopg2.extras # Add this for dictionary cursor
-from flask import Flask, request, jsonify, g # Added g
+import psycopg2.extras
+from flask import Flask, request, jsonify, g
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 import os
-import jwt # Import PyJWT
-import datetime # Import datetime for token expiration
-from functools import wraps # Import wraps for decorators
-import csv # Import csv module for export
-from io import StringIO # Import StringIO for CSV generation
-from flask import Response # Import Response for sending CSV file
-from dotenv import load_dotenv # Import load_dotenv
-import urllib.parse # Import for URL encoding
+import jwt
+import datetime
+from functools import wraps
+import csv
+from io import StringIO
+from flask import Response
+from dotenv import load_dotenv
+import urllib.parse
 
 # --- VietQR Bank ID Mapping --- 
 VIETQR_BANK_MAP = {
@@ -78,12 +78,10 @@ VIETQR_BANK_MAP = {
     "DBSBank": "796500",
     "CIMB": "422589",
     "CBBank": "970444",
-    # Add others if needed
 }
 
 # Load environment variables from .env in the current or parent directory
 load_dotenv()
-# load_dotenv(dotenv_path='backend/.env') # Old way - remove or comment out
 
 app = Flask(__name__)
 
@@ -97,24 +95,14 @@ if not DATABASE_URL:
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # --- Secret Key Configuration ---
-# IMPORTANT: Set the FLASK_SECRET_KEY environment variable in your system!
-# Use a strong, random key. For development, you can set a default,
-# but raise an error if it's not set in a 'production' environment.
-# Example command: export FLASK_SECRET_KEY='your-very-strong-random-secret-string'
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', 'default-dev-secret-key-CHANGE-ME!')
 
 # --- CORRECTED CHECK ---
-# Check if using the default key when debug mode is OFF (typical for production)
 if app.config['SECRET_KEY'] == 'default-dev-secret-key-CHANGE-ME!' and not app.debug:
-     # You might want to raise a ValueError or simply log a strong warning here
-     # instead of preventing the app from starting entirely during potential staging tests.
-     # For now, let's log a warning to the console.
      print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
      print("WARNING: Default SECRET_KEY is used while Flask debug mode is OFF.")
      print("         Set the FLASK_SECRET_KEY environment variable for production.")
      print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-     # If you want to strictly prevent running with the default key in production:
-     # raise ValueError("WARNING: Default SECRET_KEY is used in non-debug environment. Set the FLASK_SECRET_KEY environment variable.")
 
 bcrypt = Bcrypt(app)
 CORS(app) # Enable CORS for all routes
@@ -127,13 +115,11 @@ def get_db():
     """
     if 'db' not in g:
         try:
-            print(f"Attempting to connect to database...") # Debug log
+            print(f"Attempting to connect to database...")
             g.db = psycopg2.connect(DATABASE_URL)
-            print(f"Database connection successful.") # Debug log
+            print(f"Database connection successful.")
         except psycopg2.OperationalError as e:
-            print(f"!!! DATABASE CONNECTION FAILED: {e}") # Log the error
-            # Handle error appropriately - perhaps raise it or return an error response
-            # For now, re-raise to halt execution if connection fails
+            print(f"!!! DATABASE CONNECTION FAILED: {e}")
             raise e
     return g.db
 
@@ -143,27 +129,26 @@ def close_connections(exception):
     db = g.pop('db', None)
     if db is not None:
         db.close()
-        print("Database connection closed.") # Debug log
+        print("Database connection closed.")
 
 
 def init_db():
     """Initializes the PostgreSQL database and creates tables if they don't exist."""
     print("Attempting to initialize database tables...")
-    conn = None # Initialize conn
+    conn = None
     try:
         conn = get_db()
         cursor = conn.cursor()
 
-        # Drop tables in reverse order of creation (or use CASCADE)
+        # Drop tables in reverse order of creation
         print("Dropping existing tables (if they exist)...")
         cursor.execute("DROP TABLE IF EXISTS contacts CASCADE;")
         cursor.execute("DROP TABLE IF EXISTS ratings CASCADE;")
         cursor.execute("DROP TABLE IF EXISTS cart_items CASCADE;")
         cursor.execute("DROP TABLE IF EXISTS trades CASCADE;")
-        cursor.execute("DROP TABLE IF EXISTS users CASCADE;") # Drop users last if others depend on it
-
+        cursor.execute("DROP TABLE IF EXISTS users CASCADE;")
         # --- Users Table ---
-        print("Creating 'users' table...") # Change from 'if not exists'
+        print("Creating 'users' table...")
         cursor.execute("""
             CREATE TABLE users ( -- Removed IF NOT EXISTS
                 id SERIAL PRIMARY KEY,
@@ -181,7 +166,7 @@ def init_db():
         """)
 
         # --- Trades Table ---
-        print("Creating 'trades' table...") # Change from 'if not exists'
+        print("Creating 'trades' table...")
         cursor.execute("""
             CREATE TABLE trades ( -- Removed IF NOT EXISTS
                 id SERIAL PRIMARY KEY,
@@ -199,7 +184,7 @@ def init_db():
         """)
 
         # --- Cart Items Table ---
-        print("Creating 'cart_items' table...") # Change from 'if not exists'
+        print("Creating 'cart_items' table...")
         cursor.execute("""
             CREATE TABLE cart_items ( -- Removed IF NOT EXISTS
                 id SERIAL PRIMARY KEY,
@@ -214,7 +199,7 @@ def init_db():
         """)
 
         # --- Ratings Table ---
-        print("Creating 'ratings' table...") # Change from 'if not exists'
+        print("Creating 'ratings' table...")
         cursor.execute("""
             CREATE TABLE ratings ( -- Removed IF NOT EXISTS
                 id SERIAL PRIMARY KEY,
@@ -233,7 +218,7 @@ def init_db():
         """)
 
         # --- Contacts Table ---
-        print("Creating 'contacts' table...") # Change from 'if not exists'
+        print("Creating 'contacts' table...")
         cursor.execute("""
             CREATE TABLE contacts ( -- Removed IF NOT EXISTS
                 id SERIAL PRIMARY KEY,
@@ -254,7 +239,6 @@ def init_db():
         if conn:
             conn.rollback() # Roll back changes if any error occurred
     finally:
-        # Connection closing is handled by teardown_appcontext
         pass
 
 
@@ -328,14 +312,14 @@ def register():
          return jsonify({"message": "Invalid email format"}), 400
 
     # Basic password length check
-    if len(password) < 6: # Example: require at least 6 characters
+    if len(password) < 6:
         return jsonify({"message": "Password must be at least 6 characters long"}), 400
     # --- End Validation ---
 
 
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-    conn = None # Initialize conn to None
+    conn = None
     try:
         conn = get_db()
         cursor = conn.cursor()
@@ -384,8 +368,8 @@ def login():
     email = data['username']
     password = data['password']
 
-    conn = None # Initialize conn to None
-    cursor = None # Initialize cursor
+    conn = None
+    cursor = None
     try:
         conn = get_db()
         # Use DictCursor to access columns by name
@@ -611,7 +595,7 @@ def add_trade():
     # --- End Validation ---
 
     conn = None # Initialize conn
-    cursor = None # Initialize cursor
+    cursor = None
     trade_id = None # Initialize trade_id
     try:
         conn = get_db() # Use PostgreSQL connection
@@ -2195,12 +2179,4 @@ def get_seller_payment_info(cart_item_id): # MODIFIED: Parameter is cart_item_id
 
 # --- Main execution block ---
 if __name__ == '__main__':
-    # Now run the app
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=True)
-
-# Add this Flask CLI command to initialize the database
-@app.cli.command('init-db')
-def init_db_command():
-    """Creates the database tables."""
-    init_db()
-    print('Initialized the database.') 
